@@ -28,8 +28,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import com.example.android_7_module_hits.ui.theme.Android7ModuleHITsTheme
-
 
 
 class LibraryActivity : ComponentActivity(){
@@ -71,11 +72,13 @@ fun Header() {
 
     ){
         Text (
-            text= "Library"
+            text= "Library",
+            fontSize = 48.sp,
         )
 
         Text (
-            text = "All projects here"
+            text = "All projects here!",
+            fontSize = 24.sp,
         )
     }
 }
@@ -133,9 +136,13 @@ fun GreetProjectBlocks(){
 fun ProjectBlock(
     title: String,
     date: String,
-    backgroundColor: Color = Color.Blue,
-    contentColor: Color = Color.White,
     modifier: Modifier = Modifier,
+    gradientBrush: Brush = Brush.linearGradient(
+        colors = listOf(Color(0xFF456CE8), Color(0xFF0033DA)),
+        start = Offset(0f, 0f),            // Начало градиента.
+        end = Offset(300f, 600f)            // Конец градиента. Подберите по размеру компонента.
+    ),
+    contentColor: Color = Color.White,
 //    onClick: () -> Unit = {}
 ){
     val context = LocalContext.current
@@ -146,15 +153,15 @@ fun ProjectBlock(
     Card(
         modifier = modifier
             .size(160.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(backgroundColor)
+            .clip(RoundedCornerShape(20.dp))
+            .background(brush = gradientBrush)
             .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(backgroundColor)
+                .background(brush = gradientBrush)
                 .padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.Start
