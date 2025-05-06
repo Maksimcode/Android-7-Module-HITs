@@ -31,6 +31,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import com.example.android_7_module_hits.ui.theme.Android7ModuleHITsTheme
+import com.example.android_7_module_hits.ui.theme.deepblue
+import com.example.android_7_module_hits.ui.theme.lightblue
 
 
 class LibraryActivity : ComponentActivity(){
@@ -138,7 +140,7 @@ fun ProjectBlock(
     date: String,
     modifier: Modifier = Modifier,
     gradientBrush: Brush = Brush.linearGradient(
-        colors = listOf(Color(0xFF456CE8), Color(0xFF0033DA)),
+        colors = listOf(lightblue, deepblue),
         start = Offset(0f, 0f),            // Начало градиента.
         end = Offset(300f, 600f)            // Конец градиента. Подберите по размеру компонента.
     ),
