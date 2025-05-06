@@ -51,6 +51,7 @@ class LibraryActivity : ComponentActivity(){
     }
 }
 
+
 @Composable
 fun MainContent(){
     Column (
@@ -141,8 +142,8 @@ fun ProjectBlock(
     modifier: Modifier = Modifier,
     gradientBrush: Brush = Brush.linearGradient(
         colors = listOf(lightblue, deepblue),
-        start = Offset(0f, 0f),            // Начало градиента.
-        end = Offset(300f, 600f)            // Конец градиента. Подберите по размеру компонента.
+        start = Offset(0f, 0f),
+        end = Offset(300f, 600f)
     ),
     contentColor: Color = Color.White,
 //    onClick: () -> Unit = {}
