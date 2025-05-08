@@ -1,5 +1,6 @@
 package com.example.android_7_module_hits
 
+import androidx.lifecycle.viewmodel.compose.viewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,6 +18,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
@@ -47,6 +49,12 @@ import com.example.android_7_module_hits.ui.theme.FolderButtonSub
 import com.example.android_7_module_hits.ui.theme.RunButtonSub
 import com.example.android_7_module_hits.ui.theme.SettingsButtonSub
 import com.example.android_7_module_hits.ui.theme.StopButtonSub
+import com.example.android_7_module_hits.ui.editor.EditorScreen
+import com.example.android_7_module_hits.ui.editor.EditorViewModel
+import com.example.android_7_module_hits.data.model.BlockType
+import com.example.android_7_module_hits.ui.Blocks.*
+import com.example.android_7_module_hits.ui.editor.*
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,13 +99,43 @@ fun MainScreen() {
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                Blocks()
+                val viewModel: EditorViewModel = viewModel() // Получаем ViewModel
+                Column {
+                    PaletteSection(viewModel) // Передаём в палитру
+                    EditorScreen(viewModel)   // И в редактор }
+                }
             }
         },
         bottomBar = { BottomCircleButtons() }
     )
 }
 
+@Composable
+fun PaletteSection(viewModel: EditorViewModel) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        AddBlockButton(UiBlockType.DECLARE_VARIABLE) { id ->
+            val newBlock = UiBlock(
+                id = id,
+                content = "var x: int",
+                position = Offset.Zero,
+                type = BlockType.DECLARE,
+                editableFields = mutableMapOf("variableName" to "x")
+            )
+            viewModel.addBlock(newBlock)
+        }
+
+        AddBlockButton(UiBlockType.ASSIGN_VALUE) { id ->
+            val newBlock = UiBlock(
+                id = id,
+                content = "x = 0",
+                position = Offset.Zero,
+                type = BlockType.ASSIGN,
+                editableFields = mutableMapOf("variableName" to "x", "expression" to "0")
+            )
+            viewModel.addBlock(newBlock)
+        }
+    }
+}
 
 @Composable
 fun Blocks() {
@@ -219,6 +257,7 @@ fun BottomCircleButtons() {
         }
     }
 }
+
 
 
 //@Preview(showBackground = true)
