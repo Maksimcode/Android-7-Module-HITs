@@ -69,10 +69,13 @@ fun DeclareVariableBlockView(
                 ) }
             .pointerInput(Unit) {
                 detectDragGestures(
-                    onDrag =  {change, dragAmount ->
-                    change.consume()
-                    offsetX += dragAmount.x
-                    offsetY += dragAmount.y},
+                    onDrag = { change, dragAmount ->
+                        change.consume()
+                        offsetX += dragAmount.x
+                        offsetY += dragAmount.y
+
+                        viewModel.updateBlockPosition(uiBlock.id, Offset(offsetX, offsetY))
+                    },
                     onDragEnd = {
 
                         val allBlocks = viewModel.blocks.value
@@ -83,7 +86,6 @@ fun DeclareVariableBlockView(
                             currentBlock = currentBlock,
                             allBlocks = allBlocks,
                             onConnect = { fromId, toId ->
-                                println("Соединение: $fromId -> $toId")
                                 viewModel.connectBlocks(fromId, toId)
                             }
                         )

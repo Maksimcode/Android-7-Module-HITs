@@ -1,5 +1,6 @@
 package com.example.android_7_module_hits.ui.Blocks
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -86,36 +87,31 @@ fun AssignValueBlockView(
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
 
-    Box (
+    Box(
         modifier = Modifier
-            .offset {
-                IntOffset(
-                    x = offsetX.roundToInt(),
-                    y = offsetY.roundToInt()
-                ) }
+            .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) } // ✅ Только один offset
             .pointerInput(Unit) {
                 detectDragGestures(
-                    onDrag =  {change, dragAmount ->
+                    onDrag = { change, dragAmount ->
                         change.consume()
                         offsetX += dragAmount.x
-                        offsetY += dragAmount.y},
+                        offsetY += dragAmount.y
+                        viewModel.updateBlockPosition(uiBlock.id, Offset(offsetX, offsetY))
+                    },
                     onDragEnd = {
-                        println("DEBUG: onDragEnd вызван!")
                         val allBlocks = viewModel.blocks.value
-
-                        val currentBlock = uiBlock.copy(position = Offset(offsetX, offsetY))
+                        val updatedBlock = uiBlock.copy(position = Offset(offsetX, offsetY))
 
                         tryConnectBlockToOthers(
-                            currentBlock = currentBlock,
+                            currentBlock = updatedBlock,
                             allBlocks = allBlocks,
                             onConnect = { fromId, toId ->
-                                println("Соединение: $fromId -> $toId")
                                 viewModel.connectBlocks(fromId, toId)
                             }
                         )
                     }
-                )}
-            .offset { IntOffset(uiBlock.position.x.toInt(), uiBlock.position.y.toInt()) }
+                )
+            }
             .background(Color.Cyan)
             .clickable { showDialog = true }
             .padding(8.dp)

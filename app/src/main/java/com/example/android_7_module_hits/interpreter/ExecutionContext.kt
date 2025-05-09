@@ -1,10 +1,14 @@
 package com.example.android_7_module_hits.interpreter
 
 class ExecutionContext {
-    private val variables = mutableMapOf<String, Int>()
+    private val variables = mutableMapOf<String, Int?>()
+
+    fun addVariable(name: String){
+        variables[name] = null
+    }
 
     fun setVariable(name: String, value: Int) {
-        variables[name] = value
+        if (hasVariable(name)) {variables[name] = value}
     }
 
     fun getVariable(name: String): Int {

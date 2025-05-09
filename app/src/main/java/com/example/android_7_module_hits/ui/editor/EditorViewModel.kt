@@ -53,8 +53,8 @@ class EditorViewModel : ViewModel() {
     fun connectBlocks(fromId: String, toId: String) {
         viewModelScope.launch {
             _blocks.value = _blocks.value.map { block ->
-                if (block.id == fromId) {
-                    block.copy(nextBlockId = toId)
+                if (block.id == toId) {
+                    block.copy(nextBlockId = fromId)
                 } else {
                     block
                 }

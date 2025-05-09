@@ -54,6 +54,7 @@ import com.example.android_7_module_hits.ui.editor.EditorViewModel
 import com.example.android_7_module_hits.data.model.BlockType
 import com.example.android_7_module_hits.ui.Blocks.*
 import com.example.android_7_module_hits.ui.editor.*
+import com.example.android_7_module_hits.interpreter.*
 
 
 class MainActivity : ComponentActivity() {
@@ -106,7 +107,10 @@ fun MainScreen() {
                 }
             }
         },
-        bottomBar = { BottomCircleButtons() }
+        bottomBar = {
+            val viewModel: EditorViewModel = viewModel()
+            BottomCircleButtons(viewModel)
+        }
     )
 }
 
@@ -137,63 +141,10 @@ fun PaletteSection(viewModel: EditorViewModel) {
     }
 }
 
-@Composable
-fun Blocks() {
-    Column (
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(25.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        DraggableBox("bloсk 1", VariablesColor)
-        DraggableBox("bloсk 2", MathColor)
-        DraggableBox("bloсk 3", Color.Green)
-    }
-}
 
-// Перетаскиваемый блок
-@Composable
-fun DraggableBox(caption: String, bgColor: Color) {
-    var offsetX by remember { mutableStateOf(0f) }
-    var offsetY by remember { mutableStateOf(0f) }
-
-    Box (
-        Modifier
-            .offset {
-                IntOffset(
-                    x = offsetX.roundToInt(),
-                    y = offsetY.roundToInt()
-                )
-            }
-            .pointerInput(Unit) {
-                detectDragGestures {change, dragAmount ->
-                    change.consume()
-                    offsetX += dragAmount.x
-                    offsetY += dragAmount.y
-                }
-            }
-            .background(color = bgColor)
-            .padding(1.dp)
-            .size(200.dp, 52.dp)
-    ) {
-        Text (
-            modifier = Modifier.align(Alignment.Center),
-            text = caption,
-            fontSize = 30.sp,
-            color = Color.White,
-            textAlign = TextAlign.Right,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
 
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Composable
-fun BottomCircleButtons() {
+fun BottomCircleButtons(viewModel: EditorViewModel) {
 
     val buttonColors = listOf(
         FolderButtonMain,
@@ -242,7 +193,15 @@ fun BottomCircleButtons() {
                             shape = RoundedCornerShape(32.dp)
                         )
                         .clickable {
-                            // Обработчик нажатия для кнопки с индексом
+                            when (index) {
+                                0 -> {}
+                                1 -> {}
+                                2 -> {}
+                                3 -> {
+                                    val interpreter = Interpreter()
+                                    interpreter.interpret(viewModel.blocks.value, ExecutionContext())
+                                }
+                            }
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -257,13 +216,3 @@ fun BottomCircleButtons() {
         }
     }
 }
-
-
-
-//@Preview(showBackground = true)
-//@Composable
-//fun DefaultPreview() {
-//    Android7ModuleHITsTheme {
-//        Greeting("Android")
-//    }
-//}
