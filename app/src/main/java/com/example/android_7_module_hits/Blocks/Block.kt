@@ -9,12 +9,12 @@ interface Block {
     var position: Offset
 
     var parent: Block?
-    val children: List<Block>
+    var child: Block?
 
     fun canAttachTo(other: Block): Boolean
 
-    fun attachTo(other: Block)
-
-    fun detach()
+//    fun attachTo(other: Block)
+//
+//    fun detach()
 }
 

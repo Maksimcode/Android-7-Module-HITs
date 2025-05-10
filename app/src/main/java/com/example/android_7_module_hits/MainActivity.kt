@@ -44,9 +44,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockContent
-import com.example.android_7_module_hits.Blocks.BlockTree
 import com.example.android_7_module_hits.Blocks.BlockType
 import com.example.android_7_module_hits.Blocks.DeclarationBlock
+import com.example.android_7_module_hits.Blocks.attachChild
+import com.example.android_7_module_hits.Blocks.findAttachableParent
+import com.example.android_7_module_hits.Blocks.getAllBlocks
 import com.example.android_7_module_hits.ui.theme.FolderButtonSub
 import com.example.android_7_module_hits.ui.theme.RunButtonSub
 import com.example.android_7_module_hits.ui.theme.SettingsButtonSub
@@ -99,13 +101,13 @@ fun MainScreen() {
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                val tree = remember { BlockTree() }
+                val allBlocks = remember { mutableStateListOf<Block>() }
 
                 BlockPalette { newBlock ->
-                    tree.add(newBlock)
+                    allBlocks.add(newBlock)
                 }
 
-                CreateBlock(tree)
+                CreateBlock(allBlocks)
             }
         },
         bottomBar = {
@@ -115,17 +117,39 @@ fun MainScreen() {
 }
 
 @Composable
-fun CreateBlock(tree : BlockTree) {
+fun CreateBlock(allBlocks: MutableList<Block>) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        tree.rootBlocks.forEach { block ->
+        // Постоянные блоки
+        allBlocks.forEach { block ->
             key(block.id) {
-                DraggableBlock(
-                    block = block
-                )
+                RenderSingleBlock(block, allBlocks)
             }
         }
     }
 }
+
+
+@Composable
+fun RenderAllBlocks(blocks: List<Block>, allBlocks: MutableList<Block>) {
+    blocks.forEach { block ->
+        key(block.id) {
+            RenderSingleBlock(block, allBlocks)
+        }
+    }
+}
+
+@Composable
+fun RenderSingleBlock(block: Block, allBlocks: MutableList<Block>) {
+    DraggableBlock(block = block, allBlocks = allBlocks)
+
+    val child = block.child
+    if (child != null && allBlocks.contains(child)) {
+        key(child.id) {
+            RenderSingleBlock(child, allBlocks)
+        }
+    }
+}
+
 
 @Composable
 fun BlockView(block: Block) {
@@ -147,25 +171,37 @@ fun BlockView(block: Block) {
     }
 }
 
+
 @Composable
-fun DraggableBlock(block: Block) {
+fun DraggableBlock(block: Block, allBlocks: List<Block>) {
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
 
-    Box (
-        Modifier
-            .offset {
-                IntOffset(
-                    x = offsetX.roundToInt(),
-                    y = offsetY.roundToInt()
-                )
-            }
+    Box(
+        modifier = Modifier
+            .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
             .pointerInput(Unit) {
-                detectDragGestures {change, dragAmount ->
-                    change.consume()
-                    offsetX += dragAmount.x
-                    offsetY += dragAmount.y
-                }
+                detectDragGestures(
+                    onDrag = { change, dragAmount ->
+                        change.consume()
+                        offsetX += dragAmount.x
+                        offsetY += dragAmount.y
+                        block.position = Offset(offsetX, offsetY)
+                    },
+                    onDragEnd = {
+
+                        val attachableParent = findAttachableParent(allBlocks, draggedBlock = block)
+
+                        if (attachableParent != null) {
+                            attachChild(parent = attachableParent, child = block)
+                            offsetX = attachableParent.position.x
+                            offsetY = attachableParent.position.y + 100f
+                            block.position = Offset(offsetX, offsetY)
+                        } else {
+                            block.position = Offset(offsetX, offsetY)
+                        }
+                    }
+                )
             }
     ) {
         BlockView(block)

@@ -8,6 +8,5 @@ class DeclarationBlock(
     type = BlockType.DECLARE,
     content = BlockContent.Declare(
         name = variableName
-    ),
-
+    )
 )
