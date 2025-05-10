@@ -1,32 +1,24 @@
+
 package com.example.android_7_module_hits
 
-import androidx.lifecycle.viewmodel.compose.viewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import kotlin.math.roundToInt
 import com.example.android_7_module_hits.ui.theme.Android7ModuleHITsTheme
-import com.example.android_7_module_hits.ui.theme.MathColor
-import com.example.android_7_module_hits.ui.theme.VariablesColor
 import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -41,20 +33,38 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.consumeAllChanges
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntOffset
+import com.example.android_7_module_hits.Blocks.AssignmentBlock
+import com.example.android_7_module_hits.Blocks.Block
+import com.example.android_7_module_hits.Blocks.BlockContent
+import com.example.android_7_module_hits.Blocks.BlockType
+import com.example.android_7_module_hits.Blocks.DeclarationBlock
+import com.example.android_7_module_hits.Blocks.attachChild
+import com.example.android_7_module_hits.Blocks.findAttachableParent
 import com.example.android_7_module_hits.ui.theme.FolderButtonSub
 import com.example.android_7_module_hits.ui.theme.RunButtonSub
 import com.example.android_7_module_hits.ui.theme.SettingsButtonSub
 import com.example.android_7_module_hits.ui.theme.StopButtonSub
-import com.example.android_7_module_hits.ui.editor.EditorScreen
-import com.example.android_7_module_hits.ui.editor.EditorViewModel
-import com.example.android_7_module_hits.data.model.BlockType
-import com.example.android_7_module_hits.ui.Blocks.*
-import com.example.android_7_module_hits.ui.editor.*
-import com.example.android_7_module_hits.interpreter.*
+import com.example.android_7_module_hits.ui.uiblocks.AssignBlockView
+import com.example.android_7_module_hits.ui.uiblocks.BlockTemplate
+import com.example.android_7_module_hits.ui.uiblocks.DeclareBlockView
+import com.example.android_7_module_hits.ui.uiblocks.availableBlocks
+import kotlin.math.roundToInt
 
 
 class MainActivity : ComponentActivity() {
@@ -85,7 +95,7 @@ fun MainScreen() {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* логика кнопки назад */}) {
+                    IconButton(onClick = { /* логика кнопки назад */ }) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = "Назад"
@@ -100,51 +110,141 @@ fun MainScreen() {
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                val viewModel: EditorViewModel = viewModel() // Получаем ViewModel
-                Column {
-                    PaletteSection(viewModel) // Передаём в палитру
-                    EditorScreen(viewModel)   // И в редактор }
+                val allBlocks = remember { mutableStateListOf<Block>() }
+
+                BlockPalette { newBlock ->
+                    allBlocks.add(newBlock)
                 }
+
+                CreateBlock(allBlocks)
             }
         },
         bottomBar = {
-            val viewModel: EditorViewModel = viewModel()
-            BottomCircleButtons(viewModel)
+            BottomCircleButtons()
         }
     )
 }
 
 @Composable
-fun PaletteSection(viewModel: EditorViewModel) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        AddBlockButton(UiBlockType.DECLARE_VARIABLE) { id ->
-            val newBlock = UiBlock(
-                id = id,
-                content = "var x: int",
-                position = Offset.Zero,
-                type = BlockType.DECLARE,
-                editableFields = mutableMapOf("variableName" to "x")
-            )
-            viewModel.addBlock(newBlock)
+fun CreateBlock(allBlocks: MutableList<Block>) {
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        allBlocks.forEach { block ->
+            key(block.id) {
+                DraggableBlock(block = block, allBlocks = allBlocks, onPositionChange = { newPosition ->
+                    block.position = newPosition
+                })
+            }
         }
+    }
+}
 
-        AddBlockButton(UiBlockType.ASSIGN_VALUE) { id ->
-            val newBlock = UiBlock(
-                id = id,
-                content = "x = 0",
-                position = Offset.Zero,
-                type = BlockType.ASSIGN,
-                editableFields = mutableMapOf("variableName" to "x", "expression" to "0")
-            )
-            viewModel.addBlock(newBlock)
+@Composable
+fun BlockView(block: Block) {
+    when (val content = block.content) {
+        is BlockContent.Declare -> DeclareBlockView(content, block)
+        is BlockContent.Assignment -> AssignBlockView(content, block)
+        else -> {
+            Text("Неизвестный тип блока")
         }
     }
 }
 
 
+@Composable
+fun DraggableBlock(block: Block, allBlocks: List<Block>, onPositionChange: (Offset) -> Unit) {
+    var offset by remember { mutableStateOf(block.position) }
+
+    Box(
+        modifier = Modifier
+            .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDrag = { change, dragAmount ->
+                        change.consume()
+                        offset += dragAmount
+
+
+                    },
+                    onDragEnd = {
+
+                        val attachableParent = findAttachableParent(allBlocks, block, offset)
+
+                        if (attachableParent != null) {
+
+                            attachChild(parent = attachableParent, child = block)
+                            offset = Offset(attachableParent.position.x, attachableParent.position.y + 20f)
+                            onPositionChange(offset)
+                        } else {
+                            onPositionChange(offset)
+                        }
+                    },
+                    onDragCancel = {
+                        onPositionChange(offset)
+                    }
+                )
+            }
+    ) {
+        BlockView(block)
+        if (offset != block.position){
+            val attachableParent = findAttachableParent(allBlocks, block, offset)
+
+            if (attachableParent != null)
+            {
+                AttachmentHighlight(attachableParent.position)
+            }
+        }
+
+    }
+}
 
 @Composable
-fun BottomCircleButtons(viewModel: EditorViewModel) {
+fun AttachmentHighlight(position: Offset) {
+    Box(
+        modifier = Modifier
+            .background(Color.Green.copy(alpha = 0.3f))
+            .size(width = 200.dp, height = 16.dp)
+            .offset { IntOffset(position.x.roundToInt(), position.y.roundToInt())}
+    )
+}
+
+
+@Composable
+fun BlockPalette(onBlockSelected: (Block) -> Unit) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(text = "Блоки")
+        Spacer(modifier = Modifier.height(8.dp))
+        availableBlocks.forEach { template ->
+            BlockPaletteItem(template = template, onBlockSelected = onBlockSelected)
+        }
+    }
+}
+
+@Composable
+fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) {
+    Box(
+        modifier = Modifier
+            .background(Color.LightGray)
+            .clickable {
+                val newBlock = when (template.type) {
+                    BlockType.DECLARE ->
+                        DeclarationBlock(variableName = "Variable")
+                    BlockType.ASSIGN ->
+                        AssignmentBlock(variableName = "Variable", initialValue = "0")
+                    else -> throw IllegalArgumentException("Unknown block type")
+                }
+                onBlockSelected(newBlock)
+            }
+            .padding(8.dp)
+            .width(100.dp)
+            .height(50.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(text = template.title)
+    }
+}
+
+@Composable
+fun BottomCircleButtons() {
 
     val buttonColors = listOf(
         FolderButtonMain,
@@ -198,8 +298,6 @@ fun BottomCircleButtons(viewModel: EditorViewModel) {
                                 1 -> {}
                                 2 -> {}
                                 3 -> {
-                                    val interpreter = Interpreter()
-                                    interpreter.interpret(viewModel.blocks.value, ExecutionContext())
                                 }
                             }
                         },
