@@ -10,29 +10,53 @@ fun distanceBetween(a: Offset, b: Offset): Float {
 }
 
 fun findAttachableParent(allBlocks: List<Block>, draggedBlock: Block): Block? {
+
+    val draggedBlockCenter = Offset(draggedBlock.position.x + 50f, draggedBlock.position.y + 50f)
+
     return allBlocks.firstOrNull { candidate ->
-        val distance = distanceBetween(candidate.position, draggedBlock.position)
-        distance < 500f && candidate.canAttachTo(draggedBlock) && candidate.id != draggedBlock.id
+        if (candidate.id == draggedBlock.id) return@firstOrNull false
+        if (candidate == draggedBlock.parent) return@firstOrNull false // Нельзя прикрепиться к своему ребенку
+
+        // Проверяем, не является ли candidate потомком draggedBlock (чтобы избежать зацикливания)
+        var current: Block? = candidate
+        while (current != null) {
+            if (current.id == draggedBlock.id) return@firstOrNull false // candidate - потомок draggedBlock
+            current = current.child
+        }
+
+        val candidateCenter = Offset(candidate.position.x + 50f, candidate.position.y + 50f) // Предполагаем, что центр блока находится в 50f, 50f
+
+        val distance = distanceBetween(candidateCenter, draggedBlockCenter)
+
+        // Проверяем расстояние и возможность прикрепления
+        distance < 100f && candidate.canAttachTo(draggedBlock)
     }
 }
-
 fun attachChild(parent: Block, child: Block) {
-    // Сначала отсоединяем от текущего родителя
+    // Отсоединяем от старого родителя
     child.parent?.let { oldParent ->
-        if (oldParent is BaseBlock) {
-            oldParent.child = null
-        }
+        oldParent.child = null
+        child.parent = null
     }
 
     // Присоединяем к новому родителю
-    if (parent is BaseBlock) {
-        parent.child = child
-        child.parent = parent
-
-
-    }
+    parent.child = child
+    child.parent = parent
 }
 
-fun getAllBlocks(allBlocks: List<Block>): List<Block> {
-    return allBlocks
+fun moveChildren(parent: Block, newPosition: Offset) {
+    var currentChild = parent.child
+
+    while (currentChild != null) {
+        val offsetFromParent = Offset(
+            currentChild.position.x - parent.position.x,
+            currentChild.position.y - parent.position.y
+        )
+
+        currentChild.position = Offset(newPosition.x + offsetFromParent.x, newPosition.y + offsetFromParent.y)
+
+        moveChildren(currentChild, currentChild.position)
+
+        currentChild = currentChild.child
+    }
 }

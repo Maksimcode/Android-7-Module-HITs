@@ -1,3 +1,4 @@
+
 package com.example.android_7_module_hits
 
 import android.os.Bundle
@@ -39,6 +40,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
@@ -48,7 +50,6 @@ import com.example.android_7_module_hits.Blocks.BlockType
 import com.example.android_7_module_hits.Blocks.DeclarationBlock
 import com.example.android_7_module_hits.Blocks.attachChild
 import com.example.android_7_module_hits.Blocks.findAttachableParent
-import com.example.android_7_module_hits.Blocks.getAllBlocks
 import com.example.android_7_module_hits.ui.theme.FolderButtonSub
 import com.example.android_7_module_hits.ui.theme.RunButtonSub
 import com.example.android_7_module_hits.ui.theme.SettingsButtonSub
@@ -86,7 +87,7 @@ fun MainScreen() {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* логика кнопки назад */}) {
+                    IconButton(onClick = { /* логика кнопки назад */ }) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = "Назад"
@@ -119,37 +120,15 @@ fun MainScreen() {
 @Composable
 fun CreateBlock(allBlocks: MutableList<Block>) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        // Постоянные блоки
         allBlocks.forEach { block ->
             key(block.id) {
-                RenderSingleBlock(block, allBlocks)
+                DraggableBlock(block = block, allBlocks = allBlocks, onPositionChange = { newPosition ->
+                    block.position = newPosition
+                })
             }
         }
     }
 }
-
-
-@Composable
-fun RenderAllBlocks(blocks: List<Block>, allBlocks: MutableList<Block>) {
-    blocks.forEach { block ->
-        key(block.id) {
-            RenderSingleBlock(block, allBlocks)
-        }
-    }
-}
-
-@Composable
-fun RenderSingleBlock(block: Block, allBlocks: MutableList<Block>) {
-    DraggableBlock(block = block, allBlocks = allBlocks)
-
-    val child = block.child
-    if (child != null && allBlocks.contains(child)) {
-        key(child.id) {
-            RenderSingleBlock(child, allBlocks)
-        }
-    }
-}
-
 
 @Composable
 fun BlockView(block: Block) {
@@ -173,33 +152,33 @@ fun BlockView(block: Block) {
 
 
 @Composable
-fun DraggableBlock(block: Block, allBlocks: List<Block>) {
-    var offsetX by remember { mutableStateOf(0f) }
-    var offsetY by remember { mutableStateOf(0f) }
+fun DraggableBlock(block: Block, allBlocks: List<Block>, onPositionChange: (Offset) -> Unit) {
+    var offset by remember { mutableStateOf(block.position) }
 
     Box(
         modifier = Modifier
-            .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
+            .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDrag = { change, dragAmount ->
                         change.consume()
-                        offsetX += dragAmount.x
-                        offsetY += dragAmount.y
-                        block.position = Offset(offsetX, offsetY)
+                        offset += dragAmount
+                        onPositionChange(offset)
+
                     },
                     onDragEnd = {
-
-                        val attachableParent = findAttachableParent(allBlocks, draggedBlock = block)
+                        val attachableParent = findAttachableParent(allBlocks, block)
 
                         if (attachableParent != null) {
                             attachChild(parent = attachableParent, child = block)
-                            offsetX = attachableParent.position.x
-                            offsetY = attachableParent.position.y + 100f
-                            block.position = Offset(offsetX, offsetY)
+                            offset = Offset(attachableParent.position.x, attachableParent.position.y + 20f)
+                            onPositionChange(offset)
                         } else {
-                            block.position = Offset(offsetX, offsetY)
+                            onPositionChange(offset)
                         }
+                    },
+                    onDragCancel = {
+                        onPositionChange(offset)
                     }
                 )
             }
@@ -207,6 +186,7 @@ fun DraggableBlock(block: Block, allBlocks: List<Block>) {
         BlockView(block)
     }
 }
+
 
 @Composable
 fun BlockPalette(onBlockSelected: (Block) -> Unit) {
@@ -226,7 +206,7 @@ fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) 
             .background(Color.LightGray)
             .clickable {
                 val newBlock = when (template.type) {
-                    BlockType.DECLARE->
+                    BlockType.DECLARE ->
                         DeclarationBlock(variableName = "x", initialValue = "0")
                     else -> throw IllegalArgumentException("Unknown block type")
                 }
