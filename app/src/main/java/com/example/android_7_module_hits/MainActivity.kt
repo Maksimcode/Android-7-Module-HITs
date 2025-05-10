@@ -39,6 +39,11 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.consumeAllChanges
@@ -132,24 +137,72 @@ fun CreateBlock(allBlocks: MutableList<Block>) {
 
 @Composable
 fun BlockView(block: Block) {
+    val content = block.content as? BlockContent.Declare ?: return
+
+    var isEditing by remember { mutableStateOf(false) }
+    var editedName by remember(content.name ?: "Variable") { mutableStateOf(content.name ?: "Variable") }
+
     Card(
         modifier = Modifier
+            .width(200.dp)
             .padding(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
-            when (val content = block.content) {
-                is BlockContent.Declare -> {
-                    Text(
-                        text = "int ${content.name};",
-                        color = Color.Black)
+            if (isEditing) {
+                TextField(
+                    value = editedName,
+                    onValueChange = { newText ->
+                        editedName = newText
+                    },
+                    label = { Text("Имя переменной") },
+                    modifier = Modifier
+                        .width(150.dp)
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    TextButton(
+                        onClick = {
+                            editedName = content.name ?: "Variable"
+                            isEditing = false
+                        }
+                    ) {
+                        Text("Отмена")
+                    }
+
+                    TextButton(
+                        onClick = {
+                            content.name = editedName
+                            isEditing = false
+                        }
+                    ) {
+                        Text("Сохранить")
+                    }
                 }
-                else -> Text("...")
+
+            } else {
+                // Обычный режим отображения
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "int ", color = Color.Black)
+
+                    Box(
+                        modifier = Modifier
+                            .background(Color.LightGray)
+                            .clickable { isEditing = true }
+                            .padding(horizontal = 4.dp, vertical = 2.dp)
+                    ) {
+                        Text(text = editedName, color = Color.Blue)
+                    }
+
+                    Text(text = ";", color = Color.Black)
+                }
             }
         }
     }
 }
-
 
 @Composable
 fun DraggableBlock(block: Block, allBlocks: List<Block>, onPositionChange: (Offset) -> Unit) {
@@ -207,7 +260,7 @@ fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) 
             .clickable {
                 val newBlock = when (template.type) {
                     BlockType.DECLARE ->
-                        DeclarationBlock(variableName = "x", initialValue = "0")
+                        DeclarationBlock(variableName = "Variable")
                     else -> throw IllegalArgumentException("Unknown block type")
                 }
                 onBlockSelected(newBlock)

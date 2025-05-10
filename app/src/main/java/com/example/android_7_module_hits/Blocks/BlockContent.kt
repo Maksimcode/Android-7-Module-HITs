@@ -3,11 +3,12 @@ package com.example.android_7_module_hits.Blocks
 sealed class BlockContent{
 
     data class Declare(
-        val name: String
+        var name: String,
+        val value: String = "0"
     ) : BlockContent()
 
     data class Assignment(
-        val name: String,
-        val value: String
+        var name: String,
+        var value: String
     ) : BlockContent()
 }
