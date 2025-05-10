@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
+import com.example.android_7_module_hits.Blocks.AssignmentBlock
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockContent
 import com.example.android_7_module_hits.Blocks.BlockType
@@ -59,7 +60,9 @@ import com.example.android_7_module_hits.ui.theme.FolderButtonSub
 import com.example.android_7_module_hits.ui.theme.RunButtonSub
 import com.example.android_7_module_hits.ui.theme.SettingsButtonSub
 import com.example.android_7_module_hits.ui.theme.StopButtonSub
+import com.example.android_7_module_hits.ui.uiblocks.AssignBlockView
 import com.example.android_7_module_hits.ui.uiblocks.BlockTemplate
+import com.example.android_7_module_hits.ui.uiblocks.DeclareBlockView
 import com.example.android_7_module_hits.ui.uiblocks.availableBlocks
 import kotlin.math.roundToInt
 
@@ -137,72 +140,17 @@ fun CreateBlock(allBlocks: MutableList<Block>) {
 
 @Composable
 fun BlockView(block: Block) {
-    val content = block.content as? BlockContent.Declare ?: return
-
-    var isEditing by remember { mutableStateOf(false) }
-    var editedName by remember(content.name ?: "Variable") { mutableStateOf(content.name ?: "Variable") }
-
-    Card(
-        modifier = Modifier
-            .width(200.dp)
-            .padding(4.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
-    ) {
-        Column(modifier = Modifier.padding(8.dp)) {
-            if (isEditing) {
-                TextField(
-                    value = editedName,
-                    onValueChange = { newText ->
-                        editedName = newText
-                    },
-                    label = { Text("Имя переменной") },
-                    modifier = Modifier
-                        .width(150.dp)
-                )
-
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(
-                        onClick = {
-                            editedName = content.name ?: "Variable"
-                            isEditing = false
-                        }
-                    ) {
-                        Text("Отмена")
-                    }
-
-                    TextButton(
-                        onClick = {
-                            content.name = editedName
-                            isEditing = false
-                        }
-                    ) {
-                        Text("Сохранить")
-                    }
-                }
-
-            } else {
-                // Обычный режим отображения
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "int ", color = Color.Black)
-
-                    Box(
-                        modifier = Modifier
-                            .background(Color.LightGray)
-                            .clickable { isEditing = true }
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                    ) {
-                        Text(text = editedName, color = Color.Blue)
-                    }
-
-                    Text(text = ";", color = Color.Black)
-                }
-            }
+    when (val content = block.content) {
+        is BlockContent.Declare -> DeclareBlockView(content, block)
+        is BlockContent.Assignment -> AssignBlockView(content, block)
+        else -> {
+            Text("Неизвестный тип блока")
         }
     }
+    val content = block.content as? BlockContent.Declare ?: return
+
 }
+
 
 @Composable
 fun DraggableBlock(block: Block, allBlocks: List<Block>, onPositionChange: (Offset) -> Unit) {
@@ -282,6 +230,8 @@ fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) 
                 val newBlock = when (template.type) {
                     BlockType.DECLARE ->
                         DeclarationBlock(variableName = "Variable")
+                    BlockType.ASSIGN ->
+                        AssignmentBlock(variableName = "Variable", initialValue = "0")
                     else -> throw IllegalArgumentException("Unknown block type")
                 }
                 onBlockSelected(newBlock)
