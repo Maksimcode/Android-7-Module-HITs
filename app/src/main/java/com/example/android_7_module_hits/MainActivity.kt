@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,12 +50,6 @@ import com.example.android_7_module_hits.ui.theme.FolderButtonSub
 import com.example.android_7_module_hits.ui.theme.RunButtonSub
 import com.example.android_7_module_hits.ui.theme.SettingsButtonSub
 import com.example.android_7_module_hits.ui.theme.StopButtonSub
-import com.example.android_7_module_hits.ui.editor.EditorScreen
-import com.example.android_7_module_hits.ui.editor.EditorViewModel
-import com.example.android_7_module_hits.data.model.BlockType
-import com.example.android_7_module_hits.ui.Blocks.*
-import com.example.android_7_module_hits.ui.editor.*
-import com.example.android_7_module_hits.interpreter.*
 
 
 class MainActivity : ComponentActivity() {
@@ -100,51 +95,17 @@ fun MainScreen() {
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                val viewModel: EditorViewModel = viewModel() // Получаем ViewModel
-                Column {
-                    PaletteSection(viewModel) // Передаём в палитру
-                    EditorScreen(viewModel)   // И в редактор }
-                }
             }
         },
         bottomBar = {
-            val viewModel: EditorViewModel = viewModel()
-            BottomCircleButtons(viewModel)
+            BottomCircleButtons()
         }
     )
 }
 
-@Composable
-fun PaletteSection(viewModel: EditorViewModel) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        AddBlockButton(UiBlockType.DECLARE_VARIABLE) { id ->
-            val newBlock = UiBlock(
-                id = id,
-                content = "var x: int",
-                position = Offset.Zero,
-                type = BlockType.DECLARE,
-                editableFields = mutableMapOf("variableName" to "x")
-            )
-            viewModel.addBlock(newBlock)
-        }
-
-        AddBlockButton(UiBlockType.ASSIGN_VALUE) { id ->
-            val newBlock = UiBlock(
-                id = id,
-                content = "x = 0",
-                position = Offset.Zero,
-                type = BlockType.ASSIGN,
-                editableFields = mutableMapOf("variableName" to "x", "expression" to "0")
-            )
-            viewModel.addBlock(newBlock)
-        }
-    }
-}
-
-
 
 @Composable
-fun BottomCircleButtons(viewModel: EditorViewModel) {
+fun BottomCircleButtons() {
 
     val buttonColors = listOf(
         FolderButtonMain,
@@ -198,8 +159,6 @@ fun BottomCircleButtons(viewModel: EditorViewModel) {
                                 1 -> {}
                                 2 -> {}
                                 3 -> {
-                                    val interpreter = Interpreter()
-                                    interpreter.interpret(viewModel.blocks.value, ExecutionContext())
                                 }
                             }
                         },
