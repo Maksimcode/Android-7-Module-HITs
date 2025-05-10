@@ -147,8 +147,6 @@ fun BlockView(block: Block) {
             Text("Неизвестный тип блока")
         }
     }
-    val content = block.content as? BlockContent.Declare ?: return
-
 }
 
 
