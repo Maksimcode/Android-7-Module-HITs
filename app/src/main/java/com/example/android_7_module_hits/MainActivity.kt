@@ -216,13 +216,15 @@ fun DraggableBlock(block: Block, allBlocks: List<Block>, onPositionChange: (Offs
                     onDrag = { change, dragAmount ->
                         change.consume()
                         offset += dragAmount
-                        onPositionChange(offset)
+
 
                     },
                     onDragEnd = {
-                        val attachableParent = findAttachableParent(allBlocks, block)
+
+                        val attachableParent = findAttachableParent(allBlocks, block, offset)
 
                         if (attachableParent != null) {
+
                             attachChild(parent = attachableParent, child = block)
                             offset = Offset(attachableParent.position.x, attachableParent.position.y + 20f)
                             onPositionChange(offset)
@@ -237,7 +239,26 @@ fun DraggableBlock(block: Block, allBlocks: List<Block>, onPositionChange: (Offs
             }
     ) {
         BlockView(block)
+        if (offset != block.position){
+            val attachableParent = findAttachableParent(allBlocks, block, offset)
+
+            if (attachableParent != null)
+            {
+                AttachmentHighlight(attachableParent.position)
+            }
+        }
+
     }
+}
+
+@Composable
+fun AttachmentHighlight(position: Offset) {
+    Box(
+        modifier = Modifier
+            .background(Color.Green.copy(alpha = 0.3f))
+            .size(width = 200.dp, height = 16.dp)
+            .offset { IntOffset(position.x.roundToInt(), position.y.roundToInt())}
+    )
 }
 
 

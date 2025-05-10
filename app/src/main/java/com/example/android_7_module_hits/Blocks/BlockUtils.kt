@@ -9,37 +9,33 @@ fun distanceBetween(a: Offset, b: Offset): Float {
     return sqrt(dx * dx + dy * dy)
 }
 
-fun findAttachableParent(allBlocks: List<Block>, draggedBlock: Block): Block? {
+fun findAttachableParent(allBlocks: List<Block>, draggedBlock: Block, currentPosition: Offset): Block? {
 
-    val draggedBlockCenter = Offset(draggedBlock.position.x + 50f, draggedBlock.position.y + 50f)
+    val currentPositionCenter = Offset(currentPosition.x + 50f, currentPosition.y + 50f)
 
     return allBlocks.firstOrNull { candidate ->
-        if (candidate.id == draggedBlock.id) return@firstOrNull false
-        if (candidate == draggedBlock.parent) return@firstOrNull false // Нельзя прикрепиться к своему ребенку
+        if (candidate.id == draggedBlock.id) return null
+        if (candidate == draggedBlock.parent) return null
 
-        // Проверяем, не является ли candidate потомком draggedBlock (чтобы избежать зацикливания)
         var current: Block? = candidate
         while (current != null) {
-            if (current.id == draggedBlock.id) return@firstOrNull false // candidate - потомок draggedBlock
+            if (current.id == draggedBlock.id) return null
             current = current.child
         }
 
         val candidateCenter = Offset(candidate.position.x + 50f, candidate.position.y + 50f) // Предполагаем, что центр блока находится в 50f, 50f
 
-        val distance = distanceBetween(candidateCenter, draggedBlockCenter)
+        val distance = distanceBetween(candidateCenter, currentPositionCenter)
 
-        // Проверяем расстояние и возможность прикрепления
-        distance < 100f && candidate.canAttachTo(draggedBlock)
+        distance < 150f && candidate.canAttachTo(draggedBlock)
     }
 }
 fun attachChild(parent: Block, child: Block) {
-    // Отсоединяем от старого родителя
     child.parent?.let { oldParent ->
         oldParent.child = null
         child.parent = null
     }
 
-    // Присоединяем к новому родителю
     parent.child = child
     child.parent = parent
 }
@@ -59,4 +55,9 @@ fun moveChildren(parent: Block, newPosition: Offset) {
 
         currentChild = currentChild.child
     }
+}
+
+fun isNearAttachmentZone(parent: Block, draggedBlock: Block): Boolean {
+    val distance = distanceBetween(parent.position, draggedBlock.position)
+    return distance < 50f && parent.canAttachTo(draggedBlock)
 }
