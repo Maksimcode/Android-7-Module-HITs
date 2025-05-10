@@ -33,7 +33,7 @@ import com.example.android_7_module_hits.ui.theme.RunButtonMain
 import com.example.android_7_module_hits.ui.theme.SettingsButtonMain
 import com.example.android_7_module_hits.ui.theme.StopButtonMain
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Check
@@ -43,6 +43,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.core.view.WindowCompat
 import com.example.android_7_module_hits.ui.theme.FolderButtonSub
 import com.example.android_7_module_hits.ui.theme.RunButtonSub
 import com.example.android_7_module_hits.ui.theme.SettingsButtonSub
@@ -51,6 +52,7 @@ import com.example.android_7_module_hits.ui.theme.StopButtonSub
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
         setContent {
             Android7ModuleHITsTheme {
                 MainScreen()
@@ -58,7 +60,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +79,7 @@ fun MainScreen() {
                 actions = {
                     IconButton(onClick = { /* логика кнопки назад */}) {
                         Icon(
-                            imageVector = Icons.Filled.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Назад"
                         )
                     }
@@ -150,11 +151,6 @@ fun DraggableBox(caption: String, bgColor: Color) {
 }
 
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Composable
 fun BottomCircleButtons() {
 
     val buttonColors = listOf(
@@ -220,11 +216,3 @@ fun BottomCircleButtons() {
     }
 }
 
-
-//@Preview(showBackground = true)
-//@Composable
-//fun DefaultPreview() {
-//    Android7ModuleHITsTheme {
-//        Greeting("Android")
-//    }
-//}

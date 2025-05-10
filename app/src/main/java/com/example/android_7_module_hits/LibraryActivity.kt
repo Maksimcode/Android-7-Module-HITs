@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import com.example.android_7_module_hits.ui.theme.Android7ModuleHITsTheme
@@ -71,7 +72,8 @@ fun MainContent(){
 fun Header() {
     Column(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .statusBarsPadding()
 
     ){
         Text (
@@ -89,10 +91,17 @@ fun Header() {
 @Composable
 fun Buttons() {
     val context = LocalContext.current
-
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start
+        modifier = Modifier
+            .fillMaxWidth()
+            .width(180.dp)
+            .height(52.dp)
+            .shadow(
+                elevation = 25.dp,
+                spotColor = Color(0x40E2E2E2),
+                ambientColor = Color(0x40E2E2E2)
+            ),
+    horizontalArrangement = Arrangement.Center
     ) {
         Button(
             onClick = {
@@ -103,7 +112,7 @@ fun Buttons() {
             Text("My projects")
         }
 
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(12.dp))
 
         Button(
             onClick = {
