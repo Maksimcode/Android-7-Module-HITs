@@ -19,6 +19,8 @@ fun interpret(block: Block, state: InterpreterState) {
             val firstExpr = content.firstPart?.trim() ?: "0"
             val operate = content.operator?.trim() ?: "=="
             val secondExpr = content.secondPart?.trim() ?: "0"
+
+            state.setCondition(firstExpr, operate, secondExpr)
         }
         is BlockContent.End -> {}
     }

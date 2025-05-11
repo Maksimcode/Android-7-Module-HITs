@@ -1,5 +1,7 @@
 package com.example.android_7_module_hits.interpreter
 
+import javax.xml.xpath.XPathExpression
+
 class InterpreterState {
     private val variables = mutableMapOf<String, Int>()
 
@@ -22,6 +24,33 @@ class InterpreterState {
         }
 
         variables[name] = result
+    }
+
+    fun setCondition(firstExpression: String, operator: String, secondExpression: String) : Boolean{
+        val firstResult = try {
+            evaluateExpression(firstExpression ?: "0", variables)
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Ошибка при вычислении первого выражения", e)
+        }
+
+        val secondResult = try{
+            evaluateExpression(secondExpression ?: "0", variables)
+        } catch (e:Exception) {
+            throw IllegalArgumentException("Ошибка при вычислении второго выражения", e)
+        }
+
+        val cleanedOperator = operator.replace("\\s+".toRegex(), "")
+
+        return when (cleanedOperator) {
+            "==" -> firstResult == secondResult
+            "!=" -> firstResult != secondResult
+            "<" -> firstResult < secondResult
+            ">" -> firstResult > secondResult
+            "<=" -> firstResult <= secondResult
+            ">=" -> firstResult >= secondResult
+            else -> throw IllegalArgumentException("Неизвестный оператор сравнения: $operator")
+        }
+
     }
 
     fun getVariables(): Map<String, Int> = variables.toMap()
