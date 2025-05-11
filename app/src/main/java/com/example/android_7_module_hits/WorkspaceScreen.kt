@@ -45,7 +45,9 @@ import com.example.android_7_module_hits.Blocks.AssignmentBlock
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockContent
 import com.example.android_7_module_hits.Blocks.BlockType
+import com.example.android_7_module_hits.Blocks.ConditionBlock
 import com.example.android_7_module_hits.Blocks.DeclarationBlock
+import com.example.android_7_module_hits.Blocks.EndBlock
 import com.example.android_7_module_hits.Blocks.attachChild
 import com.example.android_7_module_hits.Blocks.findAttachableParent
 import com.example.android_7_module_hits.Blocks.logAllBlocks
@@ -56,7 +58,9 @@ import com.example.android_7_module_hits.ui.theme.SettingsButtonSub
 import com.example.android_7_module_hits.ui.theme.StopButtonSub
 import com.example.android_7_module_hits.ui.uiblocks.AssignBlockView
 import com.example.android_7_module_hits.ui.uiblocks.BlockTemplate
+import com.example.android_7_module_hits.ui.uiblocks.ConditionBlockView
 import com.example.android_7_module_hits.ui.uiblocks.DeclareBlockView
+import com.example.android_7_module_hits.ui.uiblocks.EndBlockView
 import com.example.android_7_module_hits.ui.uiblocks.availableBlocks
 import kotlin.math.roundToInt
 
@@ -132,6 +136,8 @@ fun BlockView(block: Block) {
     when (val content = block.content) {
         is BlockContent.Declare -> DeclareBlockView(content, block)
         is BlockContent.Assignment -> AssignBlockView(content, block)
+        is BlockContent.Condition -> ConditionBlockView(content, block)
+        is BlockContent.End -> EndBlockView(content, block)
         else -> {
             Text("Неизвестный тип блока")
         }
@@ -225,41 +231,6 @@ fun InfiniteCanvas(
     }
 }
 
-
-@Composable
-fun BlockPalette(onBlockSelected: (Block) -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(text = "Блоки")
-        Spacer(modifier = Modifier.height(8.dp))
-        availableBlocks.forEach { template ->
-            BlockPaletteItem(template = template, onBlockSelected = onBlockSelected)
-        }
-    }
-}
-
-@Composable
-fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) {
-    Box(
-        modifier = Modifier
-            .background(Color.LightGray)
-            .clickable {
-                val newBlock = when (template.type) {
-                    BlockType.DECLARE ->
-                        DeclarationBlock(variableName = "Variable")
-                    BlockType.ASSIGN ->
-                        AssignmentBlock(variableName = "Variable", initialValue = "0")
-                    else -> throw IllegalArgumentException("Unknown block type")
-                }
-                onBlockSelected(newBlock)
-            }
-            .padding(8.dp)
-            .width(100.dp)
-            .height(50.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = template.title)
-    }
-}
 
 @Composable
 fun BottomCircleButtons(allBlocks: MutableState<List<Block>>) {
