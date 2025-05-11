@@ -1,5 +1,6 @@
 package com.example.android_7_module_hits.Blocks
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.geometry.Offset
 import kotlin.math.sqrt
 
@@ -11,25 +12,25 @@ fun distanceBetween(a: Offset, b: Offset): Float {
 
 fun findAttachableParent(allBlocks: List<Block>, draggedBlock: Block, currentPosition: Offset): Block? {
 
-    val currentPositionCenter = Offset(currentPosition.x + 50f, currentPosition.y + 50f)
+    var oldParent = draggedBlock.parent
+    if (oldParent != null) {
+        oldParent.child = null
+        draggedBlock.parent = null
+    }
+
 
     return allBlocks.firstOrNull { candidate ->
         if (candidate.id == draggedBlock.id) return null
-        if (candidate == draggedBlock.parent) return null
 
-        var current: Block? = candidate
-        while (current != null) {
-            if (current.id == draggedBlock.id) return null
-            current = current.child
-        }
+        val distance = distanceBetween(candidate.position, currentPosition)
 
-        val candidateCenter = Offset(candidate.position.x + 50f, candidate.position.y + 50f) // Предполагаем, что центр блока находится в 50f, 50f
+        distance < 200f && candidate.canAttachTo(draggedBlock)
 
-        val distance = distanceBetween(candidateCenter, currentPositionCenter)
-
-        distance < 150f && candidate.canAttachTo(draggedBlock)
     }
 }
+
+
+
 fun attachChild(parent: Block, child: Block) {
     child.parent?.let { oldParent ->
         oldParent.child = null

@@ -1,6 +1,7 @@
 
 package com.example.android_7_module_hits
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -66,7 +67,7 @@ import kotlin.math.roundToInt
 fun MainScreen(
     navController: NavController
 ) {
-    val allBlocks = remember { mutableStateListOf<Block>() }
+    val allBlocks = remember { mutableStateOf(listOf<Block>()) }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -106,9 +107,8 @@ fun MainScreen(
                 }
 
                 BlockPalette { newBlock ->
-                    allBlocks.add(newBlock)
+                    allBlocks.value += newBlock
                 }
-
 
             }
         },
@@ -119,16 +119,16 @@ fun MainScreen(
 }
 
 @Composable
-fun CreateBlock(allBlocks: MutableList<Block>) {
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        allBlocks.forEach { block ->
-            key(block.id) {
-                DraggableBlock(block = block, allBlocks = allBlocks, onPositionChange = { newPosition ->
-                    block.position = newPosition
-                })
-            }
+fun CreateBlock(allBlocks: MutableState<List<Block>>) {
+    val latestAllBlocks by rememberUpdatedState(allBlocks)
+    latestAllBlocks.value.forEach { block ->
+        key(block.id) {
+            DraggableBlock(block = block, latestAllBlocks, onPositionChange = { newPosition ->
+                block.position = newPosition
+            })
         }
     }
+
 }
 
 @Composable
@@ -144,8 +144,9 @@ fun BlockView(block: Block) {
 
 
 @Composable
-fun DraggableBlock(block: Block, allBlocks: List<Block>, onPositionChange: (Offset) -> Unit) {
+fun DraggableBlock(block: Block, allBlocks: MutableState<List<Block>>, onPositionChange: (Offset) -> Unit) {
     var offset by remember { mutableStateOf(block.position) }
+    val latestAllBlocks by rememberUpdatedState(allBlocks.value)
 
     Box(
         modifier = Modifier
@@ -160,12 +161,11 @@ fun DraggableBlock(block: Block, allBlocks: List<Block>, onPositionChange: (Offs
                     },
                     onDragEnd = {
 
-                        val attachableParent = findAttachableParent(allBlocks, block, offset)
+                        val attachableParent = findAttachableParent(latestAllBlocks, block, offset)
 
                         if (attachableParent != null) {
-
                             attachChild(parent = attachableParent, child = block)
-                            offset = Offset(attachableParent.position.x, attachableParent.position.y + 20f)
+                            offset = Offset(attachableParent.position.x, attachableParent.position.y + 150f)
                             onPositionChange(offset)
                         } else {
                             onPositionChange(offset)
@@ -179,10 +179,11 @@ fun DraggableBlock(block: Block, allBlocks: List<Block>, onPositionChange: (Offs
     ) {
         BlockView(block)
         if (offset != block.position){
-            val attachableParent = findAttachableParent(allBlocks, block, offset)
+            val attachableParent = findAttachableParent(latestAllBlocks, block, offset)
 
             if (attachableParent != null)
             {
+                Log.d("highlight", "type parent - ${attachableParent.type}, child - ${block.type}")
                 AttachmentHighlight(attachableParent.position)
             }
         }
@@ -265,7 +266,7 @@ fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) 
 }
 
 @Composable
-fun BottomCircleButtons(allBlocks: MutableList<Block>) {
+fun BottomCircleButtons(allBlocks: MutableState<List<Block>>) {
 
     val buttonColors = listOf(
         FolderButtonMain,
@@ -319,8 +320,8 @@ fun BottomCircleButtons(allBlocks: MutableList<Block>) {
                                 1 -> {}
                                 2 -> {}
                                 3 -> {
-                                    logAllBlocks(allBlocks)
-                                    runInterpreter(allBlocks)
+                                    logAllBlocks(allBlocks.value)
+                                    runInterpreter(allBlocks.value)
                                 }
                             }
                         },
