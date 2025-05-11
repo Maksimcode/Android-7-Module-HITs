@@ -24,3 +24,6 @@ val SettingsButtonMain = Color(0xFFFDC55F)
 val SettingsButtonSub = Color(0xFFFEEBCA)
 val RunButtonMain = Color(0xFF0EC760)
 val RunButtonSub = Color(0xFFC4F3D9)
+
+val LibraryTitle = Color(0xFF344054)
+val LibrarySubTitle = Color(0xFF8890A5)

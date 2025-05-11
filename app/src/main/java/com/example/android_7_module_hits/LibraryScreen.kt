@@ -33,6 +33,9 @@ import com.example.android_7_module_hits.ui.theme.lightblue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.text.style.TextAlign
+import com.example.android_7_module_hits.ui.theme.LibrarySubTitle
+import com.example.android_7_module_hits.ui.theme.LibraryTitle
 
 
 @Composable
@@ -48,7 +51,7 @@ fun MainContent(
     ){
         Spacer(modifier = Modifier.height(40.dp))
         Header()
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(22.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -62,7 +65,7 @@ fun MainContent(
                 )
             }
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
         when (selectedTabIndex) {
             0 -> {
                 Box(
@@ -111,9 +114,10 @@ fun TabButton(
             .background(color = Color(0xFFCFD8F9), shape = RoundedCornerShape(24.dp))
     }
 
-    // Оборачиваем в Box с clickable, чтобы обрабатывать клики по всей области
     Box(
-        modifier = modifier.clickable { onClick() },
+        modifier = modifier
+            .clip(RoundedCornerShape(24.dp))
+            .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
         val baseStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp)
@@ -138,11 +142,13 @@ fun Header() {
 
     ){
         Text (
+            color = LibraryTitle,
             text= "Library",
             fontSize = 48.sp,
         )
 
         Text (
+            color = LibrarySubTitle,
             text = "All projects here!",
             fontSize = 24.sp,
         )
@@ -151,18 +157,17 @@ fun Header() {
 
 @Composable
 fun GreetProjectBlocks(navController: NavController){
-    //val unknownProjectBlock = ProjectBlock("Unknown", "1 Jan, 1970")
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         items((1..5).toList()) { index ->
             Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(18.dp)
             ) {
-                ProjectBlock("Unknown", "May 1, 2025", navController)
-                ProjectBlock("Unknown", "May 1, 2025", navController)
+                ProjectBlock("Unknown", "May 1,\n2025", navController)
+                ProjectBlock("Unknown", "May 1,\n2025", navController)
             }
         }
     }
@@ -183,7 +188,7 @@ fun ProjectBlock(
 ){
     Card(
         modifier = Modifier
-            .size(160.dp)
+            .size(176.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(brush = gradientBrush)
             .clickable {
@@ -202,14 +207,17 @@ fun ProjectBlock(
             Text(
                 text = title,
                 color = contentColor,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 28.sp,
+                fontWeight = FontWeight(600),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.weight(1f))
+            // Для чего он вообще? Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = date,
                 color = contentColor,
-                fontSize = 16.sp
+                fontSize = 20.sp,
+                fontWeight = FontWeight(300)
             )
         }
     }
