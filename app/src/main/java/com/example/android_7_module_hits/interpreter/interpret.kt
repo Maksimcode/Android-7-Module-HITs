@@ -15,6 +15,9 @@ fun interpret(block: Block, state: InterpreterState) {
 
             state.assignValue(variableName, expr)
         }
+        is BlockContent.Condition -> {
+            val conditionInto = content.condition?.trim() ?: "nope"
+        }
     }
 
     block.child?.let { child ->
