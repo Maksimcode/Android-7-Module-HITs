@@ -15,4 +15,6 @@ sealed class BlockContent{
     data class Condition(
         var condition: String
     ) :BlockContent()
+
+    class End() :BlockContent()
 }
