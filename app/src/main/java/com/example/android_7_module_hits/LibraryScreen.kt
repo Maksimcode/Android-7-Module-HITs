@@ -1,19 +1,13 @@
 package com.example.android_7_module_hits
 
-import android.content.Intent
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
@@ -24,36 +18,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import com.example.android_7_module_hits.ui.theme.Android7ModuleHITsTheme
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.android_7_module_hits.ui.theme.deepblue
 import com.example.android_7_module_hits.ui.theme.lightblue
 
 
-class LibraryActivity : ComponentActivity(){
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent{
-            Android7ModuleHITsTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ){
-                    MainContent()
-                }
-            }
-        }
-    }
-}
-
-
 @Composable
-fun MainContent(){
+fun MainContent(
+    navController: NavController
+){
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -63,7 +43,7 @@ fun MainContent(){
         Spacer(modifier = Modifier.height(16.dp))
         Buttons()
         Spacer(modifier = Modifier.height(16.dp))
-        GreetProjectBlocks()
+        GreetProjectBlocks(navController)
     }
 }
 
@@ -88,7 +68,6 @@ fun Header() {
 
 @Composable
 fun Buttons() {
-    val context = LocalContext.current
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -96,8 +75,6 @@ fun Buttons() {
     ) {
         Button(
             onClick = {
-                val intent = Intent(context, LibraryActivity::class.java)
-                context.startActivity(intent)
             }
         ) {
             Text("My projects")
@@ -107,8 +84,6 @@ fun Buttons() {
 
         Button(
             onClick = {
-                val intent = Intent(context, LibraryActivity::class.java)
-                context.startActivity(intent)
             }
         ) {
             Text("Examples")
@@ -117,7 +92,7 @@ fun Buttons() {
 }
 
 @Composable
-fun GreetProjectBlocks(){
+fun GreetProjectBlocks(navController: NavController){
     //val unknownProjectBlock = ProjectBlock("Unknown", "1 Jan, 1970")
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -128,8 +103,8 @@ fun GreetProjectBlocks(){
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                ProjectBlock("Unknown", "1 Jan, 1970")
-                ProjectBlock("Unknown", "1 Jan, 1970")
+                ProjectBlock("Unknown", "1 Jan, 1970", navController)
+                ProjectBlock("Unknown", "1 Jan, 1970", navController)
             }
         }
     }
@@ -139,6 +114,7 @@ fun GreetProjectBlocks(){
 fun ProjectBlock(
     title: String,
     date: String,
+    navController: NavController,
     modifier: Modifier = Modifier,
     gradientBrush: Brush = Brush.linearGradient(
         colors = listOf(lightblue, deepblue),
@@ -148,17 +124,14 @@ fun ProjectBlock(
     contentColor: Color = Color.White,
 //    onClick: () -> Unit = {}
 ){
-    val context = LocalContext.current
-    val onClick ={
-        val intent = Intent(context, MainActivity::class.java)
-        context.startActivity(intent)
-    }
     Card(
-        modifier = modifier
+        modifier = Modifier
             .size(160.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(brush = gradientBrush)
-            .clickable(onClick = onClick),
+            .clickable {
+                navController.navigate(route = Screen.Workspace.route)
+            },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
@@ -185,6 +158,14 @@ fun ProjectBlock(
     }
 }
 
+
+@Composable
+@Preview(showBackground = true)
+fun LibraryScreenPreview(){
+    MainContent(
+        navController = rememberNavController()
+    )
+}
 //  TODO: classes for headings, subheadings...
 //  another file for text-classes
 //  eliminate the use of spacer (replace with indents inside the component parameters)
