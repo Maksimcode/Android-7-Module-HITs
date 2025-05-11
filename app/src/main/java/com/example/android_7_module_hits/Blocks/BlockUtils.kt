@@ -40,27 +40,6 @@ fun attachChild(parent: Block, child: Block) {
     child.parent = parent
 }
 
-fun moveChildren(parent: Block, newPosition: Offset) {
-    var currentChild = parent.child
-
-    while (currentChild != null) {
-        val offsetFromParent = Offset(
-            currentChild.position.x - parent.position.x,
-            currentChild.position.y - parent.position.y
-        )
-
-        currentChild.position = Offset(newPosition.x + offsetFromParent.x, newPosition.y + offsetFromParent.y)
-
-        moveChildren(currentChild, currentChild.position)
-
-        currentChild = currentChild.child
-    }
-}
-
-fun isNearAttachmentZone(parent: Block, draggedBlock: Block): Boolean {
-    val distance = distanceBetween(parent.position, draggedBlock.position)
-    return distance < 50f && parent.canAttachTo(draggedBlock)
-}
 
 fun logAllBlocks(allBlocks: List<Block>) {
     println("Всего блоков: ${allBlocks.size}")

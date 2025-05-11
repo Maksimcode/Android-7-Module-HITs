@@ -86,7 +86,7 @@ class InterpreterState {
                 if (currentTokenIndex >= tokens.size || tokens.getOrNull(currentTokenIndex) != ")") {
                     throw IllegalArgumentException("Не хватает закрывающей скобки")
                 }
-                currentTokenIndex++ // Пропускаем ")"
+                currentTokenIndex++
                 result
             }
             token.matches(Regex("-?\\d+")) -> token.toInt()
