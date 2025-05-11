@@ -77,15 +77,11 @@ fun MainScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick ={}
+                    IconButton(onClick ={navController.navigate(route = Screen.Library.route)}
                         ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад",
-                            modifier = Modifier
-                                .clickable {
-                                navController.navigate(route = Screen.Library.route)
-                            },
+                            contentDescription = "Назад"
                         )
                     }
                 }
