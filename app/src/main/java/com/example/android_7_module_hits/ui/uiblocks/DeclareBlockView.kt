@@ -73,7 +73,6 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                 }
 
             } else {
-                // Обычный режим отображения
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = "int ", color = Color.Black)
 

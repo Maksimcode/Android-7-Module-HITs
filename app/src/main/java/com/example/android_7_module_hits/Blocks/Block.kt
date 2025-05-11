@@ -13,8 +13,5 @@ interface Block {
 
     fun canAttachTo(other: Block): Boolean
 
-//    fun attachTo(other: Block)
-//
-//    fun detach()
 }
 
