@@ -61,3 +61,16 @@ fun isNearAttachmentZone(parent: Block, draggedBlock: Block): Boolean {
     val distance = distanceBetween(parent.position, draggedBlock.position)
     return distance < 50f && parent.canAttachTo(draggedBlock)
 }
+
+fun logAllBlocks(allBlocks: List<Block>) {
+    println("Всего блоков: ${allBlocks.size}")
+    allBlocks.forEachIndexed { index, block ->
+        val content = block.content
+        val name = when (content) {
+            is BlockContent.Declare -> content.name
+            is BlockContent.Assignment -> content.name
+            else -> "unknown"
+        }
+        println("Блок $index: ID=${block.id}, Name=$name, Parent=${block.parent?.id}, Child=${block.child?.id} Content=$content")
+    }
+}

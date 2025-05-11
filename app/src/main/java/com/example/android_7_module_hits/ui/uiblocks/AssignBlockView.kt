@@ -105,8 +105,6 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                 }
             } else{
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "int ", color = Color.Black)
-
                     Box(
                         modifier = Modifier
                             .background(Color.LightGray)

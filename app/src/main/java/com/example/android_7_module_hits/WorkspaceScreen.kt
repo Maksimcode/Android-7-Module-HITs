@@ -47,6 +47,8 @@ import com.example.android_7_module_hits.Blocks.BlockType
 import com.example.android_7_module_hits.Blocks.DeclarationBlock
 import com.example.android_7_module_hits.Blocks.attachChild
 import com.example.android_7_module_hits.Blocks.findAttachableParent
+import com.example.android_7_module_hits.Blocks.logAllBlocks
+import com.example.android_7_module_hits.interpreter.runInterpreter
 import com.example.android_7_module_hits.ui.theme.FolderButtonSub
 import com.example.android_7_module_hits.ui.theme.RunButtonSub
 import com.example.android_7_module_hits.ui.theme.SettingsButtonSub
@@ -64,6 +66,7 @@ import kotlin.math.roundToInt
 fun MainScreen(
     navController: NavController
 ) {
+    val allBlocks = remember { mutableStateListOf<Block>() }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -97,7 +100,6 @@ fun MainScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                val allBlocks = remember { mutableStateListOf<Block>() }
 
                 InfiniteCanvas {
                     CreateBlock(allBlocks)
@@ -111,7 +113,7 @@ fun MainScreen(
             }
         },
         bottomBar = {
-            BottomCircleButtons()
+            BottomCircleButtons(allBlocks)
         }
     )
 }
@@ -263,7 +265,7 @@ fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) 
 }
 
 @Composable
-fun BottomCircleButtons() {
+fun BottomCircleButtons(allBlocks: MutableList<Block>) {
 
     val buttonColors = listOf(
         FolderButtonMain,
@@ -317,6 +319,8 @@ fun BottomCircleButtons() {
                                 1 -> {}
                                 2 -> {}
                                 3 -> {
+                                    logAllBlocks(allBlocks)
+                                    runInterpreter(allBlocks)
                                 }
                             }
                         },
