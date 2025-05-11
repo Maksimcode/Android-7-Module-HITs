@@ -233,45 +233,6 @@ fun InfiniteCanvas(
 
 
 @Composable
-fun BlockPalette(onBlockSelected: (Block) -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(text = "Блоки")
-        Spacer(modifier = Modifier.height(8.dp))
-        availableBlocks.forEach { template ->
-            BlockPaletteItem(template = template, onBlockSelected = onBlockSelected)
-        }
-    }
-}
-
-@Composable
-fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) {
-    Box(
-        modifier = Modifier
-            .background(Color.LightGray)
-            .clickable {
-                val newBlock = when (template.type) {
-                    BlockType.DECLARE ->
-                        DeclarationBlock(variableName = "Variable")
-                    BlockType.ASSIGN ->
-                        AssignmentBlock(variableName = "Variable", initialValue = "0")
-                    BlockType.CONDITION ->
-                        ConditionBlock(firstExpression = "0", operator = "==", secondExpression = "0")
-                    BlockType.END ->
-                        EndBlock()
-                    else -> throw IllegalArgumentException("Unknown block type")
-                }
-                onBlockSelected(newBlock)
-            }
-            .padding(8.dp)
-            .width(100.dp)
-            .height(50.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = template.title)
-    }
-}
-
-@Composable
 fun BottomCircleButtons(allBlocks: MutableState<List<Block>>) {
 
     val buttonColors = listOf(
