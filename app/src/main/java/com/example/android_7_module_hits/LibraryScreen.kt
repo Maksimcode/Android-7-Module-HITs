@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.material3.CardDefaults
@@ -21,6 +20,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,22 +30,103 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.android_7_module_hits.ui.theme.deepblue
 import com.example.android_7_module_hits.ui.theme.lightblue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.shadow
 
 
 @Composable
 fun MainContent(
     navController: NavController
 ){
+    var selectedTabIndex by remember { mutableStateOf(0) }
+    val tabTitles = listOf("My projects", "Examples")
     Column (
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ){
+        Spacer(modifier = Modifier.height(40.dp))
         Header()
         Spacer(modifier = Modifier.height(16.dp))
-        Buttons()
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            tabTitles.forEachIndexed { index, title ->
+                TabButton(
+                    selected = selectedTabIndex == index,
+                    text = title,
+                    onClick = { selectedTabIndex = index }
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
-        GreetProjectBlocks(navController)
+        when (selectedTabIndex) {
+            0 -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(text = "It's empty now :(")
+                }
+            }
+            1 -> {
+                GreetProjectBlocks(navController)
+            }
+        }
+    }
+}
+
+@Composable
+fun TabButton(
+    selected: Boolean,
+    text: String,
+    onClick: () -> Unit
+) {
+    // Общие параметры размеров и фона
+    val baseModifier = Modifier
+        .width(180.dp)
+        .height(52.dp)
+        .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(24.dp))
+
+    val modifier = if (selected) {
+        // Для активной вкладки: сначала shadow, потом базовые модификаторы
+        Modifier
+            .shadow(
+                elevation = 25.dp,
+                spotColor = Color(0x40E2E2E2),
+                ambientColor = Color(0x40E2E2E2)
+            )
+            .then(baseModifier)
+    } else {
+        // Для неактивной вкладки: сначала базовые модификаторы, затем offset и shadow
+        baseModifier
+            .shadow(
+                elevation = 25.dp,
+                spotColor = Color(0x40E2E2E2),
+                ambientColor = Color(0x40E2E2E2)
+            )
+            .background(color = Color(0xFFCFD8F9), shape = RoundedCornerShape(24.dp))
+    }
+
+    // Оборачиваем в Box с clickable, чтобы обрабатывать клики по всей области
+    Box(
+        modifier = modifier.clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        val baseStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp)
+        Text(
+            text = text,
+            style = if (selected) {
+                baseStyle.copy(fontWeight = FontWeight(700))
+            } else {
+                baseStyle.copy(fontWeight = FontWeight.Normal)
+            }
+        )
+
+
     }
 }
 
@@ -67,31 +150,6 @@ fun Header() {
 }
 
 @Composable
-fun Buttons() {
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Start
-    ) {
-        Button(
-            onClick = {
-            }
-        ) {
-            Text("My projects")
-        }
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Button(
-            onClick = {
-            }
-        ) {
-            Text("Examples")
-        }
-    }
-}
-
-@Composable
 fun GreetProjectBlocks(navController: NavController){
     //val unknownProjectBlock = ProjectBlock("Unknown", "1 Jan, 1970")
     LazyColumn(
@@ -103,8 +161,8 @@ fun GreetProjectBlocks(navController: NavController){
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                ProjectBlock("Unknown", "1 Jan, 1970", navController)
-                ProjectBlock("Unknown", "1 Jan, 1970", navController)
+                ProjectBlock("Unknown", "May 1, 2025", navController)
+                ProjectBlock("Unknown", "May 1, 2025", navController)
             }
         }
     }
@@ -122,7 +180,6 @@ fun ProjectBlock(
         end = Offset(300f, 600f)
     ),
     contentColor: Color = Color.White,
-//    onClick: () -> Unit = {}
 ){
     Card(
         modifier = Modifier
