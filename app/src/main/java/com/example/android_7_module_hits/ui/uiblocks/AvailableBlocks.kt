@@ -3,7 +3,9 @@ import com.example.android_7_module_hits.Blocks.BlockType
 
 val availableBlocks = listOf(
     BlockTemplate("Declare", BlockType.DECLARE),
-    BlockTemplate("Assignment", BlockType.ASSIGN)
+    BlockTemplate("Assignment", BlockType.ASSIGN),
+    BlockTemplate("Condition", BlockType.CONDITION),
+    BlockTemplate("End", BlockType.END)
 )
 
 data class BlockTemplate(val title: String, val type: BlockType)

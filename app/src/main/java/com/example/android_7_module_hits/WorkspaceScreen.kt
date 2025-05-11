@@ -45,7 +45,9 @@ import com.example.android_7_module_hits.Blocks.AssignmentBlock
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockContent
 import com.example.android_7_module_hits.Blocks.BlockType
+import com.example.android_7_module_hits.Blocks.ConditionBlock
 import com.example.android_7_module_hits.Blocks.DeclarationBlock
+import com.example.android_7_module_hits.Blocks.EndBlock
 import com.example.android_7_module_hits.Blocks.attachChild
 import com.example.android_7_module_hits.Blocks.findAttachableParent
 import com.example.android_7_module_hits.Blocks.logAllBlocks
@@ -56,7 +58,9 @@ import com.example.android_7_module_hits.ui.theme.SettingsButtonSub
 import com.example.android_7_module_hits.ui.theme.StopButtonSub
 import com.example.android_7_module_hits.ui.uiblocks.AssignBlockView
 import com.example.android_7_module_hits.ui.uiblocks.BlockTemplate
+import com.example.android_7_module_hits.ui.uiblocks.ConditionBlockView
 import com.example.android_7_module_hits.ui.uiblocks.DeclareBlockView
+import com.example.android_7_module_hits.ui.uiblocks.EndBlockView
 import com.example.android_7_module_hits.ui.uiblocks.availableBlocks
 import kotlin.math.roundToInt
 
@@ -132,6 +136,8 @@ fun BlockView(block: Block) {
     when (val content = block.content) {
         is BlockContent.Declare -> DeclareBlockView(content, block)
         is BlockContent.Assignment -> AssignBlockView(content, block)
+        is BlockContent.Condition -> ConditionBlockView(content, block)
+        is BlockContent.End -> EndBlockView(content, block)
         else -> {
             Text("Неизвестный тип блока")
         }
@@ -248,6 +254,10 @@ fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) 
                         DeclarationBlock(variableName = "Variable")
                     BlockType.ASSIGN ->
                         AssignmentBlock(variableName = "Variable", initialValue = "0")
+                    BlockType.CONDITION ->
+                        ConditionBlock(firstExpression = "0", operator = "==", secondExpression = "0")
+                    BlockType.END ->
+                        EndBlock()
                     else -> throw IllegalArgumentException("Unknown block type")
                 }
                 onBlockSelected(newBlock)
