@@ -13,7 +13,9 @@ sealed class BlockContent{
     ) :BlockContent()
 
     data class Condition(
-        var condition: String
+        var firstPart: String,
+        var operator: String,
+        var secondPart: String
     ) :BlockContent()
 
     class End() :BlockContent()

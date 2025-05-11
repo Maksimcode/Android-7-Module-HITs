@@ -16,8 +16,11 @@ fun interpret(block: Block, state: InterpreterState) {
             state.assignValue(variableName, expr)
         }
         is BlockContent.Condition -> {
-            val conditionInto = content.condition?.trim() ?: "nope"
+            val firstExpr = content.firstPart?.trim() ?: "0"
+            val operate = content.operator?.trim() ?: "=="
+            val secondExpr = content.secondPart?.trim() ?: "0"
         }
+        is BlockContent.End -> {}
     }
 
     block.child?.let { child ->
