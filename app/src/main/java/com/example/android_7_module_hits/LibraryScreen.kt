@@ -20,6 +20,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,40 +47,46 @@ fun MainContent(
 ){
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabTitles = listOf("My projects", "Examples")
-    Column (
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ){
-        Spacer(modifier = Modifier.height(40.dp))
-        Header()
-        Spacer(modifier = Modifier.height(22.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
-            tabTitles.forEachIndexed { index, title ->
-                TabButton(
-                    selected = selectedTabIndex == index,
-                    text = title,
-                    onClick = { selectedTabIndex = index }
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-        when (selectedTabIndex) {
-            0 -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "It's empty now :(")
+            Spacer(modifier = Modifier.height(40.dp))
+            Header()
+            Spacer(modifier = Modifier.height(22.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                tabTitles.forEachIndexed { index, title ->
+                    TabButton(
+                        selected = selectedTabIndex == index,
+                        text = title,
+                        onClick = { selectedTabIndex = index }
+                    )
                 }
             }
-            1 -> {
-                GreetProjectBlocks(navController)
+            Spacer(modifier = Modifier.height(24.dp))
+            when (selectedTabIndex) {
+                0 -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "It's empty now :(")
+                    }
+                }
+
+                1 -> {
+                    GreetProjectBlocks(navController)
+                }
             }
+        }
+        if (selectedTabIndex == 0) {
+            RightBottomCircleButton(navController)
         }
     }
 }
@@ -218,6 +227,39 @@ fun ProjectBlock(
                 color = contentColor,
                 fontSize = 20.sp,
                 fontWeight = FontWeight(300)
+            )
+        }
+    }
+}
+
+@Composable
+fun RightBottomCircleButton(navController: NavController) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+                .shadow(
+                    elevation = 25.dp,
+                    spotColor = Color(0x40E2E2E2),
+                    ambientColor = Color(0x40E2E2E2),
+                    shape = RoundedCornerShape(32.dp)
+                )
+                .size(56.dp)
+                .background(
+                    color = deepblue,
+                    shape = RoundedCornerShape(32.dp)
+                )
+                .clickable {
+                    navController.navigate(route = Screen.Workspace.route)
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = "Workspace",
+                tint = Color.White,
+                modifier = Modifier.size(32.dp)
             )
         }
     }
