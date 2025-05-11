@@ -15,6 +15,11 @@ abstract class BaseBlock(
     override var child: Block? = null
 
     override fun canAttachTo(other: Block): Boolean {
-        return true
+        if (child != null) {
+            return false
+        }else{
+            return true
+        }
+
     }
 }
