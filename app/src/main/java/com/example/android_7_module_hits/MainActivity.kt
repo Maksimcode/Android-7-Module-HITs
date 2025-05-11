@@ -19,6 +19,7 @@ import com.example.android_7_module_hits.ui.theme.Android7ModuleHITsTheme
 import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -112,11 +113,15 @@ fun MainScreen() {
             ) {
                 val allBlocks = remember { mutableStateListOf<Block>() }
 
+                InfiniteCanvas {
+                    CreateBlock(allBlocks)
+                }
+
                 BlockPalette { newBlock ->
                     allBlocks.add(newBlock)
                 }
 
-                CreateBlock(allBlocks)
+
             }
         },
         bottomBar = {
@@ -205,6 +210,34 @@ fun AttachmentHighlight(position: Offset) {
             .size(width = 200.dp, height = 16.dp)
             .offset { IntOffset(position.x.roundToInt(), position.y.roundToInt())}
     )
+}
+
+@Composable
+fun InfiniteCanvas(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    var offset by remember { mutableStateOf(Offset.Zero) }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .pointerInput(Unit) {
+                detectTransformGestures(
+                    panZoomLock = false,
+                    onGesture = { centroid, pan, zoom, rotation ->
+                        offset += pan
+                    }
+                )
+            }
+            .graphicsLayer(
+                translationX = offset.x,
+                translationY = offset.y
+            )
+    ) {
+        content()
+    }
 }
 
 
