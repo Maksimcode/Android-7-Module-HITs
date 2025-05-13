@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,8 +38,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.android_7_module_hits.Blocks.AssignmentBlock
@@ -69,9 +72,21 @@ import kotlin.math.roundToInt
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    navController: NavController
+    navController: NavController,
+    projectViewModel: ProjectViewModel
 ) {
-    val allBlocks = remember { mutableStateOf(listOf<Block>()) }
+    val context = LocalContext.current
+    val allBlocks = remember { mutableStateOf<List<Block>>(listOf()) }
+    // Попытка загрузить сохранённое состояние один раз при старте экрана
+    LaunchedEffect(Unit) {
+        val savedJson = loadStateFromFile(context, "project_state.json")
+        if (savedJson != null) {
+            val loadedBlockStates = deserializeBlocks(savedJson)
+            val loadedBlocks = loadedBlockStates.map { it.toBlock() }
+            allBlocks.value = loadedBlocks
+            Log.d("Load", "Загружено ${loadedBlocks.size} блоков из сохранённого файла")
+        }
+    }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -113,7 +128,12 @@ fun MainScreen(
             }
         },
         bottomBar = {
-            BottomCircleButtons(allBlocks)
+            BottomCircleButtons(allBlocks = allBlocks,
+                onProjectSaved = { newProject ->
+                    // При сохранении проекта добавляем его в общий список
+                    projectViewModel.addProject(newProject)
+                }
+            )
         }
     )
 }
@@ -233,7 +253,11 @@ fun InfiniteCanvas(
 
 
 @Composable
-fun BottomCircleButtons(allBlocks: MutableState<List<Block>>) {
+fun BottomCircleButtons(
+    allBlocks: MutableState<List<Block>>,
+    onProjectSaved: (ProjectPreview) -> Unit
+) {
+    val context = LocalContext.current
 
     val buttonColors = listOf(
         FolderButtonMain,
@@ -246,7 +270,7 @@ fun BottomCircleButtons(allBlocks: MutableState<List<Block>>) {
         Icons.Filled.Star, // Папки почему-то не было
         Icons.Filled.Close,
         Icons.Filled.Settings,
-        Icons.Filled.Check
+        Icons.Filled.PlayArrow
     )
 
     val iconTints = listOf(
@@ -283,7 +307,25 @@ fun BottomCircleButtons(allBlocks: MutableState<List<Block>>) {
                         )
                         .clickable {
                             when (index) {
-                                0 -> {}
+                                0 -> {
+                                    // При нажатии на первую кнопку происходит сохранение
+                                    val blockStates = allBlocks.value.map { it.toBlockState() }
+                                    val jsonData = serializeBlocks(blockStates)
+                                    saveStateToFile(context, "project_state.json", jsonData)
+                                    Log.d("Save", "Проект сохранён в файл: project_state.json")
+
+                                    // Создаем объект ProjectPreview с текущей датой
+                                    val currentDate = java.text.SimpleDateFormat(
+                                        "dd.MM.yyyy",
+                                        java.util.Locale.getDefault()
+                                    ).format(java.util.Date())
+                                    val newProject = ProjectPreview(
+                                        id = java.util.UUID.randomUUID().toString(),
+                                        saveDate = currentDate
+                                    )
+                                    // Вызываем callback, чтобы сообщить, что проект сохранен
+                                    onProjectSaved(newProject)
+                                }
                                 1 -> {}
                                 2 -> {}
                                 3 -> {
@@ -304,12 +346,4 @@ fun BottomCircleButtons(allBlocks: MutableState<List<Block>>) {
             }
         }
     }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun WorkspaceScreenPreview(){
-    MainScreen(
-        navController = rememberNavController()
-    )
 }
