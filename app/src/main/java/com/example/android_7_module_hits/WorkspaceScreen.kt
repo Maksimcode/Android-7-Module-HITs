@@ -4,7 +4,6 @@ package com.example.android_7_module_hits
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,12 +39,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavController
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockContent
-import com.example.android_7_module_hits.Blocks.BlockHasBody
 import com.example.android_7_module_hits.Blocks.BlockManager
-import com.example.android_7_module_hits.Blocks.BlockType
-import com.example.android_7_module_hits.Blocks.ConditionBlock
-import com.example.android_7_module_hits.Blocks.DeclarationBlock
-import com.example.android_7_module_hits.Blocks.EndBlock
 import com.example.android_7_module_hits.Blocks.attachChild
 import com.example.android_7_module_hits.Blocks.findAttachableParent
 import com.example.android_7_module_hits.Blocks.logAllBlocks
@@ -64,6 +58,7 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.runtime.snapshots.SnapshotStateList
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -136,11 +131,12 @@ fun MainScreen(
 
 @Composable
 fun CreateBlock() {
+    // Используем список блоков из BlockManager
     BlockManager.allBlocks.forEach { block ->
         key(block.id) {
             DraggableBlock(
                 block = block,
-                allBlocks = BlockManager.allBlocks,
+                allBlocks = BlockManager.allBlocks,  // BlockManager.allBlocks имеет тип SnapshotStateList<Block>
                 onPositionChange = { newPosition ->
                     block.position = newPosition
                 },
@@ -153,14 +149,21 @@ fun CreateBlock() {
 }
 
 
-
 @Composable
 fun BlockView(block: Block) {
     when (val content = block.content) {
-        is BlockContent.Declare -> DeclareBlockView(content, block)
-        is BlockContent.Assignment -> AssignBlockView(content, block)
-        is BlockContent.Condition -> ConditionBlockView(content, block)
-        is BlockContent.End -> EndBlockView(content, block)
+        is BlockContent.Declare -> {
+            DeclareBlockView(content, block)
+        }
+        is BlockContent.Assignment -> {
+            AssignBlockView(content, block)
+        }
+        is BlockContent.Condition -> {
+            ConditionBlockView(content, block)
+        }
+        is BlockContent.End -> {
+            EndBlockView(content, block)
+        }
         else -> {
             Text("Неизвестный тип блока")
         }
@@ -171,9 +174,10 @@ fun BlockView(block: Block) {
 @Composable
 fun DraggableBlock(
     block: Block,
-    allBlocks: MutableState<List<Block>>,
+    allBlocks: SnapshotStateList<Block>, // Из BlockManager
     onPositionChange: (Offset) -> Unit,
-    onDelete: () -> Unit) {
+    onDelete: () -> Unit
+) {
     var offset by remember { mutableStateOf(block.position) }
     val showDeleteIcon = remember { mutableStateOf(false) }
 
@@ -181,12 +185,8 @@ fun DraggableBlock(
         modifier = Modifier
             .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
             .combinedClickable(
-                onClick = {
-                    showDeleteIcon.value = false
-                },
-                onLongClick = {
-                    showDeleteIcon.value = true
-                }
+                onClick = { showDeleteIcon.value = false },
+                onLongClick = { showDeleteIcon.value = true }
             )
             .pointerInput(Unit) {
                 detectDragGestures(
@@ -194,11 +194,10 @@ fun DraggableBlock(
                         change.consume()
                         showDeleteIcon.value = false
                         offset += dragAmount
-
-
                     },
                     onDragEnd = {
-                        val attachableParent = findAttachableParent(allBlocks.value, block, offset)
+                        // Вызываем функцию с двумя аргументами, как требуется её сигнатуре
+                        val attachableParent = findAttachableParent(block, offset)
                         if (attachableParent != null) {
                             attachChild(parent = attachableParent, child = block)
                             offset = Offset(
@@ -217,7 +216,8 @@ fun DraggableBlock(
         Column {
             BlockView(block)
             if (offset != block.position) {
-                val attachableParent = findAttachableParent(allBlocks.value, block, offset)
+                // Вызываем findAttachableParent с двумя аргументами
+                val attachableParent = findAttachableParent(block, offset)
                 if (attachableParent != null) {
                     Log.d("highlight", "type parent - ${attachableParent.type}, child - ${block.type}")
                     AttachmentHighlight(attachableParent.position)
