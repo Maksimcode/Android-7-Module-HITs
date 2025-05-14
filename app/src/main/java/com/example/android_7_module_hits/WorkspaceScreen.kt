@@ -45,6 +45,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.android_7_module_hits.Blocks.AssignmentBlock
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockContent
+import com.example.android_7_module_hits.Blocks.BlockManager
 import com.example.android_7_module_hits.Blocks.BlockType
 import com.example.android_7_module_hits.Blocks.ConditionBlock
 import com.example.android_7_module_hits.Blocks.DeclarationBlock
@@ -72,7 +73,6 @@ import kotlin.math.roundToInt
 fun MainScreen(
     navController: NavController
 ) {
-    val allBlocks = remember { mutableStateOf(listOf<Block>()) }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -104,27 +104,27 @@ fun MainScreen(
             ) {
 
                 InfiniteCanvas {
-                    CreateBlock(allBlocks)
+                    CreateBlock()
                 }
 
                 BlockPalette { newBlock ->
-                    allBlocks.value += newBlock
+                    BlockManager.addBlock(newBlock)
                 }
 
             }
         },
         bottomBar = {
-            BottomCircleButtons(allBlocks)
+            BottomCircleButtons()
         }
     )
 }
 
 @Composable
-fun CreateBlock(allBlocks: MutableState<List<Block>>) {
-    val latestAllBlocks by rememberUpdatedState(allBlocks)
-    latestAllBlocks.value.forEach { block ->
+fun CreateBlock() {
+
+    BlockManager.allBlocks.forEach { block ->
         key(block.id) {
-            DraggableBlock(block = block, latestAllBlocks, onPositionChange = { newPosition ->
+            DraggableBlock(block = block, onPositionChange = { newPosition ->
                 block.position = newPosition
             })
         }
@@ -147,9 +147,8 @@ fun BlockView(block: Block) {
 
 
 @Composable
-fun DraggableBlock(block: Block, allBlocks: MutableState<List<Block>>, onPositionChange: (Offset) -> Unit) {
+fun DraggableBlock(block: Block, onPositionChange: (Offset) -> Unit) {
     var offset by remember { mutableStateOf(block.position) }
-    val latestAllBlocks by rememberUpdatedState(allBlocks.value)
 
     Box(
         modifier = Modifier
@@ -164,7 +163,7 @@ fun DraggableBlock(block: Block, allBlocks: MutableState<List<Block>>, onPositio
                     },
                     onDragEnd = {
 
-                        val attachableParent = findAttachableParent(latestAllBlocks, block, offset)
+                        val attachableParent = findAttachableParent(block, offset)
 
                         if (attachableParent != null) {
                             attachChild(parent = attachableParent, child = block)
@@ -182,7 +181,7 @@ fun DraggableBlock(block: Block, allBlocks: MutableState<List<Block>>, onPositio
     ) {
         BlockView(block)
         if (offset != block.position){
-            val attachableParent = findAttachableParent(latestAllBlocks, block, offset)
+            val attachableParent = findAttachableParent(block, offset)
 
             if (attachableParent != null)
             {
@@ -234,7 +233,7 @@ fun InfiniteCanvas(
 
 
 @Composable
-fun BottomCircleButtons(allBlocks: MutableState<List<Block>>) {
+fun BottomCircleButtons() {
 
     val buttonColors = listOf(
         FolderButtonMain,
@@ -288,8 +287,8 @@ fun BottomCircleButtons(allBlocks: MutableState<List<Block>>) {
                                 1 -> {}
                                 2 -> {}
                                 3 -> {
-                                    logAllBlocks(allBlocks.value)
-                                    runInterpreter(allBlocks.value)
+                                    logAllBlocks()
+                                    runInterpreter()
                                 }
                             }
                         },
