@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,13 +25,9 @@ import com.example.android_7_module_hits.ui.theme.FolderButtonMain
 import com.example.android_7_module_hits.ui.theme.RunButtonMain
 import com.example.android_7_module_hits.ui.theme.SettingsButtonMain
 import com.example.android_7_module_hits.ui.theme.StopButtonMain
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
@@ -38,11 +35,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.android_7_module_hits.Blocks.AssignmentBlock
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockContent
 import com.example.android_7_module_hits.Blocks.BlockHasBody
@@ -60,20 +55,34 @@ import com.example.android_7_module_hits.ui.theme.RunButtonSub
 import com.example.android_7_module_hits.ui.theme.SettingsButtonSub
 import com.example.android_7_module_hits.ui.theme.StopButtonSub
 import com.example.android_7_module_hits.ui.uiblocks.AssignBlockView
-import com.example.android_7_module_hits.ui.uiblocks.BlockTemplate
 import com.example.android_7_module_hits.ui.uiblocks.ConditionBlockView
 import com.example.android_7_module_hits.ui.uiblocks.DeclareBlockView
 import com.example.android_7_module_hits.ui.uiblocks.EndBlockView
-import com.example.android_7_module_hits.ui.uiblocks.availableBlocks
 import kotlin.math.roundToInt
-
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
+import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.Folder
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    navController: NavController
+    navController: NavController,
+    projectViewModel: ProjectViewModel
 ) {
+    val context = LocalContext.current
+    val allBlocks = remember { mutableStateOf<List<Block>>(listOf()) }
+    LaunchedEffect(Unit) {
+        val savedJson = loadStateFromFile(context, "project_state.json")
+        if (savedJson != null) {
+            val loadedBlockStates = deserializeBlocks(savedJson)
+            val loadedBlocks = loadedBlockStates.map { it.toBlock() }
+            allBlocks.value = loadedBlocks
+            Log.d("Load", "Загружено ${loadedBlocks.size} блоков из сохранённого файла")
+        }
+    }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -115,23 +124,35 @@ fun MainScreen(
             }
         },
         bottomBar = {
-            BottomCircleButtons()
+            BottomCircleButtons(allBlocks = allBlocks,
+                onProjectSaved = { newProject ->
+                    // При сохранении проекта добавляем его в общий список
+                    projectViewModel.addProject(newProject)
+                }
+            )
         }
     )
 }
 
 @Composable
 fun CreateBlock() {
-
     BlockManager.allBlocks.forEach { block ->
         key(block.id) {
-            DraggableBlock(block = block, onPositionChange = { newPosition ->
-                block.position = newPosition
-            })
+            DraggableBlock(
+                block = block,
+                allBlocks = BlockManager.allBlocks,
+                onPositionChange = { newPosition ->
+                    block.position = newPosition
+                },
+                onDelete = {
+                    BlockManager.allBlocks.remove(block)
+                }
+            )
         }
     }
-
 }
+
+
 
 @Composable
 fun BlockView(block: Block) {
@@ -148,30 +169,42 @@ fun BlockView(block: Block) {
 
 
 @Composable
-fun DraggableBlock(block: Block, onPositionChange: (Offset) -> Unit) {
+fun DraggableBlock(
+    block: Block,
+    allBlocks: MutableState<List<Block>>,
+    onPositionChange: (Offset) -> Unit,
+    onDelete: () -> Unit) {
     var offset by remember { mutableStateOf(block.position) }
+    val showDeleteIcon = remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
             .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
+            .combinedClickable(
+                onClick = {
+                    showDeleteIcon.value = false
+                },
+                onLongClick = {
+                    showDeleteIcon.value = true
+                }
+            )
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDrag = { change, dragAmount ->
                         change.consume()
+                        showDeleteIcon.value = false
                         offset += dragAmount
 
 
                     },
                     onDragEnd = {
-
-                        val attachableParent = findAttachableParent(block, offset)
-
+                        val attachableParent = findAttachableParent(allBlocks.value, block, offset)
                         if (attachableParent != null) {
                             attachChild(parent = attachableParent, child = block)
-                            offset = Offset(attachableParent.position.x, attachableParent.position.y + 150f)
-                        }
-                        if (block.type == BlockType.END){
-                            block.parent?.let {block.attachHasBodyBlock(block, it)}
+                            offset = Offset(
+                                attachableParent.position.x,
+                                attachableParent.position.y + 150f
+                            )
                         }
                         onPositionChange(offset)
                     },
@@ -181,17 +214,27 @@ fun DraggableBlock(block: Block, onPositionChange: (Offset) -> Unit) {
                 )
             }
     ) {
-        BlockView(block)
-        if (offset != block.position){
-            val attachableParent = findAttachableParent(block, offset)
-
-            if (attachableParent != null)
-            {
-                Log.d("highlight", "type parent - ${attachableParent.type}, child - ${block.type}")
-                AttachmentHighlight(attachableParent.position)
+        Column {
+            BlockView(block)
+            if (offset != block.position) {
+                val attachableParent = findAttachableParent(allBlocks.value, block, offset)
+                if (attachableParent != null) {
+                    Log.d("highlight", "type parent - ${attachableParent.type}, child - ${block.type}")
+                    AttachmentHighlight(attachableParent.position)
+                }
             }
         }
-
+        if (showDeleteIcon.value) {
+            Icon(
+                imageVector = Icons.Filled.DeleteOutline,
+                contentDescription = "Удалить блок",
+                tint = Color.Red,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(24.dp)
+                    .clickable { onDelete() }
+            )
+        }
     }
 }
 
@@ -235,25 +278,29 @@ fun InfiniteCanvas(
 
 
 @Composable
-fun BottomCircleButtons() {
+fun BottomCircleButtons(
+    allBlocks: MutableState<List<Block>>,
+    onProjectSaved: (ProjectPreview) -> Unit
+) {
+    val context = LocalContext.current
 
     val buttonColors = listOf(
         FolderButtonMain,
-        StopButtonMain,
+        StopButtonSub,
         SettingsButtonMain,
         RunButtonMain
     )
 
     val iconList: List<ImageVector> = listOf(
-        Icons.Filled.Star, // Папки почему-то не было
-        Icons.Filled.Close,
-        Icons.Filled.Settings,
-        Icons.Filled.Check
+        Icons.Filled.Folder,
+        Icons.Filled.CheckBoxOutlineBlank,
+        Icons.Filled.BugReport,
+        Icons.Filled.PlayArrow
     )
 
     val iconTints = listOf(
         FolderButtonSub,
-        StopButtonSub,
+        StopButtonMain,
         SettingsButtonSub,
         RunButtonSub
     )
@@ -285,7 +332,24 @@ fun BottomCircleButtons() {
                         )
                         .clickable {
                             when (index) {
-                                0 -> {}
+                                0 -> {
+                                    // При нажатии на первую кнопку происходит сохранение
+                                    val blockStates = allBlocks.value.map { it.toBlockState() }
+                                    val jsonData = serializeBlocks(blockStates)
+                                    saveStateToFile(context, "project_state.json", jsonData)
+                                    Log.d("Save", "Проект сохранён в файл: project_state.json")
+
+                                    // Создаем объект ProjectPreview с текущей датой
+                                    val currentDate = java.text.SimpleDateFormat(
+                                        "dd.MM.yyyy",
+                                        java.util.Locale.getDefault()
+                                    ).format(java.util.Date())
+                                    val newProject = ProjectPreview(
+                                        id = java.util.UUID.randomUUID().toString(),
+                                        saveDate = currentDate
+                                    )
+                                    onProjectSaved(newProject)
+                                }
                                 1 -> {}
                                 2 -> {}
                                 3 -> {
@@ -306,12 +370,4 @@ fun BottomCircleButtons() {
             }
         }
     }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun WorkspaceScreenPreview(){
-    MainScreen(
-        navController = rememberNavController()
-    )
 }

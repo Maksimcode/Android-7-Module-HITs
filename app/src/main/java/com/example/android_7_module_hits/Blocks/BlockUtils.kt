@@ -1,6 +1,5 @@
 package com.example.android_7_module_hits.Blocks
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.geometry.Offset
 import kotlin.math.sqrt
 
