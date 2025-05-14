@@ -77,7 +77,6 @@ fun MainScreen(
 ) {
     val context = LocalContext.current
     val allBlocks = remember { mutableStateOf<List<Block>>(listOf()) }
-    // Попытка загрузить сохранённое состояние один раз при старте экрана
     LaunchedEffect(Unit) {
         val savedJson = loadStateFromFile(context, "project_state.json")
         if (savedJson != null) {

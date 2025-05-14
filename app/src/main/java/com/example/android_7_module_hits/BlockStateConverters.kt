@@ -35,12 +35,9 @@ fun Block.toBlockState(): BlockState {
 }
 
 fun BlockState.toBlock(): Block {
-    // Преобразуем сохранённую позицию обратно в Offset
     val position = Offset(this.position.x, this.position.y)
-    // В зависимости от типа блока создаём соответствующий объект
     return when (this.type) {
         BlockTypeState.DECLARE -> {
-            // Приводим содержимое к нужному типу
             val contentState = this.content as? BlockContentState.Declare
             DeclarationBlock(
                 variableName = contentState?.name ?: "unknown",

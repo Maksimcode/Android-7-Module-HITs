@@ -36,7 +36,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.android_7_module_hits.ui.theme.deepblue
 import com.example.android_7_module_hits.ui.theme.lightblue
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.style.TextAlign
@@ -54,7 +53,6 @@ fun MainContent(
     val tabTitles = listOf("My projects", "Examples")
     val myProjects = projectViewModel.myProjects
 
-    // Логирование для проверки количества проектов:
     SideEffect {
         Log.d("LibraryScreen", "Сохранённых проектов: ${myProjects.size}")
     }
@@ -104,7 +102,6 @@ fun MainContent(
                     }
                 }
                 1 -> {
-                    // Вкладка "Examples":
                     GreetProjectBlocks(navController)
                 }
             }
