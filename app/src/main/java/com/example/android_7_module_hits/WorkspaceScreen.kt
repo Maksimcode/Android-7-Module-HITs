@@ -23,7 +23,6 @@ import com.example.android_7_module_hits.ui.theme.FolderButtonMain
 import com.example.android_7_module_hits.ui.theme.RunButtonMain
 import com.example.android_7_module_hits.ui.theme.SettingsButtonMain
 import com.example.android_7_module_hits.ui.theme.StopButtonMain
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
@@ -66,7 +65,11 @@ import com.example.android_7_module_hits.ui.uiblocks.DeclareBlockView
 import com.example.android_7_module_hits.ui.uiblocks.EndBlockView
 import com.example.android_7_module_hits.ui.uiblocks.availableBlocks
 import kotlin.math.roundToInt
-
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Folder
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -260,21 +263,21 @@ fun BottomCircleButtons(
 
     val buttonColors = listOf(
         FolderButtonMain,
-        StopButtonMain,
+        StopButtonSub,
         SettingsButtonMain,
         RunButtonMain
     )
 
     val iconList: List<ImageVector> = listOf(
-        Icons.Filled.Star, // Папки почему-то не было
-        Icons.Filled.Close,
-        Icons.Filled.Settings,
+        Icons.Filled.Folder,
+        Icons.Filled.CheckBoxOutlineBlank,
+        Icons.Filled.BugReport,
         Icons.Filled.PlayArrow
     )
 
     val iconTints = listOf(
         FolderButtonSub,
-        StopButtonSub,
+        StopButtonMain,
         SettingsButtonSub,
         RunButtonSub
     )
@@ -322,7 +325,6 @@ fun BottomCircleButtons(
                                         id = java.util.UUID.randomUUID().toString(),
                                         saveDate = currentDate
                                     )
-                                    // Вызываем callback, чтобы сообщить, что проект сохранен
                                     onProjectSaved(newProject)
                                 }
                                 1 -> {}
