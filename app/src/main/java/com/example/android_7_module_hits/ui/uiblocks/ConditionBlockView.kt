@@ -36,6 +36,8 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block){
     var editedOperator by remember(content.operator ?: "==") { mutableStateOf(content.operator ?: "0") }
     var editedSecondPart by remember(content.secondPart ?: "0") { mutableStateOf(content.secondPart ?: "0") }
 
+    var editedColor by remember()
+
 
     Card(
         modifier = Modifier
