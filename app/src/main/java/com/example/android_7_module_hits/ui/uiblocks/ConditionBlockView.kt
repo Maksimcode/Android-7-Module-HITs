@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockContent
+import com.example.android_7_module_hits.Blocks.BlockHasBody
 
 @Composable
 fun ConditionBlockView(content: BlockContent.Condition, block: Block){
@@ -36,14 +38,15 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block){
     var editedOperator by remember(content.operator ?: "==") { mutableStateOf(content.operator ?: "0") }
     var editedSecondPart by remember(content.secondPart ?: "0") { mutableStateOf(content.secondPart ?: "0") }
 
-    var editedColor by remember()
-
+    val hasEndBlock by remember(block) { derivedStateOf { block.hasEndBlock() }}
 
     Card(
         modifier = Modifier
             .width(200.dp)
             .padding(4.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (!hasEndBlock) Color.Red else Color.LightGray)
     ){
         Column(modifier = Modifier.padding(8.dp)){
             if (isEditingFirstPart)
