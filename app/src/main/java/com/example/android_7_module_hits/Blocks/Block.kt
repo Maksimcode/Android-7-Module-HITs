@@ -11,7 +11,26 @@ interface Block {
     var parent: Block?
     var child: Block?
 
+    var rootBlock: Block?
+    var EndBlock: Block?
+
     fun canAttachTo(other: Block): Boolean
 
+    fun hasEndBlock(): Boolean = when (this) {
+        is BlockHasBody -> this.EndBlock != null
+        else -> false
+    }
+
+    fun attachHasBodyBlock(currentBlock: Block, withBodyBlock: Block){
+        if (currentBlock is EndBlock){
+            if (withBodyBlock is BlockHasBody && withBodyBlock.EndBlock == null){
+                withBodyBlock.EndBlock = currentBlock
+                currentBlock.rootBlock = withBodyBlock
+            }
+            else{
+                withBodyBlock.parent?.let { attachHasBodyBlock(currentBlock ,it) }
+            }
+        }
+    }
 }
 

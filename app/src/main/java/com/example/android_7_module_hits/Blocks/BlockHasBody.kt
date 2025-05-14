@@ -14,7 +14,8 @@ abstract class BlockHasBody(
     override var parent: Block? = null
     override var child: Block? = null
 
-    var EndBlock: Block? = null
+    override var rootBlock: Block? = null
+    override var EndBlock: Block? = null
 
     override fun canAttachTo(other: Block): Boolean {
         if (child != null) {
@@ -31,4 +32,11 @@ abstract class BlockHasBody(
             block.child?.let { attachToEnd(it) }
         }
     }
+
+    override fun hasEndBlock(): Boolean {
+        return EndBlock != null
+    }
+
+
+
 }

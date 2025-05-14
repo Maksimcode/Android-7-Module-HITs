@@ -45,6 +45,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.android_7_module_hits.Blocks.AssignmentBlock
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockContent
+import com.example.android_7_module_hits.Blocks.BlockHasBody
 import com.example.android_7_module_hits.Blocks.BlockManager
 import com.example.android_7_module_hits.Blocks.BlockType
 import com.example.android_7_module_hits.Blocks.ConditionBlock
@@ -168,10 +169,11 @@ fun DraggableBlock(block: Block, onPositionChange: (Offset) -> Unit) {
                         if (attachableParent != null) {
                             attachChild(parent = attachableParent, child = block)
                             offset = Offset(attachableParent.position.x, attachableParent.position.y + 150f)
-                            onPositionChange(offset)
-                        } else {
-                            onPositionChange(offset)
                         }
+                        if (block.type == BlockType.END){
+                            block.parent?.let {block.attachHasBodyBlock(block, it)}
+                        }
+                        onPositionChange(offset)
                     },
                     onDragCancel = {
                         onPositionChange(offset)
