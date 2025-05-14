@@ -31,6 +31,9 @@ interface Block {
             if (withBodyBlock is BlockHasBody && withBodyBlock.EndBlock == null){
                 withBodyBlock.EndBlock = currentBlock
                 currentBlock.rootBlock = withBodyBlock
+                BlockManager.updateBlock(currentBlock)
+                BlockManager.updateBlock(withBodyBlock)
+
             }
             else{
                 withBodyBlock.parent?.let { attachHasBodyBlock(currentBlock ,it) }
