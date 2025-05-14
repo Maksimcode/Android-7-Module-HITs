@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,12 +25,8 @@ import com.example.android_7_module_hits.ui.theme.RunButtonMain
 import com.example.android_7_module_hits.ui.theme.SettingsButtonMain
 import com.example.android_7_module_hits.ui.theme.StopButtonMain
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
@@ -38,18 +35,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.android_7_module_hits.Blocks.AssignmentBlock
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockContent
-import com.example.android_7_module_hits.Blocks.BlockType
-import com.example.android_7_module_hits.Blocks.ConditionBlock
-import com.example.android_7_module_hits.Blocks.DeclarationBlock
-import com.example.android_7_module_hits.Blocks.EndBlock
 import com.example.android_7_module_hits.Blocks.attachChild
 import com.example.android_7_module_hits.Blocks.findAttachableParent
 import com.example.android_7_module_hits.Blocks.logAllBlocks
@@ -59,16 +48,14 @@ import com.example.android_7_module_hits.ui.theme.RunButtonSub
 import com.example.android_7_module_hits.ui.theme.SettingsButtonSub
 import com.example.android_7_module_hits.ui.theme.StopButtonSub
 import com.example.android_7_module_hits.ui.uiblocks.AssignBlockView
-import com.example.android_7_module_hits.ui.uiblocks.BlockTemplate
 import com.example.android_7_module_hits.ui.uiblocks.ConditionBlockView
 import com.example.android_7_module_hits.ui.uiblocks.DeclareBlockView
 import com.example.android_7_module_hits.ui.uiblocks.EndBlockView
-import com.example.android_7_module_hits.ui.uiblocks.availableBlocks
 import kotlin.math.roundToInt
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Folder
 
 
@@ -142,16 +129,23 @@ fun MainScreen(
 
 @Composable
 fun CreateBlock(allBlocks: MutableState<List<Block>>) {
-    val latestAllBlocks by rememberUpdatedState(allBlocks)
-    latestAllBlocks.value.forEach { block ->
+    allBlocks.value.forEach { block ->
         key(block.id) {
-            DraggableBlock(block = block, latestAllBlocks, onPositionChange = { newPosition ->
-                block.position = newPosition
-            })
+            DraggableBlock(
+                block = block,
+                allBlocks = allBlocks,
+                onPositionChange = { newPosition ->
+                    block.position = newPosition
+                },
+                onDelete = {
+                    allBlocks.value = allBlocks.value.filter { it.id != block.id }
+                }
+            )
         }
     }
-
 }
+
+
 
 @Composable
 fun BlockView(block: Block) {
@@ -168,32 +162,44 @@ fun BlockView(block: Block) {
 
 
 @Composable
-fun DraggableBlock(block: Block, allBlocks: MutableState<List<Block>>, onPositionChange: (Offset) -> Unit) {
+fun DraggableBlock(
+    block: Block,
+    allBlocks: MutableState<List<Block>>,
+    onPositionChange: (Offset) -> Unit,
+    onDelete: () -> Unit) {
     var offset by remember { mutableStateOf(block.position) }
-    val latestAllBlocks by rememberUpdatedState(allBlocks.value)
+    val showDeleteIcon = remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
             .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
+            .combinedClickable(
+                onClick = {
+                    showDeleteIcon.value = false
+                },
+                onLongClick = {
+                    showDeleteIcon.value = true
+                }
+            )
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDrag = { change, dragAmount ->
                         change.consume()
+                        showDeleteIcon.value = false
                         offset += dragAmount
 
 
                     },
                     onDragEnd = {
-
-                        val attachableParent = findAttachableParent(latestAllBlocks, block, offset)
-
+                        val attachableParent = findAttachableParent(allBlocks.value, block, offset)
                         if (attachableParent != null) {
                             attachChild(parent = attachableParent, child = block)
-                            offset = Offset(attachableParent.position.x, attachableParent.position.y + 150f)
-                            onPositionChange(offset)
-                        } else {
-                            onPositionChange(offset)
+                            offset = Offset(
+                                attachableParent.position.x,
+                                attachableParent.position.y + 150f
+                            )
                         }
+                        onPositionChange(offset)
                     },
                     onDragCancel = {
                         onPositionChange(offset)
@@ -201,17 +207,27 @@ fun DraggableBlock(block: Block, allBlocks: MutableState<List<Block>>, onPositio
                 )
             }
     ) {
-        BlockView(block)
-        if (offset != block.position){
-            val attachableParent = findAttachableParent(latestAllBlocks, block, offset)
-
-            if (attachableParent != null)
-            {
-                Log.d("highlight", "type parent - ${attachableParent.type}, child - ${block.type}")
-                AttachmentHighlight(attachableParent.position)
+        Column {
+            BlockView(block)
+            if (offset != block.position) {
+                val attachableParent = findAttachableParent(allBlocks.value, block, offset)
+                if (attachableParent != null) {
+                    Log.d("highlight", "type parent - ${attachableParent.type}, child - ${block.type}")
+                    AttachmentHighlight(attachableParent.position)
+                }
             }
         }
-
+        if (showDeleteIcon.value) {
+            Icon(
+                imageVector = Icons.Filled.DeleteOutline,
+                contentDescription = "Удалить блок",
+                tint = Color.Red,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(24.dp)
+                    .clickable { onDelete() }
+            )
+        }
     }
 }
 
