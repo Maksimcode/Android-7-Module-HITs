@@ -53,6 +53,6 @@ fun logAllBlocks() {
             is BlockContent.End -> "End"
             else -> "unknown"
         }
-        println("Блок $index: ID=${block.id}, Name=$name, End = ${block.EndBlock} Root = ${block.rootBlock}")
+        println("Блок $index: ID=${block.id}, Name=${block}, End = ${block.EndBlock} Root = ${block.rootBlock}")
     }
 }

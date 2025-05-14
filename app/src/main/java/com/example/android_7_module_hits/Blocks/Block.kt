@@ -21,6 +21,11 @@ interface Block {
         else -> false
     }
 
+    fun hasRootBlock(): Boolean = when (this) {
+        is EndBlock -> this.rootBlock != null
+        else -> false
+    }
+
     fun attachHasBodyBlock(currentBlock: Block, withBodyBlock: Block){
         if (currentBlock is EndBlock){
             if (withBodyBlock is BlockHasBody && withBodyBlock.EndBlock == null){
