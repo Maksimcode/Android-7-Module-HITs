@@ -24,6 +24,10 @@ fun interpret(block: Block, state: InterpreterState) {
             val operate = content.operator?.trim() ?: "=="
             val secondExpr = content.secondPart?.trim() ?: "0"
 
+            if (!currentBlock.hasEndBlock()){
+                throw IllegalStateException("Отсутствие привязанного блока End")
+            }
+
             val conditionResult = state.setCondition(firstExpr, operate, secondExpr)
 
             var current: Block? = currentBlock.child
@@ -41,7 +45,12 @@ fun interpret(block: Block, state: InterpreterState) {
             return
         }
 
-        is BlockContent.End -> {}
+        is BlockContent.End -> {
+            if (!currentBlock.hasRootBlock()){
+                throw IllegalStateException("Отсутствие привязанного блока HasBody")
+            }
+
+        }
     }
 
     currentBlock.child?.let { interpret(it, state) }

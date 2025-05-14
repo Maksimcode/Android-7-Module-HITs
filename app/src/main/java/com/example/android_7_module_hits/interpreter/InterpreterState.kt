@@ -27,6 +27,7 @@ class InterpreterState {
     }
 
     fun setCondition(firstExpression: String, operator: String, secondExpression: String) : Boolean{
+
         val firstResult = try {
             evaluateExpression(firstExpression ?: "0", variables)
         } catch (e: Exception) {

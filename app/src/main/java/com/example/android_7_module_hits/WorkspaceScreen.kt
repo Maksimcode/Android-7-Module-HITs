@@ -4,6 +4,7 @@ package com.example.android_7_module_hits
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +40,12 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavController
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockContent
+import com.example.android_7_module_hits.Blocks.BlockHasBody
+import com.example.android_7_module_hits.Blocks.BlockManager
+import com.example.android_7_module_hits.Blocks.BlockType
+import com.example.android_7_module_hits.Blocks.ConditionBlock
+import com.example.android_7_module_hits.Blocks.DeclarationBlock
+import com.example.android_7_module_hits.Blocks.EndBlock
 import com.example.android_7_module_hits.Blocks.attachChild
 import com.example.android_7_module_hits.Blocks.findAttachableParent
 import com.example.android_7_module_hits.Blocks.logAllBlocks
@@ -107,11 +114,11 @@ fun MainScreen(
             ) {
 
                 InfiniteCanvas {
-                    CreateBlock(allBlocks)
+                    CreateBlock()
                 }
 
                 BlockPalette { newBlock ->
-                    allBlocks.value += newBlock
+                    BlockManager.addBlock(newBlock)
                 }
 
             }
@@ -128,17 +135,17 @@ fun MainScreen(
 }
 
 @Composable
-fun CreateBlock(allBlocks: MutableState<List<Block>>) {
-    allBlocks.value.forEach { block ->
+fun CreateBlock() {
+    BlockManager.allBlocks.forEach { block ->
         key(block.id) {
             DraggableBlock(
                 block = block,
-                allBlocks = allBlocks,
+                allBlocks = BlockManager.allBlocks,
                 onPositionChange = { newPosition ->
                     block.position = newPosition
                 },
                 onDelete = {
-                    allBlocks.value = allBlocks.value.filter { it.id != block.id }
+                    BlockManager.allBlocks.remove(block)
                 }
             )
         }
@@ -346,8 +353,8 @@ fun BottomCircleButtons(
                                 1 -> {}
                                 2 -> {}
                                 3 -> {
-                                    logAllBlocks(allBlocks.value)
-                                    runInterpreter(allBlocks.value)
+                                    logAllBlocks()
+                                    runInterpreter()
                                 }
                             }
                         },

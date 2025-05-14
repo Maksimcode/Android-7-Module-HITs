@@ -9,7 +9,7 @@ fun distanceBetween(a: Offset, b: Offset): Float {
     return sqrt(dx * dx + dy * dy)
 }
 
-fun findAttachableParent(allBlocks: List<Block>, draggedBlock: Block, currentPosition: Offset): Block? {
+fun findAttachableParent(draggedBlock: Block, currentPosition: Offset): Block? {
 
     var oldParent = draggedBlock.parent
     if (oldParent != null) {
@@ -18,7 +18,7 @@ fun findAttachableParent(allBlocks: List<Block>, draggedBlock: Block, currentPos
     }
 
 
-    return allBlocks.firstOrNull { candidate ->
+    return BlockManager.allBlocks.firstOrNull { candidate ->
         if (candidate.id == draggedBlock.id) return null
 
         val distance = distanceBetween(candidate.position, currentPosition)
@@ -41,15 +41,17 @@ fun attachChild(parent: Block, child: Block) {
 }
 
 
-fun logAllBlocks(allBlocks: List<Block>) {
-    println("Всего блоков: ${allBlocks.size}")
-    allBlocks.forEachIndexed { index, block ->
+fun logAllBlocks() {
+    println("Всего блоков: ${BlockManager.allBlocks.size}")
+    BlockManager.allBlocks.forEachIndexed { index, block ->
         val content = block.content
         val name = when (content) {
             is BlockContent.Declare -> content.name
             is BlockContent.Assignment -> content.name
+            is BlockContent.Condition -> "condition"
+            is BlockContent.End -> "End"
             else -> "unknown"
         }
-        println("Блок $index: ID=${block.id}, Name=$name, Parent=${block.parent?.id}, Child=${block.child?.id} Content=$content")
+        println("Блок $index: ID=${block.id}, Name=${block}, End = ${block.EndBlock} Root = ${block.rootBlock}")
     }
 }
