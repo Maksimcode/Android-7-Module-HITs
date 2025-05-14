@@ -38,15 +38,11 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block){
     var editedOperator by remember(content.operator ?: "==") { mutableStateOf(content.operator ?: "0") }
     var editedSecondPart by remember(content.secondPart ?: "0") { mutableStateOf(content.secondPart ?: "0") }
 
-    val hasEndBlock by remember(block) { derivedStateOf { block.hasEndBlock() }}
-
     Card(
         modifier = Modifier
             .width(200.dp)
             .padding(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (!hasEndBlock) Color.Red else Color.LightGray)
     ){
         Column(modifier = Modifier.padding(8.dp)){
             if (isEditingFirstPart)
