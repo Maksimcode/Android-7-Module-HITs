@@ -14,6 +14,8 @@ object BlockManager {
 
     fun removeBlock(block: Block) {
         _allBlocks.remove(block)
+        block.parent?.let { it.child = null }
+        block.child?.let { it.parent = null }
     }
 
     fun updateBlock(updatedBlock: Block) {

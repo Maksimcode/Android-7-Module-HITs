@@ -196,7 +196,6 @@ fun DraggableBlock(
                         offset += dragAmount
                     },
                     onDragEnd = {
-                        // Вызываем функцию с двумя аргументами, как требуется её сигнатуре
                         val attachableParent = findAttachableParent(block, offset)
                         if (attachableParent != null) {
                             attachChild(parent = attachableParent, child = block)
@@ -216,7 +215,6 @@ fun DraggableBlock(
         Column {
             BlockView(block)
             if (offset != block.position) {
-                // Вызываем findAttachableParent с двумя аргументами
                 val attachableParent = findAttachableParent(block, offset)
                 if (attachableParent != null) {
                     Log.d("highlight", "type parent - ${attachableParent.type}, child - ${block.type}")
@@ -232,7 +230,10 @@ fun DraggableBlock(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .size(24.dp)
-                    .clickable { onDelete() }
+                    .clickable {
+                        onDelete()
+                        BlockManager.removeBlock(block)
+                    }
             )
         }
     }
