@@ -3,10 +3,10 @@ package com.example.android_7_module_hits.interpreter
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockManager
 
-fun runInterpreter() {
+fun runInterpreter(blocks: List<Block>) {
     val state = InterpreterState()
 
-    val rootBlocks = BlockManager.allBlocks.filter { it.parent == null }
+    val rootBlocks = blocks.filter { it.parent == null }
 
     rootBlocks.forEach { rootBlock ->
         interpret(rootBlock, state)
