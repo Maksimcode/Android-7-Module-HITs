@@ -73,15 +73,15 @@ fun MainScreen(
     val context = LocalContext.current
     val blocks by viewModel.blocks.collectAsState()
 
-//    LaunchedEffect(Unit) {
-//        val savedJson = loadStateFromFile(context, "project_state.json")
-//        if (savedJson != null) {
-//            val loadedBlockStates = deserializeBlocks(savedJson)
-//            val loadedBlocks = loadedBlockStates.map { it.toBlock() }
-//            allBlocks.value = loadedBlocks
-//            Log.d("Load", "Загружено ${loadedBlocks.size} блоков из сохранённого файла")
-//        }
-//    }
+    LaunchedEffect(Unit) {
+        val savedJson = loadStateFromFile(context, "project_state.json")
+        if (savedJson != null) {
+            val loadedBlockStates = deserializeBlocks(savedJson)
+            val loadedBlocks = loadedBlockStates.map { it.toBlock() }
+            viewModel.setInitialBlocks(loadedBlocks)
+            Log.d("Load", "Загружено ${loadedBlocks.size} блоков из сохранённого файла")
+        }
+    }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -336,22 +336,22 @@ fun BottomCircleButtons(
                         .clickable {
                             when (index) {
                                 0 -> {
-//                                    // При нажатии на первую кнопку происходит сохранение
-//                                    val blockStates = allBlocks.value.map { it.toBlockState() }
-//                                    val jsonData = serializeBlocks(blockStates)
-//                                    saveStateToFile(context, "project_state.json", jsonData)
-//                                    Log.d("Save", "Проект сохранён в файл: project_state.json")
-//
-//                                    // Создаем объект ProjectPreview с текущей датой
-//                                    val currentDate = java.text.SimpleDateFormat(
-//                                        "dd.MM.yyyy",
-//                                        java.util.Locale.getDefault()
-//                                    ).format(java.util.Date())
-//                                    val newProject = ProjectPreview(
-//                                        id = java.util.UUID.randomUUID().toString(),
-//                                        saveDate = currentDate
-//                                    )
-//                                    onProjectSaved(newProject)
+                                    // При нажатии на первую кнопку происходит сохранение
+                                    val blockStates = allBlocks.map { it.toBlockState() }
+                                    val jsonData = serializeBlocks(blockStates)
+                                    saveStateToFile(context, "project_state.json", jsonData)
+                                    Log.d("Save", "Проект сохранён в файл: project_state.json")
+
+                                    // Создаем объект ProjectPreview с текущей датой
+                                    val currentDate = java.text.SimpleDateFormat(
+                                        "dd.MM.yyyy",
+                                        java.util.Locale.getDefault()
+                                    ).format(java.util.Date())
+                                    val newProject = ProjectPreview(
+                                        id = java.util.UUID.randomUUID().toString(),
+                                        saveDate = currentDate
+                                    )
+                                    onProjectSaved(newProject)
                                 }
                                 1 -> {}
                                 2 -> {}

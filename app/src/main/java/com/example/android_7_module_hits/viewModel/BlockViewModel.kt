@@ -21,6 +21,12 @@ class BlockViewModel : ViewModel() {
 //        }
 //    }
 
+    fun setInitialBlocks(blocks: List<Block>) {
+        viewModelScope.launch {
+            _blocks.value = blocks
+        }
+    }
+
     fun addBlock(block: Block) {
         viewModelScope.launch {
             _blocks.value = _blocks.value + block
