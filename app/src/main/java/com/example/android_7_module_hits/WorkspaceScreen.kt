@@ -40,9 +40,9 @@ import androidx.navigation.NavController
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockContent
 import com.example.android_7_module_hits.Blocks.BlockManager
-import com.example.android_7_module_hits.Blocks.attachChild
-import com.example.android_7_module_hits.Blocks.findAttachableParent
-import com.example.android_7_module_hits.Blocks.logAllBlocks
+//import com.example.android_7_module_hits.Blocks.attachChild
+//import com.example.android_7_module_hits.Blocks.findAttachableParent
+//import com.example.android_7_module_hits.Blocks.logAllBlocks
 import com.example.android_7_module_hits.interpreter.runInterpreter
 import com.example.android_7_module_hits.ui.theme.FolderButtonSub
 import com.example.android_7_module_hits.ui.theme.RunButtonSub
@@ -59,6 +59,8 @@ import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.android_7_module_hits.viewModel.BlockViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,17 +69,19 @@ fun MainScreen(
     navController: NavController,
     projectViewModel: ProjectViewModel
 ) {
+    val viewModel: BlockViewModel = viewModel()
     val context = LocalContext.current
-    val allBlocks = remember { mutableStateOf<List<Block>>(listOf()) }
-    LaunchedEffect(Unit) {
-        val savedJson = loadStateFromFile(context, "project_state.json")
-        if (savedJson != null) {
-            val loadedBlockStates = deserializeBlocks(savedJson)
-            val loadedBlocks = loadedBlockStates.map { it.toBlock() }
-            allBlocks.value = loadedBlocks
-            Log.d("Load", "Загружено ${loadedBlocks.size} блоков из сохранённого файла")
-        }
-    }
+    val blocks by viewModel.blocks.collectAsState()
+
+//    LaunchedEffect(Unit) {
+//        val savedJson = loadStateFromFile(context, "project_state.json")
+//        if (savedJson != null) {
+//            val loadedBlockStates = deserializeBlocks(savedJson)
+//            val loadedBlocks = loadedBlockStates.map { it.toBlock() }
+//            allBlocks.value = loadedBlocks
+//            Log.d("Load", "Загружено ${loadedBlocks.size} блоков из сохранённого файла")
+//        }
+//    }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -109,43 +113,39 @@ fun MainScreen(
             ) {
 
                 InfiniteCanvas {
-                    CreateBlock()
+                    blocks.forEach{block ->
+                        key(block.id) {
+                            DraggableBlock(
+                                block = block,
+                                viewModel = viewModel,
+                                onPositionChange = { id, pos ->
+                                    viewModel.updateBlockPosition(id, pos)
+                                },
+                                onDelete = {
+                                    viewModel.deleteBlock(block.id)
+                                },
+                                onAttach = { parent, child ->
+                                    viewModel.attachChild(parent, child)
+                                }
+                            )
+                        }
+                    }
                 }
 
                 BlockPalette { newBlock ->
-                    BlockManager.addBlock(newBlock)
+                    viewModel.addBlock(newBlock)
                 }
 
             }
         },
         bottomBar = {
-            BottomCircleButtons(allBlocks = allBlocks,
+            BottomCircleButtons(allBlocks = blocks,
                 onProjectSaved = { newProject ->
-                    // При сохранении проекта добавляем его в общий список
                     projectViewModel.addProject(newProject)
                 }
             )
         }
     )
-}
-
-@Composable
-fun CreateBlock() {
-    // Используем список блоков из BlockManager
-    BlockManager.allBlocks.forEach { block ->
-        key(block.id) {
-            DraggableBlock(
-                block = block,
-                allBlocks = BlockManager.allBlocks,  // BlockManager.allBlocks имеет тип SnapshotStateList<Block>
-                onPositionChange = { newPosition ->
-                    block.position = newPosition
-                },
-                onDelete = {
-                    BlockManager.allBlocks.remove(block)
-                }
-            )
-        }
-    }
 }
 
 
@@ -174,9 +174,10 @@ fun BlockView(block: Block) {
 @Composable
 fun DraggableBlock(
     block: Block,
-    allBlocks: SnapshotStateList<Block>, // Из BlockManager
-    onPositionChange: (Offset) -> Unit,
-    onDelete: () -> Unit
+    viewModel: BlockViewModel,
+    onPositionChange: (String, Offset) -> Unit,
+    onDelete: (String) -> Unit,
+    onAttach: ((Block, Block) -> Unit)? = null
 ) {
     var offset by remember { mutableStateOf(block.position) }
     val showDeleteIcon = remember { mutableStateOf(false) }
@@ -196,32 +197,34 @@ fun DraggableBlock(
                         offset += dragAmount
                     },
                     onDragEnd = {
-                        val attachableParent = findAttachableParent(block, offset)
+                        val attachableParent = viewModel.findAttachableParent(block, offset)
                         if (attachableParent != null) {
-                            attachChild(parent = attachableParent, child = block)
+                            onAttach?.invoke(attachableParent, block)
                             offset = Offset(
                                 attachableParent.position.x,
                                 attachableParent.position.y + 150f
                             )
                         }
-                        onPositionChange(offset)
+                        onPositionChange(block.id, offset)
                     },
                     onDragCancel = {
-                        onPositionChange(offset)
+                        onPositionChange(block.id, offset)
                     }
                 )
             }
     ) {
         Column {
             BlockView(block)
+
             if (offset != block.position) {
-                val attachableParent = findAttachableParent(block, offset)
+                val attachableParent = viewModel.findAttachableParent(block, offset)
                 if (attachableParent != null) {
                     Log.d("highlight", "type parent - ${attachableParent.type}, child - ${block.type}")
                     AttachmentHighlight(attachableParent.position)
                 }
             }
         }
+
         if (showDeleteIcon.value) {
             Icon(
                 imageVector = Icons.Filled.DeleteOutline,
@@ -231,8 +234,7 @@ fun DraggableBlock(
                     .align(Alignment.TopEnd)
                     .size(24.dp)
                     .clickable {
-                        onDelete()
-                        BlockManager.removeBlock(block)
+                        onDelete(block.id)
                     }
             )
         }
@@ -280,7 +282,7 @@ fun InfiniteCanvas(
 
 @Composable
 fun BottomCircleButtons(
-    allBlocks: MutableState<List<Block>>,
+    allBlocks: List<Block>,
     onProjectSaved: (ProjectPreview) -> Unit
 ) {
     val context = LocalContext.current
@@ -334,28 +336,28 @@ fun BottomCircleButtons(
                         .clickable {
                             when (index) {
                                 0 -> {
-                                    // При нажатии на первую кнопку происходит сохранение
-                                    val blockStates = allBlocks.value.map { it.toBlockState() }
-                                    val jsonData = serializeBlocks(blockStates)
-                                    saveStateToFile(context, "project_state.json", jsonData)
-                                    Log.d("Save", "Проект сохранён в файл: project_state.json")
-
-                                    // Создаем объект ProjectPreview с текущей датой
-                                    val currentDate = java.text.SimpleDateFormat(
-                                        "dd.MM.yyyy",
-                                        java.util.Locale.getDefault()
-                                    ).format(java.util.Date())
-                                    val newProject = ProjectPreview(
-                                        id = java.util.UUID.randomUUID().toString(),
-                                        saveDate = currentDate
-                                    )
-                                    onProjectSaved(newProject)
+//                                    // При нажатии на первую кнопку происходит сохранение
+//                                    val blockStates = allBlocks.value.map { it.toBlockState() }
+//                                    val jsonData = serializeBlocks(blockStates)
+//                                    saveStateToFile(context, "project_state.json", jsonData)
+//                                    Log.d("Save", "Проект сохранён в файл: project_state.json")
+//
+//                                    // Создаем объект ProjectPreview с текущей датой
+//                                    val currentDate = java.text.SimpleDateFormat(
+//                                        "dd.MM.yyyy",
+//                                        java.util.Locale.getDefault()
+//                                    ).format(java.util.Date())
+//                                    val newProject = ProjectPreview(
+//                                        id = java.util.UUID.randomUUID().toString(),
+//                                        saveDate = currentDate
+//                                    )
+//                                    onProjectSaved(newProject)
                                 }
                                 1 -> {}
                                 2 -> {}
                                 3 -> {
-                                    logAllBlocks()
-                                    runInterpreter()
+//                                    logAllBlocks()
+                                    runInterpreter(blocks = allBlocks)
                                 }
                             }
                         },
