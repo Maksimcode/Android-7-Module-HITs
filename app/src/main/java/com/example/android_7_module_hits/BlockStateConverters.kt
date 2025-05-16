@@ -5,13 +5,14 @@ import com.example.android_7_module_hits.Blocks.AssignmentBlock
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockContent
 import com.example.android_7_module_hits.Blocks.ConditionBlock
+import com.example.android_7_module_hits.Blocks.DataType
 import com.example.android_7_module_hits.Blocks.DeclarationBlock
 import com.example.android_7_module_hits.Blocks.EndBlock
 
 fun Offset.toOffsetState(): OffsetState = OffsetState(x = this.x, y = this.y)
 
 fun BlockContent.toBlockContentState(): BlockContentState = when (this) {
-    is BlockContent.Declare -> BlockContentState.Declare(name = this.name, value = this.value)
+    is BlockContent.Declare -> BlockContentState.Declare(type = this.type, name = this.name, value = this.value)
     is BlockContent.Assignment -> BlockContentState.Assignment(name = this.name, value = this.value)
     is BlockContent.Condition -> BlockContentState.Condition(
         firstPart = this.firstPart,
@@ -40,6 +41,7 @@ fun BlockState.toBlock(): Block {
         BlockTypeState.DECLARE -> {
             val contentState = this.content as? BlockContentState.Declare
             DeclarationBlock(
+                variableType = contentState?.type ?: DataType.INTEGER,
                 variableName = contentState?.name ?: "unknown",
                 initialValue = contentState?.value ?: "0"
             ).apply { this.position = position }

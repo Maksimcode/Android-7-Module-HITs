@@ -1,41 +1,63 @@
 package com.example.android_7_module_hits.interpreter
 
+import com.example.android_7_module_hits.Blocks.Block
+import com.example.android_7_module_hits.Blocks.BlockContent
+import com.example.android_7_module_hits.Blocks.DataType
 import javax.xml.xpath.XPathExpression
 
 class InterpreterState {
-    private val variables = mutableMapOf<String, Int>()
+    private val variables = mutableMapOf<String, BlockContent.Declare>()
 
-    fun declareVariable(name: String) {
-        if (name.isBlank()) throw IllegalArgumentException("Имя переменной не может быть пустым")
-        if (variables.containsKey(name)) throw IllegalArgumentException("Переменная уже объявлена")
+//    TODO: parsing variables by commas
+    fun declareVariable(content: BlockContent.Declare) {
+        if (content.name.isBlank()) throw IllegalArgumentException("Имя переменной не может быть пустым")
 
-        variables[name] = 0
+        if (variables.containsKey(content.name)) throw IllegalArgumentException("Переменная уже объявлена")
+        variables[content.name] = content
+
     }
 
-    fun assignValue(name: String, expression: String?) {
-        if (!variables.containsKey(name)) {
-            throw IllegalStateException("Переменная $name не объявлена")
+    fun assignValue(content: BlockContent.Assignment) {
+        if (!variables.containsKey(content.name)) {
+            throw IllegalStateException("Переменная ${content.name} не объявлена")
         }
 
-        val result = try {
-            evaluateExpression(expression ?: "0", variables)
-        } catch (e: Exception) {
-            throw e
+        val oldValue = variables[content.name]
+        val type = when (oldValue){
+            is BlockContent.Declare -> oldValue.type
+            else -> DataType.INTEGER
+        }
+        val newValue = content.value
+
+
+        val result:Any? = when(type){
+            DataType.INTEGER -> {
+                try {
+                    evaluateExpression(newValue ?: "0")
+                } catch (e: Exception) {
+                    throw e
+                }
+            }
+            else -> {
+                println("i can't do it now")
+            }
         }
 
-        variables[name] = result
+
+
+        variables[content.name] = BlockContent.Declare(type, content.name, result.toString())
     }
 
     fun setCondition(firstExpression: String, operator: String, secondExpression: String) : Boolean{
 
         val firstResult = try {
-            evaluateExpression(firstExpression ?: "0", variables)
+            evaluateExpression(firstExpression ?: "0")
         } catch (e: Exception) {
             throw IllegalArgumentException("Ошибка при вычислении первого выражения", e)
         }
 
         val secondResult = try{
-            evaluateExpression(secondExpression ?: "0", variables)
+            evaluateExpression(secondExpression ?: "0")
         } catch (e:Exception) {
             throw IllegalArgumentException("Ошибка при вычислении второго выражения", e)
         }
@@ -54,12 +76,12 @@ class InterpreterState {
 
     }
 
-    fun getVariables(): Map<String, Int> = variables.toMap()
+    fun getVariables(): Map<String, BlockContent.Declare> = variables.toMap()
 
-    private fun evaluateExpression(expr: String, variables: Map<String, Int>): Int {
+    private fun evaluateExpression(expr: String): Int {
         val tokens = tokenize(expr.replace("\\s+".toRegex(), ""))
         currentTokenIndex = 0
-        return parseAddition(tokens, variables)
+        return parseAddition(tokens)
     }
 
     private fun tokenize(input: String): List<String> {
@@ -69,13 +91,13 @@ class InterpreterState {
 
     private var currentTokenIndex = 0
 
-    private fun parseAddition(tokens: List<String>, variables: Map<String, Int>): Int {
-        var result = parseMultiplication(tokens, variables)
+    private fun parseAddition(tokens: List<String>): Int {
+        var result = parseMultiplication(tokens)
 
         while (currentTokenIndex < tokens.size && (tokens[currentTokenIndex] == "+" || tokens[currentTokenIndex] == "-")) {
             val op = tokens[currentTokenIndex]
             currentTokenIndex++
-            val right = parseMultiplication(tokens, variables)
+            val right = parseMultiplication(tokens)
             result = when (op) {
                 "+" -> result + right
                 "-" -> result - right
@@ -86,14 +108,14 @@ class InterpreterState {
         return result
     }
 
-    private fun parseMultiplication(tokens: List<String>, variables: Map<String, Int>): Int {
-        var result = parsePrimary(tokens, variables)
+    private fun parseMultiplication(tokens: List<String>): Int {
+        var result = parsePrimary(tokens)
 
         while (currentTokenIndex < tokens.size && setOf("*", "/", "%").contains(tokens[currentTokenIndex])) { // ✅ Добавлен %
             val op = tokens[currentTokenIndex]
             currentTokenIndex++
 
-            val right = parsePrimary(tokens, variables)
+            val right = parsePrimary(tokens)
             result = when (op) {
                 "*" -> result * right
                 "/" -> {
@@ -111,12 +133,27 @@ class InterpreterState {
         return result
     }
 
-    private fun parsePrimary(tokens: List<String>, variables: Map<String, Int>): Int {
+    private fun parsePrimary(tokens: List<String>): Int {
         val token = tokens[currentTokenIndex++]
+
+        var variableToken: Int
+        if (variables.containsKey(token)){
+            val value = variables[token]
+            val type = when (value){
+                is BlockContent.Declare -> value.type
+                else -> null
+            }
+            if(type != null && (type == DataType.INTEGER)){
+                variableToken = when(value){
+                    is BlockContent.Declare -> value.value.toInt()
+                    else -> 0
+                }
+            }
+        }
 
         return when {
             token == "(" -> {
-                val result = parseAddition(tokens, variables)
+                val result = parseAddition(tokens)
                 if (currentTokenIndex >= tokens.size || tokens.getOrNull(currentTokenIndex) != ")") {
                     throw IllegalArgumentException("Не хватает закрывающей скобки")
                 }
@@ -124,7 +161,21 @@ class InterpreterState {
                 result
             }
             token.matches(Regex("-?\\d+")) -> token.toInt()
-            variables.containsKey(token) -> variables[token]!!
+            variables.containsKey(token) -> {
+                val value = variables[token]
+                val type = when (value){
+                    is BlockContent.Declare -> value.type
+                    else -> null
+                }
+                if(type != null && (type == DataType.INTEGER)){
+                    when(value){
+                        is BlockContent.Declare -> value.value.toInt()
+                        else -> 0
+                    }
+                } else{
+                    0
+                }
+            }
             else -> throw IllegalArgumentException("Неизвестная переменная: $token")
         }
     }

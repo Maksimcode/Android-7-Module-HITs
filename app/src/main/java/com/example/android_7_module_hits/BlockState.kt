@@ -1,5 +1,6 @@
 package com.example.android_7_module_hits
 
+import com.example.android_7_module_hits.Blocks.DataType
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
 
@@ -22,6 +23,7 @@ sealed class BlockContentState {
     @Serializable
     @SerialName("declare")
     data class Declare(
+        val type: DataType,
         val name: String,
         val value: String = "0"
     ) : BlockContentState()
