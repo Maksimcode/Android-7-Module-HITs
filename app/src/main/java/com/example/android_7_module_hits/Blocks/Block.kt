@@ -1,6 +1,7 @@
 package com.example.android_7_module_hits.Blocks
 
 import androidx.compose.ui.geometry.Offset
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 interface Block {
     val id: String
@@ -31,8 +32,6 @@ interface Block {
             if (withBodyBlock is BlockHasBody && withBodyBlock.EndBlock == null){
                 withBodyBlock.EndBlock = currentBlock
                 currentBlock.rootBlock = withBodyBlock
-                BlockManager.updateBlock(currentBlock)
-                BlockManager.updateBlock(withBodyBlock)
 
             }
             else{
