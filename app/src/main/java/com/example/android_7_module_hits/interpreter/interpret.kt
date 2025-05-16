@@ -9,14 +9,11 @@ fun interpret(block: Block, state: InterpreterState) {
 
     when (val content = currentBlock.content) {
         is BlockContent.Declare -> {
-            val variableName = content.name?.trim() ?: "unnamed"
-            state.declareVariable(variableName)
+            state.declareVariable(BlockContent.Declare(content.type, content.name, content.value))
         }
 
         is BlockContent.Assignment -> {
-            val variableName = content.name?.trim() ?: "unnamed"
-            val expr = content.value?.trim() ?: "0"
-            state.assignValue(variableName, expr)
+            state.assignValue(BlockContent.Assignment(content.name, content.value))
         }
 
         is BlockContent.Condition -> {
