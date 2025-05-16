@@ -19,6 +19,7 @@ import com.example.android_7_module_hits.Blocks.AssignmentBlock
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockType
 import com.example.android_7_module_hits.Blocks.ConditionBlock
+import com.example.android_7_module_hits.Blocks.DataType
 import com.example.android_7_module_hits.Blocks.DeclarationBlock
 import com.example.android_7_module_hits.Blocks.EndBlock
 import com.example.android_7_module_hits.ui.uiblocks.BlockTemplate
@@ -43,7 +44,7 @@ fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) 
             .clickable {
                 val newBlock = when (template.type) {
                     BlockType.DECLARE ->
-                        DeclarationBlock(variableName = "Variable")
+                        DeclarationBlock(variableType = DataType.INTEGER, variableName = "Variable")
                     BlockType.ASSIGN ->
                         AssignmentBlock(variableName = "Variable", initialValue = "0")
                     BlockType.CONDITION ->
