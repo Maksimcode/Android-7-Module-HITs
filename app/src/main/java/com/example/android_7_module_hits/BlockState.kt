@@ -23,7 +23,7 @@ sealed class BlockContentState {
     @Serializable
     @SerialName("declare")
     data class Declare(
-        val type: DataType?,
+        val type: DataType,
         val name: String,
         val value: String = "0"
     ) : BlockContentState()
@@ -32,7 +32,7 @@ sealed class BlockContentState {
     @SerialName("assignment")
     data class Assignment(
         val name: String,
-        val value: String?
+        val value: String
     ) : BlockContentState()
 
     @Serializable

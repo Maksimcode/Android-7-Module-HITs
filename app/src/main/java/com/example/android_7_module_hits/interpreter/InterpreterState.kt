@@ -25,7 +25,7 @@ class InterpreterState {
         val oldValue = variables[content.name]
         val type = when (oldValue){
             is BlockContent.Declare -> oldValue.type
-            else -> null
+            else -> DataType.INTEGER
         }
         val newValue = content.value
 
