@@ -72,7 +72,7 @@ fun MainScreen(
     val context = LocalContext.current
     val blocks by viewModel.blocks.collectAsState()
 
-    LaunchedEffect(Unit) {
+    /*LaunchedEffect(Unit) {
         val savedJson = loadStateFromFile(context, "project_state.json")
         if (savedJson != null) {
             val loadedBlockStates = deserializeBlocks(savedJson)
@@ -80,7 +80,7 @@ fun MainScreen(
             viewModel.setInitialBlocks(loadedBlocks)
             Log.d("Load", "Загружено ${loadedBlocks.size} блоков из сохранённого файла")
         }
-    }
+    }*/
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -335,7 +335,7 @@ fun BottomCircleButtons(
                         .clickable {
                             when (index) {
                                 0 -> {
-                                    // При нажатии на первую кнопку происходит сохранение
+                                    /*// При нажатии на первую кнопку происходит сохранение
                                     val blockStates = allBlocks.map { it.toBlockState() }
                                     val jsonData = serializeBlocks(blockStates)
                                     saveStateToFile(context, "project_state.json", jsonData)
@@ -350,7 +350,7 @@ fun BottomCircleButtons(
                                         id = java.util.UUID.randomUUID().toString(),
                                         saveDate = currentDate
                                     )
-                                    onProjectSaved(newProject)
+                                    onProjectSaved(newProject)*/
                                 }
                                 1 -> {}
                                 2 -> {}
