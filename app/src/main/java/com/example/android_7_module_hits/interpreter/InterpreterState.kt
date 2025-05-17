@@ -38,6 +38,13 @@ class InterpreterState {
                     throw e
                 }
             }
+            DataType.STRING -> {
+                try {
+                    evaluateStringExpression(newValue)
+                } catch (e: Exception) {
+                    throw IllegalArgumentException("Ошибка при обработке строкового выражения", e)
+                }
+            }
             else -> {
                 println("i can't do it now")
             }
@@ -77,6 +84,35 @@ class InterpreterState {
     }
 
     fun getVariables(): Map<String, BlockContent.Declare> = variables.toMap()
+
+    private fun evaluateStringExpression(expr: String): String {
+        val tokens = expr.split(Regex("(?<!\\\\)\\+"))
+        var result = ""
+
+        for (token in tokens) {
+            val trimmedToken = token.trim()
+
+            if (trimmedToken.startsWith("\"") && trimmedToken.endsWith("\"")) {
+                result += trimmedToken.substring(1, trimmedToken.length - 1)
+            }
+            else if (variables.containsKey(trimmedToken)) {
+                val value = variables[trimmedToken]?.value ?: ""
+                val variableType = variables[trimmedToken]?.type
+
+                if (variableType == DataType.STRING) {
+                    result += value
+                } else if (variableType == DataType.INTEGER) {
+                    result += value.toIntOrNull() ?: 0
+                }
+            }
+            else {
+                result += trimmedToken
+            }
+
+        }
+
+        return result
+    }
 
     private fun evaluateExpression(expr: String): Int {
         val tokens = tokenize(expr.replace("\\s+".toRegex(), ""))
