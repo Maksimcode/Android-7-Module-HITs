@@ -30,13 +30,10 @@ import com.example.android_7_module_hits.Blocks.BlockHasBody
 
 @Composable
 fun ConditionBlockView(content: BlockContent.Condition, block: Block){
-    var isEditingFirstPart by remember { mutableStateOf(false) }
-    var isEditingOperator by remember { mutableStateOf(false) }
-    var isEditingSecondPart by remember { mutableStateOf(false) }
+    var isEditingExpression by remember { mutableStateOf(false) }
 
-    var editedFirstPart by remember(content.firstPart ?: "0") { mutableStateOf(content.firstPart ?: "0") }
-    var editedOperator by remember(content.operator ?: "==") { mutableStateOf(content.operator ?: "0") }
-    var editedSecondPart by remember(content.secondPart ?: "0") { mutableStateOf(content.secondPart ?: "0") }
+    var editedExpression by remember(content.expression ?: "true") { mutableStateOf(content.expression ?: "true") }
+
 
     Card(
         modifier = Modifier
@@ -45,14 +42,14 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block){
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
     ){
         Column(modifier = Modifier.padding(8.dp)){
-            if (isEditingFirstPart)
+            if (isEditingExpression)
             {
                 TextField(
-                    value = editedFirstPart,
+                    value = editedExpression,
                     onValueChange = {newText ->
-                        editedFirstPart = newText
+                        editedExpression = newText
                     },
-                    label = { Text(text = "Первое выражение") },
+                    label = { Text(text = "Логическое выражение:") },
                     modifier = Modifier.width(150.dp)
                 )
                 Row(
@@ -61,8 +58,8 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block){
                 ) {
                     TextButton(
                         onClick = {
-                            editedFirstPart = content.firstPart ?: "0"
-                            isEditingFirstPart = false
+                            editedExpression = content.expression ?: "true"
+                            isEditingExpression = false
                         }
                     ) {
                         Text("Отмена")
@@ -70,72 +67,8 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block){
 
                     TextButton(
                         onClick = {
-                            content.firstPart = editedFirstPart
-                            isEditingFirstPart = false
-                        }
-                    ) {
-                        Text("Сохранить")
-                    }
-                }
-            } else if (isEditingOperator) {
-
-                TextField(
-                    value = editedOperator,
-                    onValueChange = {newText ->
-                        editedOperator = newText
-                    },
-                    label = { Text(text = "Операция сравнения (>,<,=,!=,>=,<=)") },
-                    modifier = Modifier.width(150.dp)
-                )
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(
-                        onClick = {
-                            editedOperator = content.operator ?: "0"
-                            isEditingOperator = false
-                        }
-                    ) {
-                        Text("Отмена")
-                    }
-
-                    TextButton(
-                        onClick = {
-                            content.operator = editedOperator
-                            isEditingOperator = false
-                        }
-                    ) {
-                        Text("Сохранить")
-                    }
-                }
-            } else if (isEditingSecondPart){
-
-                TextField(
-                    value = editedSecondPart,
-                    onValueChange = {newText ->
-                        editedSecondPart = newText
-                    },
-                    label = { Text(text = "Второе выражение") },
-                    modifier = Modifier.width(150.dp)
-                )
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(
-                        onClick = {
-                            editedSecondPart = content.secondPart ?: "0"
-                            isEditingSecondPart = false
-                        }
-                    ) {
-                        Text("Отмена")
-                    }
-
-                    TextButton(
-                        onClick = {
-                            content.secondPart = editedSecondPart
-                            isEditingSecondPart = false
+                            content.expression = editedExpression
+                            isEditingExpression = false
                         }
                     ) {
                         Text("Сохранить")
@@ -143,37 +76,17 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block){
                 }
             } else{
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text="if (")
+                    Text(text="if ( ")
                     Box(
                         modifier = Modifier
                             .background(Color.LightGray)
-                            .clickable { isEditingFirstPart = true }
+                            .clickable { isEditingExpression = true }
                             .padding(horizontal = 4.dp, vertical = 2.dp)
                     ) {
-                        Text(text = editedFirstPart, color = Color.Blue)
-                    }
-                    Text(text = " ", color = Color.Black)
-
-                    Box(
-                        modifier = Modifier
-                            .background(Color.LightGray)
-                            .clickable { isEditingOperator = true }
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                    ) {
-                        Text(text = editedOperator, color = Color.Blue)
-                    }
-                    Text(text = " ", color = Color.Black)
-
-                    Box(
-                        modifier = Modifier
-                            .background(Color.LightGray)
-                            .clickable { isEditingSecondPart = true }
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                    ) {
-                        Text(text = editedSecondPart, color = Color.Blue)
+                        Text(text = editedExpression, color = Color.Blue)
                     }
 
-                    Text(text = ") {", color = Color.Black)
+                    Text(text = " ) {", color = Color.Black)
                 }
             }
         }

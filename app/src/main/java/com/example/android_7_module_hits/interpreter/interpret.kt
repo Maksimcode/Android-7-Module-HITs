@@ -17,15 +17,13 @@ fun interpret(block: Block, state: InterpreterState) {
         }
 
         is BlockContent.Condition -> {
-            val firstExpr = content.firstPart?.trim() ?: "0"
-            val operate = content.operator?.trim() ?: "=="
-            val secondExpr = content.secondPart?.trim() ?: "0"
+            val logicalExpression = content.expression
 
             if (!currentBlock.hasEndBlock()){
                 throw IllegalStateException("Отсутствие привязанного блока End")
             }
 
-            val conditionResult = state.setCondition(firstExpr, operate, secondExpr)
+            val conditionResult = state.setCondition(logicalExpression)
 
             var current: Block? = currentBlock.child
             var insideIfBody = conditionResult

@@ -43,6 +43,11 @@ class BlockViewModel : ViewModel() {
     }
 
     fun deleteBlock(blockId: String) {
+        val targetBlock = _blocks.value.find{it.id ==blockId}
+        targetBlock?.parent?.child = null
+        targetBlock?.child?.parent = null
+        targetBlock?.parent = null
+        targetBlock?.child = null
         _blocks.value = _blocks.value.filter { it.id != blockId }
     }
 

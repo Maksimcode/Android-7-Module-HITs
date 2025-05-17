@@ -45,45 +45,142 @@ class InterpreterState {
                     throw IllegalArgumentException("Ошибка при обработке строкового выражения", e)
                 }
             }
+            DataType.BOOLEAN -> {
+                try{
+                    parseBooleanExpression(newValue)
+                }
+                catch (e: Exception){
+                    throw IllegalArgumentException("Ошибка при обработке булевого выражения", e)
+                }
+            }
             else -> {
                 println("i can't do it now")
             }
         }
 
-
-
         variables[content.name] = BlockContent.Declare(type, content.name, result.toString())
     }
 
-    fun setCondition(firstExpression: String, operator: String, secondExpression: String) : Boolean{
-
-        val firstResult = try {
-            evaluateExpression(firstExpression ?: "0")
-        } catch (e: Exception) {
-            throw IllegalArgumentException("Ошибка при вычислении первого выражения", e)
-        }
-
-        val secondResult = try{
-            evaluateExpression(secondExpression ?: "0")
-        } catch (e:Exception) {
-            throw IllegalArgumentException("Ошибка при вычислении второго выражения", e)
-        }
-
-        val cleanedOperator = operator.replace("\\s+".toRegex(), "")
-
-        return when (cleanedOperator) {
-            "==" -> firstResult == secondResult
-            "!=" -> firstResult != secondResult
-            "<" -> firstResult < secondResult
-            ">" -> firstResult > secondResult
-            "<=" -> firstResult <= secondResult
-            ">=" -> firstResult >= secondResult
-            else -> throw IllegalArgumentException("Неизвестный оператор сравнения: $operator")
-        }
-
+    fun setCondition(expr: String): Boolean {
+        val trimmedExpr = expr.trim()
+        return parseBooleanExpression(trimmedExpr)
     }
 
     fun getVariables(): Map<String, BlockContent.Declare> = variables.toMap()
+
+    private fun parseBooleanExpression(expr: String): Boolean {
+        val trimmedExpr = expr.trim()
+
+        val simpleValue = trimmedExpr.toBooleanStrictOrNull()
+        if (simpleValue != null) return simpleValue
+
+        if (variables.containsKey(trimmedExpr)) {
+            val variable = variables[trimmedExpr]!!
+            return when (variable.type) {
+                DataType.BOOLEAN -> variable.value.toBooleanStrict()
+                DataType.INTEGER -> variable.value.toInt() != 0
+                else -> false
+            }
+        }
+
+        return evaluateLogicalExpression(trimmedExpr)
+    }
+
+    private fun splitByLogicalOperators(expr: String): List<String> {
+        val pattern = Regex("""\s+(and|\|\||or|&&)\s+""", RegexOption.IGNORE_CASE)
+        val parts = pattern.split(expr)
+        return parts.map { it.trim() }
+    }
+
+    private fun evaluateLogicalExpression(expr: String): Boolean {
+        val tokens = splitByLogicalOperators(expr)
+        if (tokens.size == 1) {
+            return evaluateComparison(tokens[0])
+        }
+
+        var result = evaluateComparison(tokens[0])
+
+        for (i in 1 until tokens.size step 2) {
+            val operator = tokens[i]
+            val right = evaluateComparison(tokens[i + 1])
+
+            result = when (operator.lowercase()) {
+                "and", "&&" -> result && right
+                "or", "||" -> result || right
+                else -> throw IllegalArgumentException("Неизвестный логический оператор: $operator")
+            }
+        }
+
+        return result
+    }
+
+    private fun evaluateComparison(expr: String): Boolean {
+        val comparisonRegex = Regex("""(.+?)\s*([=!><]=?|!=)\s*(.+)""")
+        val match = comparisonRegex.matchEntire(expr.trim()) ?: throw IllegalArgumentException("Неверный формат условия: $expr")
+
+        val (leftStr, op, rightStr) = match.destructured
+
+        val left = resolveValue(leftStr.trim())
+        val right = resolveValue(rightStr.trim())
+
+        return compareValues(left, right, op)
+    }
+
+    private fun resolveValue(token: String): Any {
+        val lower = token.lowercase()
+
+        // Булевы литералы
+        if (lower == "true" || lower == "1") return true
+        if (lower == "false" || lower == "0") return false
+
+        // Числа
+        if (token.matches(Regex("-?\\d+"))) return token.toInt()
+
+        // Переменные
+        if (variables.containsKey(token)) {
+            val variable = variables[token]!!
+            return when (variable.type) {
+                DataType.BOOLEAN -> variable.value.toBooleanStrict()
+                DataType.INTEGER -> variable.value.toInt()
+                else -> throw IllegalArgumentException("Неподдерживаемый тип переменной: ${variable.type}")
+            }
+        }
+
+        throw IllegalArgumentException("Неизвестное значение: $token")
+    }
+
+    private fun compareValues(left: Any, right: Any, op: String): Boolean {
+        val a = convertToComparable(left)
+        val b = convertToComparable(right)
+
+        return when(op) {
+            "==" -> a == b
+            "!=" -> a != b
+            ">" -> a > b
+            ">=" -> a >= b
+            "<" -> a < b
+            "<=" -> a <= b
+            else -> throw IllegalArgumentException("Неизвестный оператор: $op")
+        }
+    }
+
+    private fun convertToComparable(value: Any): Int {
+        return when(value) {
+            is Boolean -> if (value) 1 else 0
+            is Int -> value
+            else -> throw IllegalArgumentException("Невозможно привести к числу: $value")
+        }
+    }
+
+    fun String.toBooleanStrictOrNull(): Boolean? =
+        when(this.trim().lowercase()) {
+            "true", "1" -> true
+            "false", "0" -> false
+            else -> null
+        }
+
+    fun String.toBooleanStrict(): Boolean =
+        toBooleanStrictOrNull() ?: throw IllegalArgumentException("Невозможно преобразовать '$this' в Boolean")
 
     private fun evaluateStringExpression(expr: String): String {
         val tokens = expr.split(Regex("(?<!\\\\)\\+"))
