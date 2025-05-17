@@ -92,6 +92,7 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                             },
                             onClick = {
                                 editedType = type
+                                content.type = editedType
                                 isEditingType = false
                             }
                         )
