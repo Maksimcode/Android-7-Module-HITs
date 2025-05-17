@@ -48,7 +48,7 @@ fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) 
                     BlockType.ASSIGN ->
                         AssignmentBlock(variableName = "Variable", initialValue = "0")
                     BlockType.CONDITION ->
-                        ConditionBlock(firstExpression = "0", operator = "==", secondExpression = "0")
+                        ConditionBlock(logicalExpression = "true")
                     BlockType.END ->
                         EndBlock()
                     else -> throw IllegalArgumentException("Unknown block type")
