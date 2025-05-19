@@ -19,5 +19,7 @@ sealed class BlockContent{
         var expression: String
     ) :BlockContent()
 
-    class End() :BlockContent()
+    class End() : BlockContent()
+
+    class Else() : BlockContent()
 }
