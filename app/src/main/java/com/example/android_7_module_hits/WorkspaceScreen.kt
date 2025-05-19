@@ -205,9 +205,12 @@ fun DraggableBlock(
                                 attachableParent.position.y + 150f
                             )
                         }
-                        if (block.type == BlockType.END){
-                            block.parent?.let {block.attachHasBodyBlock(block, it)}
+                        if (block.type == BlockType.END ||
+                            block.type == BlockType.ELSE_IF ||
+                            block.type == BlockType.ELSE){
+                            block.parent?.let {viewModel.attachHasBodyBlock(block, it)}
                         }
+
                         onPositionChange(block.id, offset)
                     },
                     onDragCancel = {
