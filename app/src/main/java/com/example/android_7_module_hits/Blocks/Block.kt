@@ -17,14 +17,9 @@ interface Block {
 
     fun canAttachTo(other: Block): Boolean
 
-    fun hasEndBlock(): Boolean = when (this) {
-        is BlockHasBody -> this.EndBlock != null
-        else -> false
-    }
+    fun hasEndBlock(): Boolean = EndBlock != null
 
-    fun hasRootBlock(): Boolean = when (this) {
-        is EndBlock -> this.rootBlock != null
-        else -> false
-    }
+    fun hasRootBlock(): Boolean = rootBlock != null
 }
+
 
