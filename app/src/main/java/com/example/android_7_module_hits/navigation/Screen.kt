@@ -1,4 +1,4 @@
-package com.example.android_7_module_hits
+package com.example.android_7_module_hits.navigation
 
 sealed class Screen(val route: String) {
     object Library: Screen(route ="library_screen")

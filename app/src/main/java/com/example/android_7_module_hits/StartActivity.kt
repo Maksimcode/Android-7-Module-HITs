@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.android_7_module_hits.navigation.SetupNavGraph
 import com.example.android_7_module_hits.ui.theme.Android7ModuleHITsTheme
 
 class StartActivity : ComponentActivity() {
@@ -14,7 +15,6 @@ class StartActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Thread.sleep(1500)
         installSplashScreen()
         setContent {
             Android7ModuleHITsTheme {

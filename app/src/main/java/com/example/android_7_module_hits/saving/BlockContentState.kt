@@ -1,25 +1,12 @@
-package com.example.android_7_module_hits
+package com.example.android_7_module_hits.saving
 
 import com.example.android_7_module_hits.Blocks.DataType
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
-
-@Serializable
-data class OffsetState(
-    val x: Float,
-    val y: Float
-)
-
-@Serializable
-enum class BlockTypeState {
-    DECLARE,
-    ASSIGN,
-    CONDITION,
-    END
-}
+import kotlinx.serialization.Serializable
 
 @Serializable
 sealed class BlockContentState {
+
     @Serializable
     @SerialName("declare")
     data class Declare(
@@ -38,23 +25,20 @@ sealed class BlockContentState {
     @Serializable
     @SerialName("condition")
     data class Condition(
-        val firstPart: String,
-        val operator: String,
-        val secondPart: String
+        val expression: String
+    ) : BlockContentState()
+
+    @Serializable
+    @SerialName("elseIf")
+    data class ElseIf(
+        val expression: String
     ) : BlockContentState()
 
     @Serializable
     @SerialName("end")
     object End : BlockContentState()
-}
 
-@Serializable
-data class BlockState(
-    val id: String,
-    val type: BlockTypeState,
-    val content: BlockContentState,
-    val position: OffsetState,
-    val parentId: String? = null,
-    val childId: String? = null,
-    val associatedBlockId: String? = null
-)
+    @Serializable
+    @SerialName("else")
+    object Else : BlockContentState()
+}

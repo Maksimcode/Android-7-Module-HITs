@@ -1,32 +1,40 @@
 package com.example.android_7_module_hits.viewModel
 
+import android.app.Application
 import androidx.compose.ui.geometry.Offset
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.android_7_module_hits.Blocks.BaseBlock
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockHasBody
-import com.example.android_7_module_hits.Blocks.BlockType
 import com.example.android_7_module_hits.Blocks.ConditionBlock
 import com.example.android_7_module_hits.Blocks.ElseBlock
 import com.example.android_7_module_hits.Blocks.ElseIfBlock
 import com.example.android_7_module_hits.Blocks.EndBlock
+import com.example.android_7_module_hits.saving.BlockRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
 import kotlin.math.sqrt
 
-class BlockViewModel : ViewModel() {
+class BlockViewModel(application: Application) : AndroidViewModel(application) {
     private val _blocks = MutableStateFlow<List<Block>>(emptyList())
     val blocks: StateFlow<List<Block>> get() = _blocks
 
-//    fun loadBlocks(savedJson: String?) {
-//        if (savedJson != null) {
-//            val loadedBlocks = deserializeBlocks(savedJson)
-//            _blocks.value = loadedBlocks
-//        }
-//    }
+    private val repository = BlockRepository(application)
+
+    fun loadBlocks() {
+        viewModelScope.launch {
+            repository.loadBlocks()?.let { loadedBlocks ->
+                _blocks.value = loadedBlocks
+            }
+        }
+    }
+
+    fun saveBlocks() {
+        viewModelScope.launch {
+            repository.saveBlocks(_blocks.value)
+        }
+    }
 
     fun setInitialBlocks(blocks: List<Block>) {
         viewModelScope.launch {
@@ -143,21 +151,17 @@ class BlockViewModel : ViewModel() {
                 }
             }
             is ElseBlock, is ElseIfBlock -> {
-                if (parentBlock is EndBlock){
+                if (parentBlock is EndBlock) {
                     if (parentBlock.rootBlock is ConditionBlock ||
-                        parentBlock.rootBlock is ElseIfBlock)
-                    currentBlock.rootBlock = parentBlock
-                    parentBlock.EndBlock = currentBlock
-               }
+                        parentBlock.rootBlock is ElseIfBlock
+                    ) {
+                        currentBlock.rootBlock = parentBlock
+                        parentBlock.EndBlock = currentBlock
+                    }
+                }
             }
-
         }
     }
-
-//    fun saveBlocksToFile(context: Context) {
-//        val jsonData = serializeBlocks(_blocks.value.map { it.toBlockState() })
-//        saveStateToFile(context, "project_state.json", jsonData)
-//    }
 }
 
 fun logAllBlocks(blocks : List<Block>){

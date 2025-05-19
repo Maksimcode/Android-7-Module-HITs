@@ -39,9 +39,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavController
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockContent
-//import com.example.android_7_module_hits.Blocks.attachChild
-//import com.example.android_7_module_hits.Blocks.findAttachableParent
-//import com.example.android_7_module_hits.Blocks.logAllBlocks
 import com.example.android_7_module_hits.interpreter.runInterpreter
 import com.example.android_7_module_hits.ui.theme.FolderButtonSub
 import com.example.android_7_module_hits.ui.theme.RunButtonSub
@@ -57,9 +54,9 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Folder
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.android_7_module_hits.Blocks.BlockType
+import com.example.android_7_module_hits.navigation.Screen
 import com.example.android_7_module_hits.ui.uiblocks.ElseBlockView
 import com.example.android_7_module_hits.ui.uiblocks.ElseIfBlockView
 import com.example.android_7_module_hits.viewModel.BlockViewModel
@@ -70,21 +67,14 @@ import com.example.android_7_module_hits.viewModel.logAllBlocks
 @Composable
 fun MainScreen(
     navController: NavController,
-    projectViewModel: ProjectViewModel
 ) {
     val viewModel: BlockViewModel = viewModel()
-    val context = LocalContext.current
     val blocks by viewModel.blocks.collectAsState()
 
-    /*LaunchedEffect(Unit) {
-        val savedJson = loadStateFromFile(context, "project_state.json")
-        if (savedJson != null) {
-            val loadedBlockStates = deserializeBlocks(savedJson)
-            val loadedBlocks = loadedBlockStates.map { it.toBlock() }
-            viewModel.setInitialBlocks(loadedBlocks)
-            Log.d("Load", "Загружено ${loadedBlocks.size} блоков из сохранённого файла")
-        }
-    }*/
+    LaunchedEffect(Unit) {
+        viewModel.loadBlocks()
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -142,15 +132,10 @@ fun MainScreen(
             }
         },
         bottomBar = {
-            BottomCircleButtons(allBlocks = blocks,
-                onProjectSaved = { newProject ->
-                    projectViewModel.addProject(newProject)
-                }
-            )
+            BottomCircleButtons(allBlocks = blocks, viewModel = viewModel)
         }
     )
 }
-
 
 @Composable
 fun BlockView(block: Block) {
@@ -298,7 +283,7 @@ fun InfiniteCanvas(
 @Composable
 fun BottomCircleButtons(
     allBlocks: List<Block>,
-    onProjectSaved: (ProjectPreview) -> Unit
+    viewModel: BlockViewModel
 ) {
     val context = LocalContext.current
 
@@ -351,22 +336,7 @@ fun BottomCircleButtons(
                         .clickable {
                             when (index) {
                                 0 -> {
-                                    /*// При нажатии на первую кнопку происходит сохранение
-                                    val blockStates = allBlocks.map { it.toBlockState() }
-                                    val jsonData = serializeBlocks(blockStates)
-                                    saveStateToFile(context, "project_state.json", jsonData)
-                                    Log.d("Save", "Проект сохранён в файл: project_state.json")
-
-                                    // Создаем объект ProjectPreview с текущей датой
-                                    val currentDate = java.text.SimpleDateFormat(
-                                        "dd.MM.yyyy",
-                                        java.util.Locale.getDefault()
-                                    ).format(java.util.Date())
-                                    val newProject = ProjectPreview(
-                                        id = java.util.UUID.randomUUID().toString(),
-                                        saveDate = currentDate
-                                    )
-                                    onProjectSaved(newProject)*/
+                                    viewModel.saveBlocks()
                                 }
                                 1 -> {}
                                 2 -> {}
