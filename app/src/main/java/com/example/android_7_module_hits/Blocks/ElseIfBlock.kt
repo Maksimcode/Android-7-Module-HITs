@@ -4,7 +4,7 @@ class ElseIfBlock(
     val logicalExpression: String
 ) : BlockHasBody(
     type = BlockType.ELSE_IF,
-    content = BlockContent.Condition(
+    content = BlockContent.ElseIf(
         expression = logicalExpression
     )
 )
