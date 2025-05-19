@@ -1,0 +1,13 @@
+package com.example.android_7_module_hits.saving
+
+import com.example.android_7_module_hits.Blocks.BlockType
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class BlockState(
+    val id: String,
+    val type: BlockType,
+    val content: BlockContentState,
+    val positionX: Float,
+    val positionY: Float
+)

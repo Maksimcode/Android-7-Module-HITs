@@ -1,9 +1,7 @@
 package com.example.android_7_module_hits.interpreter
 
-import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockContent
 import com.example.android_7_module_hits.Blocks.DataType
-import javax.xml.xpath.XPathExpression
 
 class InterpreterState {
     private val variables = mutableMapOf<String, BlockContent.Declare>()
