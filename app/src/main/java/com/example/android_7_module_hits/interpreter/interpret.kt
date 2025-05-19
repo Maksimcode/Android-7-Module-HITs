@@ -1,8 +1,11 @@
 package com.example.android_7_module_hits.interpreter
 
+import androidx.compose.runtime.internal.illegalDecoyCallException
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockContent
 import com.example.android_7_module_hits.Blocks.BlockType
+import com.example.android_7_module_hits.Blocks.ConditionBlock
+import com.example.android_7_module_hits.Blocks.ElseIfBlock
 
 fun interpret(block: Block, state: InterpreterState) {
     var currentBlock = block
@@ -40,11 +43,114 @@ fun interpret(block: Block, state: InterpreterState) {
             return
         }
 
+        is BlockContent.ElseIf -> {
+            val logicalExpression = content.expression
+
+            if (!currentBlock.hasEndBlock()){
+                throw IllegalStateException("Отсутствие привязанного блока End")
+            }
+
+            if (!currentBlock.hasRootBlock()){
+                throw IllegalStateException("Отсутствие if/else if до..")
+            }
+
+            var conditionResult: Boolean = state.setCondition(logicalExpression)
+            var temp = currentBlock.rootBlock?.rootBlock
+            var anyPrevTrue = false
+            while(temp != null){
+                when (temp) {
+                    is ConditionBlock, is ElseIfBlock -> {
+                        val tempContent = temp.content
+                        if (tempContent is BlockContent.Condition){
+                            val result = state.setCondition(tempContent.expression)
+                            if (result) {
+                                anyPrevTrue = true
+                                break
+                            }
+                        }
+                        if (tempContent is BlockContent.ElseIf){
+                            val result = state.setCondition(tempContent.expression)
+                            if (result) {
+                                anyPrevTrue = true
+                                break
+                            }
+                        }
+                    }
+                }
+                temp = temp.rootBlock?.rootBlock
+            }
+
+            var current: Block? = currentBlock.child
+            var insideIfBody = conditionResult && !anyPrevTrue
+
+            while (current != null && current.content !is BlockContent.End) {
+                if (insideIfBody) {
+                    interpret(current, state)
+                }
+                current = current.child
+            }
+
+
+            current?.child?.let { interpret(it, state) }
+            return
+        }
+
+        is BlockContent.Else -> {
+            if (!currentBlock.hasEndBlock()){
+                throw IllegalStateException("Отсутствие привязанного блока End")
+            }
+
+            if (!currentBlock.hasRootBlock()){
+                throw IllegalStateException("Отсутствие if/else if до..")
+            }
+
+            var temp = currentBlock.rootBlock?.rootBlock
+            var anyPrevTrue = false
+            while(temp != null){
+                when (temp) {
+                    is ConditionBlock, is ElseIfBlock -> {
+                        val tempContent = temp.content
+                        if (tempContent is BlockContent.Condition){
+                            val result = state.setCondition(tempContent.expression)
+                            if (result) {
+                                anyPrevTrue = true
+                                break
+                            }
+                        }
+                        if (tempContent is BlockContent.ElseIf){
+                            val result = state.setCondition(tempContent.expression)
+                            if (result) {
+                                anyPrevTrue = true
+                                break
+                            }
+                        }
+                    }
+                }
+                temp = temp.rootBlock?.rootBlock
+            }
+
+            var current: Block? = currentBlock.child
+            var insideIfBody = !anyPrevTrue
+
+            while (current != null && current.content !is BlockContent.End) {
+                if (insideIfBody) {
+                    interpret(current, state)
+                }
+                current = current.child
+            }
+
+
+            current?.child?.let { interpret(it, state) }
+            return
+        }
+
         is BlockContent.End -> {
             if (!currentBlock.hasRootBlock()){
                 throw IllegalStateException("Отсутствие привязанного блока HasBody")
             }
-
+        }
+        else -> {
+            println("пока хз")
         }
     }
 

@@ -1,7 +1,5 @@
 package com.example.android_7_module_hits.Blocks
 
-import javax.xml.xpath.XPathExpression
-
 sealed class BlockContent{
 
     data class Declare(
@@ -19,5 +17,11 @@ sealed class BlockContent{
         var expression: String
     ) :BlockContent()
 
-    class End() :BlockContent()
+    data class ElseIf (
+        var expression: String
+    ) : BlockContent()
+
+    class End() : BlockContent()
+
+    class Else() : BlockContent()
 }

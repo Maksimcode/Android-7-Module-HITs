@@ -5,8 +5,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android_7_module_hits.Blocks.BaseBlock
 import com.example.android_7_module_hits.Blocks.Block
+import com.example.android_7_module_hits.Blocks.BlockHasBody
+import com.example.android_7_module_hits.Blocks.BlockType
+import com.example.android_7_module_hits.Blocks.ConditionBlock
+import com.example.android_7_module_hits.Blocks.ElseBlock
+import com.example.android_7_module_hits.Blocks.ElseIfBlock
+import com.example.android_7_module_hits.Blocks.EndBlock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
 import kotlin.math.sqrt
 
@@ -48,6 +55,11 @@ class BlockViewModel : ViewModel() {
         targetBlock?.child?.parent = null
         targetBlock?.parent = null
         targetBlock?.child = null
+        targetBlock?.EndBlock?.rootBlock = null
+        targetBlock?.rootBlock?.EndBlock = null
+        targetBlock?.EndBlock = null
+        targetBlock?.rootBlock = null
+
         _blocks.value = _blocks.value.filter { it.id != blockId }
     }
 
@@ -119,8 +131,38 @@ class BlockViewModel : ViewModel() {
         }
     }
 
+    fun attachHasBodyBlock(currentBlock: Block, parentBlock: Block){
+        when (currentBlock) {
+            is EndBlock ->{
+                if (parentBlock is BlockHasBody && parentBlock.EndBlock == null){
+                    parentBlock.EndBlock = currentBlock
+                    currentBlock.rootBlock = parentBlock
+                }
+                else{
+                    parentBlock.parent?.let { attachHasBodyBlock(currentBlock ,it) }
+                }
+            }
+            is ElseBlock, is ElseIfBlock -> {
+                if (parentBlock is EndBlock){
+                    if (parentBlock.rootBlock is ConditionBlock ||
+                        parentBlock.rootBlock is ElseIfBlock)
+                    currentBlock.rootBlock = parentBlock
+                    parentBlock.EndBlock = currentBlock
+               }
+            }
+
+        }
+    }
+
 //    fun saveBlocksToFile(context: Context) {
 //        val jsonData = serializeBlocks(_blocks.value.map { it.toBlockState() })
 //        saveStateToFile(context, "project_state.json", jsonData)
 //    }
 }
+
+fun logAllBlocks(blocks : List<Block>){
+    blocks.forEach {
+        println("ID: ${it.id}, root: ${it.rootBlock?.id}, end: ${it.EndBlock?.id}")
+    }
+}
+

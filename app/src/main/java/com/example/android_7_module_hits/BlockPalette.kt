@@ -21,6 +21,8 @@ import com.example.android_7_module_hits.Blocks.BlockType
 import com.example.android_7_module_hits.Blocks.ConditionBlock
 import com.example.android_7_module_hits.Blocks.DataType
 import com.example.android_7_module_hits.Blocks.DeclarationBlock
+import com.example.android_7_module_hits.Blocks.ElseBlock
+import com.example.android_7_module_hits.Blocks.ElseIfBlock
 import com.example.android_7_module_hits.Blocks.EndBlock
 import com.example.android_7_module_hits.ui.uiblocks.BlockTemplate
 import com.example.android_7_module_hits.ui.uiblocks.availableBlocks
@@ -49,6 +51,10 @@ fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) 
                         AssignmentBlock(variableName = "Variable", initialValue = "0")
                     BlockType.CONDITION ->
                         ConditionBlock(logicalExpression = "true")
+                    BlockType.ELSE_IF ->
+                        ElseIfBlock(logicalExpression = "true")
+                    BlockType.ELSE ->
+                        ElseBlock()
                     BlockType.END ->
                         EndBlock()
                     else -> throw IllegalArgumentException("Unknown block type")
