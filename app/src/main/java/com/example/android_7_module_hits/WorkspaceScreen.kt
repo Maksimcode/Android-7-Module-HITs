@@ -60,7 +60,10 @@ import androidx.compose.material.icons.filled.Folder
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.android_7_module_hits.Blocks.BlockType
+import com.example.android_7_module_hits.ui.uiblocks.ElseBlockView
+import com.example.android_7_module_hits.ui.uiblocks.ElseIfBlockView
 import com.example.android_7_module_hits.viewModel.BlockViewModel
+import com.example.android_7_module_hits.viewModel.logAllBlocks
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -160,6 +163,12 @@ fun BlockView(block: Block) {
         }
         is BlockContent.Condition -> {
             ConditionBlockView(content, block)
+        }
+        is BlockContent.ElseIf -> {
+            ElseIfBlockView(content, block)
+        }
+        is BlockContent.Else -> {
+            ElseBlockView(content, block)
         }
         is BlockContent.End -> {
             EndBlockView(content, block)
@@ -362,7 +371,7 @@ fun BottomCircleButtons(
                                 1 -> {}
                                 2 -> {}
                                 3 -> {
-//                                    logAllBlocks()
+                                    logAllBlocks(allBlocks)
                                     runInterpreter(blocks = allBlocks)
                                 }
                             }
@@ -380,3 +389,5 @@ fun BottomCircleButtons(
         }
     }
 }
+
+

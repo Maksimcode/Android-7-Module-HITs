@@ -5,6 +5,8 @@ val availableBlocks = listOf(
     BlockTemplate("Declare", BlockType.DECLARE),
     BlockTemplate("Assignment", BlockType.ASSIGN),
     BlockTemplate("Condition", BlockType.CONDITION),
+    BlockTemplate("Additional condition", BlockType.ELSE_IF),
+    BlockTemplate("Else", BlockType.ELSE),
     BlockTemplate("End", BlockType.END)
 )
 

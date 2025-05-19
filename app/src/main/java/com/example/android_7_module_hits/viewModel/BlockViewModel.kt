@@ -6,12 +6,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.android_7_module_hits.Blocks.BaseBlock
 import com.example.android_7_module_hits.Blocks.Block
 import com.example.android_7_module_hits.Blocks.BlockHasBody
+import com.example.android_7_module_hits.Blocks.BlockType
 import com.example.android_7_module_hits.Blocks.ConditionBlock
 import com.example.android_7_module_hits.Blocks.ElseBlock
 import com.example.android_7_module_hits.Blocks.ElseIfBlock
 import com.example.android_7_module_hits.Blocks.EndBlock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
 import kotlin.math.sqrt
 
@@ -157,3 +159,10 @@ class BlockViewModel : ViewModel() {
 //        saveStateToFile(context, "project_state.json", jsonData)
 //    }
 }
+
+fun logAllBlocks(blocks : List<Block>){
+    blocks.forEach {
+        println("ID: ${it.id}, root: ${it.rootBlock?.id}, end: ${it.EndBlock?.id}")
+    }
+}
+
