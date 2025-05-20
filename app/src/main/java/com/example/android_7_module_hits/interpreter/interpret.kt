@@ -10,7 +10,7 @@ fun interpret(block: Block, state: InterpreterState) {
 
     when (val content = currentBlock.content) {
         is BlockContent.Declare -> {
-            state.declareVariable(BlockContent.Declare(content.type, content.name, content.value))
+            state.declareVariable(BlockContent.Declare(content.type, content.name, content.value, content.length))
         }
 
         is BlockContent.Assignment -> {

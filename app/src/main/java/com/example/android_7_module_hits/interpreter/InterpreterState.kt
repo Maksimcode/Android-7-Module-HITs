@@ -13,7 +13,8 @@ class InterpreterState {
         if (variables.containsKey(content.name)) throw IllegalArgumentException("Переменная уже объявлена")
         variables[content.name] = VariableContent(
             type = content.type,
-            value = content.value)
+            value = content.value,
+            arrayLength = evaluateExpression(content.length).toString())
     }
 
     fun assignValue(content: BlockContent.Assignment) {
@@ -49,18 +50,78 @@ class InterpreterState {
                     throw IllegalArgumentException("Ошибка при обработке булевого выражения", e)
                 }
             }
+            DataType.ARR_INT -> {
+                val arrayElements = splitArrayElements(newValue)
+                val res = mutableListOf<Int>()
+                val arrLen = variables[content.name]?.arrayLength?.toInt()
+                if(arrLen != null && arrLen != 0) {
+                    for (i in 0 until arrLen)
+                    {
+                        try {
+                            res.add(evaluateExpression(arrayElements[i] ?: "0"))
+                        } catch (e: Exception) {
+                            throw e
+                        }
+                    }
+                }
+                else {
+                    throw IllegalArgumentException("Ошибка при обработке массива INT")
+                }
+                res
+            }
+            DataType.ARR_STR -> {
+                val arrayElements = splitArrayElements(newValue)
+                val res = mutableListOf<String>()
+                val arrLen = variables[content.name]?.arrayLength?.toInt()
+                if(arrLen != null && arrLen != 0) {
+                    for (i in 0..arrLen)
+                    {
+                        try {
+                            res.add(evaluateStringExpression(arrayElements[i] ?: "0"))
+                        } catch (e: Exception) {
+                            throw e
+                        }
+                    }
+                }
+                else {
+                    throw IllegalArgumentException("Ошибка при обработке массива INT")
+                }
+                res
+            }
+            DataType.ARR_BOOL -> {
+                val arrayElements = splitArrayElements(newValue)
+                val res = mutableListOf<Boolean>()
+                val arrLen = variables[content.name]?.arrayLength?.toInt()
+                if(arrLen != null && arrLen != 0) {
+                    for (i in 0..arrLen)
+                    {
+                        try {
+                            res.add(parseBooleanExpression(arrayElements[i] ?: "0"))
+                        } catch (e: Exception) {
+                            throw e
+                        }
+                    }
+                }
+                else {
+                    throw IllegalArgumentException("Ошибка при обработке массива INT")
+                }
+                res
+            }
             else -> {
                 println("i can't do it now")
             }
         }
 
 
-        if (type != null && result != null){
+        val arrLen = variables[content.name]?.arrayLength
+        if (type != null && result != null && arrLen != null){
             variables[content.name] = VariableContent(
                 type = type,
-                value = result)
+                value = result,
+                arrayLength = arrLen)
         }
     }
+
 
     fun setCondition(expr: String): Boolean {
         val trimmedExpr = expr.trim()
@@ -68,6 +129,33 @@ class InterpreterState {
     }
 
     fun getVariables(): Map<String, VariableContent> = variables.toMap()
+
+    fun splitArrayElements(value: String): List<String> {
+        val result = mutableListOf<String>()
+        var current = StringBuilder()
+        var inQuotes = false
+
+        for (char in value) {
+            when {
+                char == '"' -> {
+                    inQuotes = !inQuotes
+                    current.append(char)
+                }
+
+                char == ',' && !inQuotes -> {
+                    result.add(current.toString().trim())
+                    current.clear()
+                }
+
+                else -> current.append(char)
+            }
+        }
+        if (current.isNotEmpty()) {
+            result.add(current.toString().trim())
+        }
+
+        return result
+    }
 
     private fun parseBooleanExpression(expr: String): Boolean {
         val trimmedExpr = expr.trim()
