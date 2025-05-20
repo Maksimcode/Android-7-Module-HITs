@@ -55,6 +55,7 @@ import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
@@ -78,6 +79,8 @@ fun MainScreen(
     val scope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
     val drawerWidth = configuration.screenWidthDp.dp * 0.6f
+
+    var isConsoleOpen by remember { mutableStateOf(false) }
 
     val viewModel: BlockViewModel = viewModel()
     val blocks by viewModel.blocks.collectAsState()
@@ -117,7 +120,7 @@ fun MainScreen(
                             IconButton(onClick = {scope.launch { drawerState.open() } }) {
                                 Icon(
                                     imageVector = Icons.Filled.Menu,
-                                    contentDescription = "Меню"
+                                    contentDescription = "Menu"
                                 )
                             }
                         },
@@ -126,7 +129,7 @@ fun MainScreen(
                                 ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Назад"
+                                    contentDescription = "Back"
                                 )
                             }
                         }
@@ -165,12 +168,26 @@ fun MainScreen(
                         ) {
                             BottomCircleButtons(
                                 allBlocks = blocks,
-                                viewModel = viewModel
+                                viewModel = viewModel,
+                                onConsoleClick = {
+                                    isConsoleOpen = true
+                                }
                             )
                         }
                     }
                 }
             )
+            if (isConsoleOpen) {
+                ConsoleMenu(
+                    onDismissRequest = { isConsoleOpen = false }
+                ) {
+                    // Сюда будем добавлять консольный вывод
+                    Column {
+                        Text(text = "Console Output:")
+                        Text(text = ">> Interpreter is running...")
+                    }
+                }
+            }
         }
     )
 }
@@ -317,11 +334,32 @@ fun InfiniteCanvas(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ConsoleMenu(
+    onDismissRequest: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        dragHandle = { /* Если консольный вывод не будет влезать, эта штука поможет сделать нам "ручку" для расщирения окна */ }
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+                .padding(16.dp)
+        ) {
+            content()
+        }
+    }
+}
 
 @Composable
 fun BottomCircleButtons(
     allBlocks: List<Block>,
-    viewModel: BlockViewModel
+    viewModel: BlockViewModel,
+    onConsoleClick: () -> Unit
 ) {
     val buttonColors = listOf(
         FolderButtonMain,
@@ -379,6 +417,7 @@ fun BottomCircleButtons(
                                 3 -> {
                                     logAllBlocks(allBlocks)
                                     runInterpreter(blocks = allBlocks)
+                                    onConsoleClick()
                                 }
                             }
                         },

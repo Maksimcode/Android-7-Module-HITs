@@ -11,6 +11,7 @@
         android:roundIcon="@mipmap/ic_new_icon_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Android7ModuleHITs"
+        android:enableOnBackInvokedCallback="true"
         tools:targetApi="31">
         <activity
             android:name=".StartActivity"
