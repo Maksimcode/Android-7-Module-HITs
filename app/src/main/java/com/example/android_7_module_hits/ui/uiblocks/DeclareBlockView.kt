@@ -34,11 +34,14 @@ import com.example.android_7_module_hits.Blocks.DataType
 fun DeclareBlockView(content: BlockContent.Declare, block: Block){
     var isEditingName by remember { mutableStateOf(false) }
     var isEditingType by remember { mutableStateOf(false) }
+    var isEditingLength by remember { mutableStateOf(false) }
 
     var editedName by remember(content.name ?: "Variable") { mutableStateOf(content.name ?: "Variable") }
     var editedType by remember(content.type ?: DataType.INTEGER) { mutableStateOf(content.type ?: DataType.INTEGER) }
+    var editedLength by remember(content.length ?: "0") { mutableStateOf(content.length ?: "0") }
 
-    val options = listOf(DataType.INTEGER, DataType.STRING, DataType.BOOLEAN)
+    val options = listOf(DataType.INTEGER, DataType.STRING, DataType.BOOLEAN,
+                         DataType.ARR_INT, DataType.ARR_STR, DataType.ARR_BOOL)
 
     Card(
         modifier = Modifier
@@ -101,26 +104,98 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                 }
 
             } else {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .background(Color.LightGray)
-                            .clickable { isEditingType = true }
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                    ) {
-                        Text(text = displayText(editedType), color = Color.Blue)
+                if(editedType == DataType.ARR_BOOL ||
+                    editedType == DataType.ARR_STR ||
+                    editedType == DataType.ARR_INT){
+                    if(isEditingLength){
+                        TextField(
+                            value = editedLength,
+                            onValueChange = { newText ->
+                                editedLength = newText
+                            },
+                            label = { Text("Длина массива") },
+                            modifier = Modifier
+                                .width(150.dp)
+                        )
+
+                        Row(
+                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            TextButton(
+                                onClick = {
+                                    editedLength = content.name ?: "0"
+                                    isEditingLength = false
+                                }
+                            ) {
+                                Text("Отмена")
+                            }
+
+                            TextButton(
+                                onClick = {
+                                    content.length = editedLength
+                                    isEditingLength = false
+                                }
+                            ) {
+                                Text("Сохранить")
+                            }
+                        }
                     }
-                    Spacer(modifier = Modifier.width(5.dp))
-                    Box(
-                        modifier = Modifier
-                            .background(Color.LightGray)
-                            .clickable { isEditingName = true }
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                    ) {
-                        Text(text = editedName, color = Color.Blue)
+                    else{
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .background(Color.LightGray)
+                                    .clickable { isEditingType = true }
+                                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                            ) {
+                                Text(text = displayText(editedType), color = Color.Blue)
+                            }
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Box(
+                                modifier = Modifier
+                                    .background(Color.LightGray)
+                                    .clickable { isEditingName = true }
+                                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                            ) {
+                                Text(text = editedName, color = Color.Blue)
+                            }
+                            Text(text = "[ ", color = Color.Black)
+                            Box(
+                                modifier = Modifier
+                                    .background(Color.LightGray)
+                                    .clickable{ isEditingLength = true }
+                                    .padding(horizontal = 4.dp, vertical = 2.dp)
+                            ){
+                                Text(text = editedLength, color = Color.Blue)
+                            }
+
+                            Text(text = " ];", color = Color.Black)
+                        }
                     }
 
-                    Text(text = ";", color = Color.Black)
+                }else {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .background(Color.LightGray)
+                                .clickable { isEditingType = true }
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                        ) {
+                            Text(text = displayText(editedType), color = Color.Blue)
+                        }
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Box(
+                            modifier = Modifier
+                                .background(Color.LightGray)
+                                .clickable { isEditingName = true }
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                        ) {
+                            Text(text = editedName, color = Color.Blue)
+                        }
+
+                        Text(text = ";", color = Color.Black)
+                    }
                 }
             }
         }
@@ -132,6 +207,9 @@ fun displayText(selectedType: DataType): String{
         DataType.INTEGER -> "int"
         DataType.STRING -> "string"
         DataType.BOOLEAN -> "bool"
+        DataType.ARR_INT -> "int"
+        DataType.ARR_STR -> "str"
+        DataType.ARR_BOOL -> "bool"
         else -> "pupu"
     }
 }
