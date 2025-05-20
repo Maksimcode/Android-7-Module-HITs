@@ -51,10 +51,11 @@ class InterpreterState {
                 }
             }
             DataType.ARR_INT -> {
-                val arrayElements = splitArrayElements(newValue)
+                val cleanedValue = removeOuterBraces(newValue)
+                val arrayElements = splitArrayElements(cleanedValue)
                 val res = mutableListOf<Int>()
                 val arrLen = variables[content.name]?.arrayLength?.toInt()
-                if(arrLen != null && arrLen != 0) {
+                if(arrLen != null) {
                     for (i in 0 until arrLen)
                     {
                         try {
@@ -132,10 +133,13 @@ class InterpreterState {
 
     fun splitArrayElements(value: String): List<String> {
         val result = mutableListOf<String>()
+        val trimmedValue = value.trim()
+        val processedValue = removeOuterBraces(trimmedValue)
+
         var current = StringBuilder()
         var inQuotes = false
 
-        for (char in value) {
+        for (char in processedValue) {
             when {
                 char == '"' -> {
                     inQuotes = !inQuotes
@@ -150,11 +154,48 @@ class InterpreterState {
                 else -> current.append(char)
             }
         }
+
         if (current.isNotEmpty()) {
             result.add(current.toString().trim())
         }
 
         return result
+    }
+
+
+    private fun removeOuterBraces(value: String): String {
+        var inQuotes = false
+        var braceDepth = 0
+        val result = StringBuilder()
+
+        for (c in value) {
+            when {
+                c == '"' -> {
+                    inQuotes = !inQuotes
+                    result.append(c)
+                }
+                !inQuotes -> when (c) {
+                    '{' -> {
+                        if (braceDepth == 0) {
+                        } else {
+                            result.append(c)
+                        }
+                        braceDepth++
+                    }
+                    '}' -> {
+                        braceDepth--
+                        if (braceDepth == 0) {
+                        } else {
+                            result.append(c)
+                        }
+                    }
+                    else -> result.append(c)
+                }
+                else -> result.append(c)
+            }
+        }
+
+        return result.toString().trim()
     }
 
     private fun parseBooleanExpression(expr: String): Boolean {
