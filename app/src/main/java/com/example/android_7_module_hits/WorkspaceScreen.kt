@@ -104,9 +104,8 @@ fun MainScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-
                 InfiniteCanvas {
-                    blocks.forEach{block ->
+                    blocks.forEach { block ->
                         key(block.id) {
                             DraggableBlock(
                                 block = block,
@@ -129,10 +128,18 @@ fun MainScreen(
                     viewModel.addBlock(newBlock)
                 }
 
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 0.dp)
+                ) {
+                    BottomCircleButtons(
+                        allBlocks = blocks,
+                        viewModel = viewModel
+                    )
+                }
             }
-        },
-        bottomBar = {
-            BottomCircleButtons(allBlocks = blocks, viewModel = viewModel)
         }
     )
 }
@@ -314,7 +321,7 @@ fun BottomCircleButtons(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 36.dp)
+                .padding(bottom = 16.dp)
                 .align(Alignment.BottomCenter),
             horizontalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.Top,
