@@ -4,15 +4,16 @@ import com.example.android_7_module_hits.Blocks.BlockContent
 import com.example.android_7_module_hits.Blocks.DataType
 
 class InterpreterState {
-    private val variables = mutableMapOf<String, BlockContent.Declare>()
+    private val variables = mutableMapOf<String, VariableContent>()
 
 //    TODO: parsing variables by commas
     fun declareVariable(content: BlockContent.Declare) {
         if (content.name.isBlank()) throw IllegalArgumentException("Имя переменной не может быть пустым")
 
         if (variables.containsKey(content.name)) throw IllegalArgumentException("Переменная уже объявлена")
-        variables[content.name] = content
-
+        variables[content.name] = VariableContent(
+            type = content.type,
+            value = content.value)
     }
 
     fun assignValue(content: BlockContent.Assignment) {
@@ -21,10 +22,7 @@ class InterpreterState {
         }
 
         val oldValue = variables[content.name]
-        val type = when (oldValue){
-            is BlockContent.Declare -> oldValue.type
-            else -> DataType.INTEGER
-        }
+        val type = oldValue?.type
         val newValue = content.value
 
 
@@ -56,7 +54,12 @@ class InterpreterState {
             }
         }
 
-        variables[content.name] = BlockContent.Declare(type, content.name, result.toString())
+
+        if (type != null && result != null){
+            variables[content.name] = VariableContent(
+                type = type,
+                value = result)
+        }
     }
 
     fun setCondition(expr: String): Boolean {
@@ -64,7 +67,7 @@ class InterpreterState {
         return parseBooleanExpression(trimmedExpr)
     }
 
-    fun getVariables(): Map<String, BlockContent.Declare> = variables.toMap()
+    fun getVariables(): Map<String, VariableContent> = variables.toMap()
 
     private fun parseBooleanExpression(expr: String): Boolean {
         val trimmedExpr = expr.trim()
@@ -75,8 +78,8 @@ class InterpreterState {
         if (variables.containsKey(trimmedExpr)) {
             val variable = variables[trimmedExpr]!!
             return when (variable.type) {
-                DataType.BOOLEAN -> variable.value.toBooleanStrict()
-                DataType.INTEGER -> variable.value.toInt() != 0
+                DataType.BOOLEAN -> variable.value.toString().toBooleanStrict()
+                DataType.INTEGER -> variable.value.toString().toInt() != 0
                 else -> false
             }
         }
@@ -138,8 +141,8 @@ class InterpreterState {
         if (variables.containsKey(token)) {
             val variable = variables[token]!!
             return when (variable.type) {
-                DataType.BOOLEAN -> variable.value.toBooleanStrict()
-                DataType.INTEGER -> variable.value.toInt()
+                DataType.BOOLEAN -> variable.value.toString().toBooleanStrict()
+                DataType.INTEGER -> variable.value.toString().toInt()
                 else -> throw IllegalArgumentException("Неподдерживаемый тип переменной: ${variable.type}")
             }
         }
@@ -197,7 +200,7 @@ class InterpreterState {
                 if (variableType == DataType.STRING) {
                     result += value
                 } else if (variableType == DataType.INTEGER) {
-                    result += value.toIntOrNull() ?: 0
+                    result += value.toString().toIntOrNull() ?: 0
                 }
             }
             else {
@@ -276,7 +279,7 @@ class InterpreterState {
             }
             if(type != null && (type == DataType.INTEGER)){
                 variableToken = when(value){
-                    is BlockContent.Declare -> value.value.toInt()
+                    is BlockContent.Declare -> value.value.toString().toInt()
                     else -> 0
                 }
             }
@@ -300,7 +303,7 @@ class InterpreterState {
                 }
                 if(type != null && (type == DataType.INTEGER)){
                     when(value){
-                        is BlockContent.Declare -> value.value.toInt()
+                        is BlockContent.Declare -> value.value.toString().toInt()
                         else -> 0
                     }
                 } else{
