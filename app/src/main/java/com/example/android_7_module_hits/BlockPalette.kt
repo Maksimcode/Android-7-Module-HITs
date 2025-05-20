@@ -30,7 +30,7 @@ import com.example.android_7_module_hits.ui.uiblocks.availableBlocks
 @Composable
 fun BlockPalette(onBlockSelected: (Block) -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(text = "Блоки")
+        Text(text = "Select a block")
         Spacer(modifier = Modifier.height(8.dp))
         availableBlocks.forEach { template ->
             BlockPaletteItem(template = template, onBlockSelected = onBlockSelected)

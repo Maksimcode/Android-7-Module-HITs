@@ -8,7 +8,8 @@ fun Block.toBlockState(): BlockState {
         is BlockContent.Declare -> BlockContentState.Declare(
             type = (this.content as BlockContent.Declare).type,
             name = (this.content as BlockContent.Declare).name,
-            value = (this.content as BlockContent.Declare).value
+            value = (this.content as BlockContent.Declare).value,
+            length = (this.content as BlockContent.Declare).length
         )
         is BlockContent.Assignment -> BlockContentState.Assignment(
             name = (this.content as BlockContent.Assignment).name,

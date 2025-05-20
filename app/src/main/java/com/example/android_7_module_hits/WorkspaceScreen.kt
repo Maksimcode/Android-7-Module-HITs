@@ -34,7 +34,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavController
 import com.example.android_7_module_hits.Blocks.Block
@@ -75,78 +74,103 @@ import kotlinx.coroutines.launch
 fun MainScreen(
     navController: NavController
 ) {
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val configuration = LocalConfiguration.current
+    val drawerWidth = configuration.screenWidthDp.dp * 0.6f
+
     val viewModel: BlockViewModel = viewModel()
     val blocks by viewModel.blocks.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadBlocks()
     }
-
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = "Enter project name") },
-                navigationIcon = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = "Меню"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick ={navController.navigate(route = Screen.Library.route)}
-                        ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад"
-                        )
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet(
+                modifier = Modifier.width(drawerWidth)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = "Block creation",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    BlockPalette { newBlock ->
+                        viewModel.addBlock(newBlock)
+                        scope.launch { drawerState.close() }
                     }
                 }
-            )
+            }
         },
-        content = { innerPadding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                InfiniteCanvas {
-                    blocks.forEach { block ->
-                        key(block.id) {
-                            DraggableBlock(
-                                block = block,
-                                viewModel = viewModel,
-                                onPositionChange = { id, pos ->
-                                    viewModel.updateBlockPosition(id, pos)
-                                },
-                                onDelete = {
-                                    viewModel.deleteBlock(block.id)
-                                },
-                                onAttach = { parent, child ->
-                                    viewModel.attachChild(parent, child)
+        content = {
+            Scaffold(
+                topBar = {
+                    CenterAlignedTopAppBar(
+                        title = { Text(text = "Enter project name") },
+                        navigationIcon = {
+                            IconButton(onClick = {scope.launch { drawerState.open() } }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Menu,
+                                    contentDescription = "Меню"
+                                )
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick ={navController.navigate(route = Screen.Library.route)}
+                                ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Назад"
+                                )
+                            }
+                        }
+                    )
+                },
+                content = { innerPadding ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                    ) {
+                        InfiniteCanvas {
+                            blocks.forEach { block ->
+                                key(block.id) {
+                                    DraggableBlock(
+                                        block = block,
+                                        viewModel = viewModel,
+                                        onPositionChange = { id, pos ->
+                                            viewModel.updateBlockPosition(id, pos)
+                                        },
+                                        onDelete = {
+                                            viewModel.deleteBlock(block.id)
+                                        },
+                                        onAttach = { parent, child ->
+                                            viewModel.attachChild(parent, child)
+                                        }
+                                    )
                                 }
+                            }
+                        }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 0.dp)
+                        ) {
+                            BottomCircleButtons(
+                                allBlocks = blocks,
+                                viewModel = viewModel
                             )
                         }
                     }
                 }
-
-                BlockPalette { newBlock ->
-                    viewModel.addBlock(newBlock)
-                }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 0.dp)
-                ) {
-                    BottomCircleButtons(
-                        allBlocks = blocks,
-                        viewModel = viewModel
-                    )
-                }
-            }
+            )
         }
     )
 }

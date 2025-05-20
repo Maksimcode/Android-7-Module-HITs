@@ -12,7 +12,8 @@ sealed class BlockContentState {
     data class Declare(
         val type: DataType,
         val name: String,
-        val value: String = "0"
+        val value: String = "0",
+        val length: String = "0"
     ) : BlockContentState()
 
     @Serializable
