@@ -55,7 +55,7 @@ class InterpreterState {
                 val res = mutableListOf<Int>()
                 val arrLen = variables[content.name]?.arrayLength?.toInt()
                 if(arrLen != null && arrLen != 0) {
-                    for (i in 0..arrLen)
+                    for (i in 0 until arrLen)
                     {
                         try {
                             res.add(evaluateExpression(arrayElements[i] ?: "0"))
@@ -113,10 +113,12 @@ class InterpreterState {
         }
 
 
-        if (type != null && result != null){
+        val arrLen = variables[content.name]?.arrayLength
+        if (type != null && result != null && arrLen != null){
             variables[content.name] = VariableContent(
                 type = type,
-                value = result)
+                value = result,
+                arrayLength = arrLen)
         }
     }
 
