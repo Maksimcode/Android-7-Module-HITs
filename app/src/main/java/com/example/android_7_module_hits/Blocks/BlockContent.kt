@@ -5,7 +5,8 @@ sealed class BlockContent{
     data class Declare(
         var type: DataType,
         var name: String,
-        val value: String = "0"
+        val value: String = "0",
+        var length: String = "0"
     ) :BlockContent()
 
     data class Assignment(
