@@ -207,9 +207,9 @@ fun displayText(selectedType: DataType): String{
         DataType.INTEGER -> "int"
         DataType.STRING -> "string"
         DataType.BOOLEAN -> "bool"
-        DataType.ARR_INT -> "int"
-        DataType.ARR_STR -> "str"
-        DataType.ARR_BOOL -> "bool"
+        DataType.ARR_INT -> "arr int"
+        DataType.ARR_STR -> "arr str"
+        DataType.ARR_BOOL -> "arr bool"
         else -> "pupu"
     }
 }
