@@ -18,7 +18,8 @@ fun BlockState.toBlock(): Block {
             DeclarationBlock(
                 variableType = contentState.type,
                 variableName = contentState.name,
-                initialValue = contentState.value
+                initialValue = contentState.value,
+                arrayLength = contentState.length
             ).apply {
                 this.position = position
             }
