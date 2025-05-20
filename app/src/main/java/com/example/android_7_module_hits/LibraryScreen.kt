@@ -36,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import com.example.android_7_module_hits.navigation.Screen
 import com.example.android_7_module_hits.ui.theme.LibrarySubTitle
@@ -108,10 +109,13 @@ fun EmptyStateContent() {
             contentDescription = "Empty illustration",
             modifier = Modifier.size(244.dp)
         )
-        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "It's empty now :(",
-            style = MaterialTheme.typography.bodyLarge
+            style = TextStyle(
+                fontSize = 24.sp,
+                fontWeight = FontWeight(600),
+                color = MainTextColor
+            )
         )
     }
 }

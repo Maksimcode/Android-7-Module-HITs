@@ -54,6 +54,12 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.android_7_module_hits.Blocks.BlockType
 import com.example.android_7_module_hits.navigation.Screen
@@ -61,12 +67,13 @@ import com.example.android_7_module_hits.ui.uiblocks.ElseBlockView
 import com.example.android_7_module_hits.ui.uiblocks.ElseIfBlockView
 import com.example.android_7_module_hits.viewModel.BlockViewModel
 import com.example.android_7_module_hits.viewModel.logAllBlocks
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    navController: NavController,
+    navController: NavController
 ) {
     val viewModel: BlockViewModel = viewModel()
     val blocks by viewModel.blocks.collectAsState()
@@ -80,7 +87,7 @@ fun MainScreen(
             CenterAlignedTopAppBar(
                 title = { Text(text = "Enter project name") },
                 navigationIcon = {
-                    IconButton(onClick = { /* логика открытия меню */ }) {
+                    IconButton(onClick = {}) {
                         Icon(
                             imageVector = Icons.Filled.Menu,
                             contentDescription = "Меню"
@@ -292,8 +299,6 @@ fun BottomCircleButtons(
     allBlocks: List<Block>,
     viewModel: BlockViewModel
 ) {
-    val context = LocalContext.current
-
     val buttonColors = listOf(
         FolderButtonMain,
         StopButtonSub,
@@ -366,5 +371,4 @@ fun BottomCircleButtons(
         }
     }
 }
-
 
