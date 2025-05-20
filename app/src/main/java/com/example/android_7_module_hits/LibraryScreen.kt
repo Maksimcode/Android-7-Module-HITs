@@ -1,5 +1,6 @@
 package com.example.android_7_module_hits
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,10 +35,11 @@ import com.example.android_7_module_hits.ui.theme.lightblue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import com.example.android_7_module_hits.navigation.Screen
 import com.example.android_7_module_hits.ui.theme.LibrarySubTitle
-import com.example.android_7_module_hits.ui.theme.LibraryTitle
+import com.example.android_7_module_hits.ui.theme.MainTextColor
 
 
 @Composable
@@ -71,23 +73,46 @@ fun MainContent(
             }
             Spacer(modifier = Modifier.height(24.dp))
 
-            when (selectedTabIndex) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(bottom = 80.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                when (selectedTabIndex) {
                 0 -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(text = "It's empty now :(")
-                        }
+                    EmptyStateContent()
                 }
+
                 1 -> {
                     GreetProjectBlocks(navController)
                 }
             }
         }
+    }
         if (selectedTabIndex == 0) {
             RightBottomCircleButton(navController)
         }
+    }
+}
+
+@Composable
+fun EmptyStateContent() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.empty),
+            contentDescription = "Empty illustration",
+            modifier = Modifier.size(244.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "It's empty now :(",
+            style = MaterialTheme.typography.bodyLarge
+        )
     }
 }
 
@@ -100,7 +125,7 @@ fun TabButton(
     val baseModifier = Modifier
         .width(180.dp)
         .height(52.dp)
-        .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(24.dp))
+        .background(color = Color(0xFFCFD8F9), shape = RoundedCornerShape(24.dp))
 
     val modifier = if (selected) {
         Modifier
@@ -117,7 +142,7 @@ fun TabButton(
                 spotColor = Color(0x40E2E2E2),
                 ambientColor = Color(0x40E2E2E2)
             )
-            .background(color = Color(0xFFCFD8F9), shape = RoundedCornerShape(24.dp))
+            .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(24.dp))
     }
 
     Box(
@@ -148,7 +173,7 @@ fun Header() {
 
     ){
         Text (
-            color = LibraryTitle,
+            color = MainTextColor,
             text= "Library",
             fontSize = 48.sp,
         )
