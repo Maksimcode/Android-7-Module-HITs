@@ -15,15 +15,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.android_7_module_hits.Blocks.AssignmentBlock
-import com.example.android_7_module_hits.Blocks.Block
-import com.example.android_7_module_hits.Blocks.BlockType
-import com.example.android_7_module_hits.Blocks.ConditionBlock
-import com.example.android_7_module_hits.Blocks.DataType
-import com.example.android_7_module_hits.Blocks.DeclarationBlock
-import com.example.android_7_module_hits.Blocks.ElseBlock
-import com.example.android_7_module_hits.Blocks.ElseIfBlock
-import com.example.android_7_module_hits.Blocks.EndBlock
+import com.example.android_7_module_hits.blocks.AssignmentBlock
+import com.example.android_7_module_hits.blocks.Block
+import com.example.android_7_module_hits.blocks.BlockType
+import com.example.android_7_module_hits.blocks.ConditionBlock
+import com.example.android_7_module_hits.blocks.DataType
+import com.example.android_7_module_hits.blocks.DeclarationBlock
+import com.example.android_7_module_hits.blocks.ElseBlock
+import com.example.android_7_module_hits.blocks.ElseIfBlock
+import com.example.android_7_module_hits.blocks.EndBlock
+import com.example.android_7_module_hits.blocks.WhileBlock
 import com.example.android_7_module_hits.ui.uiblocks.BlockTemplate
 import com.example.android_7_module_hits.ui.uiblocks.availableBlocks
 
@@ -57,6 +58,8 @@ fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) 
                         ElseBlock()
                     BlockType.END ->
                         EndBlock()
+                    BlockType.WHILE ->
+                        WhileBlock(logicalExpression = "false")
                     else -> throw IllegalArgumentException("Unknown block type")
                 }
                 onBlockSelected(newBlock)

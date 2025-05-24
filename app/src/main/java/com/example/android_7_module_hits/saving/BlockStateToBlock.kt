@@ -1,13 +1,13 @@
 package com.example.android_7_module_hits.saving
 
-import com.example.android_7_module_hits.Blocks.AssignmentBlock
-import com.example.android_7_module_hits.Blocks.Block
-import com.example.android_7_module_hits.Blocks.BlockType
-import com.example.android_7_module_hits.Blocks.ConditionBlock
-import com.example.android_7_module_hits.Blocks.DeclarationBlock
-import com.example.android_7_module_hits.Blocks.ElseBlock
-import com.example.android_7_module_hits.Blocks.ElseIfBlock
-import com.example.android_7_module_hits.Blocks.EndBlock
+import com.example.android_7_module_hits.blocks.AssignmentBlock
+import com.example.android_7_module_hits.blocks.Block
+import com.example.android_7_module_hits.blocks.BlockType
+import com.example.android_7_module_hits.blocks.ConditionBlock
+import com.example.android_7_module_hits.blocks.DeclarationBlock
+import com.example.android_7_module_hits.blocks.ElseBlock
+import com.example.android_7_module_hits.blocks.ElseIfBlock
+import com.example.android_7_module_hits.blocks.EndBlock
 
 fun BlockState.toBlock(): Block {
     val position = androidx.compose.ui.geometry.Offset(positionX, positionY)

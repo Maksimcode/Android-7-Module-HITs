@@ -1,4 +1,4 @@
-package com.example.android_7_module_hits.Blocks
+package com.example.android_7_module_hits.blocks
 
 enum class DataType {
     INTEGER, BOOLEAN, DOUBLE, FLOAT, STRING, CHAR,

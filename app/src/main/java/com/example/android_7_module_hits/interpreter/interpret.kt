@@ -1,9 +1,9 @@
 package com.example.android_7_module_hits.interpreter
 
-import com.example.android_7_module_hits.Blocks.Block
-import com.example.android_7_module_hits.Blocks.BlockContent
-import com.example.android_7_module_hits.Blocks.ConditionBlock
-import com.example.android_7_module_hits.Blocks.ElseIfBlock
+import com.example.android_7_module_hits.blocks.Block
+import com.example.android_7_module_hits.blocks.BlockContent
+import com.example.android_7_module_hits.blocks.ConditionBlock
+import com.example.android_7_module_hits.blocks.ElseIfBlock
 
 fun interpret(block: Block, state: InterpreterState) {
     var currentBlock = block
@@ -135,6 +135,32 @@ fun interpret(block: Block, state: InterpreterState) {
                     interpret(current, state)
                 }
                 current = current.child
+            }
+
+
+            current?.child?.let { interpret(it, state) }
+            return
+        }
+
+        is BlockContent.While -> {
+            val logicalExpression = content.expression
+
+            if (!currentBlock.hasEndBlock()){
+                throw IllegalStateException("Отсутствие привязанного блока End")
+            }
+
+            val conditionResult = state.setCondition(logicalExpression)
+
+            var current: Block? = currentBlock.child
+            var insideWhileBody = conditionResult
+
+            while (insideWhileBody && current != null) {
+                interpret(current, state)
+                current = current.child
+                insideWhileBody = state.setCondition(logicalExpression)
+                if (current == currentBlock.EndBlock && insideWhileBody){
+                    current = currentBlock.child
+                }
             }
 
 

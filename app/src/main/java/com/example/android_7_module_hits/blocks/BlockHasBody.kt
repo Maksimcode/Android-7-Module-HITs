@@ -1,7 +1,6 @@
-package com.example.android_7_module_hits.Blocks
+package com.example.android_7_module_hits.blocks
 
 import androidx.compose.ui.geometry.Offset
-import com.example.android_7_module_hits.interpreter.interpret
 import java.util.UUID
 
 

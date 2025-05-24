@@ -27,10 +27,10 @@ import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
 
 @Composable
-fun ElseIfBlockView(content: BlockContent.ElseIf, block: Block){
+fun WhileBlockView(content: BlockContent.While, block: Block){
     var isEditingExpression by remember { mutableStateOf(false) }
 
-    var editedExpression by remember(content.expression ?: "true") { mutableStateOf(content.expression ?: "true") }
+    var editedExpression by remember(content.expression ?: "false") { mutableStateOf(content.expression ?: "false") }
 
 
     Card(
@@ -74,7 +74,7 @@ fun ElseIfBlockView(content: BlockContent.ElseIf, block: Block){
                 }
             } else{
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text="else if ( ")
+                    Text(text="while ( ")
                     Box(
                         modifier = Modifier
                             .background(Color.LightGray)

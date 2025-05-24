@@ -1,6 +1,6 @@
 package com.example.android_7_module_hits.saving
 
-import com.example.android_7_module_hits.Blocks.DataType
+import com.example.android_7_module_hits.blocks.DataType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

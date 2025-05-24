@@ -1,4 +1,4 @@
-package com.example.android_7_module_hits.Blocks
+package com.example.android_7_module_hits.blocks
 
 sealed class BlockContent{
 
@@ -19,6 +19,10 @@ sealed class BlockContent{
     ) :BlockContent()
 
     data class ElseIf (
+        var expression: String
+    ) : BlockContent()
+
+    data class While(
         var expression: String
     ) : BlockContent()
 

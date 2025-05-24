@@ -1,7 +1,7 @@
 package com.example.android_7_module_hits.saving
 
-import com.example.android_7_module_hits.Blocks.Block
-import com.example.android_7_module_hits.Blocks.BlockContent
+import com.example.android_7_module_hits.blocks.Block
+import com.example.android_7_module_hits.blocks.BlockContent
 
 fun Block.toBlockState(): BlockState {
     val contentState = when (this.content) {

@@ -1,5 +1,5 @@
 package com.example.android_7_module_hits.ui.uiblocks
-import com.example.android_7_module_hits.Blocks.BlockType
+import com.example.android_7_module_hits.blocks.BlockType
 
 val availableBlocks = listOf(
     BlockTemplate("Declare", BlockType.DECLARE),
@@ -7,6 +7,7 @@ val availableBlocks = listOf(
     BlockTemplate("Condition", BlockType.CONDITION),
     BlockTemplate("Additional condition", BlockType.ELSE_IF),
     BlockTemplate("Else", BlockType.ELSE),
+    BlockTemplate("While", BlockType.WHILE),
     BlockTemplate("End", BlockType.END)
 )
 
