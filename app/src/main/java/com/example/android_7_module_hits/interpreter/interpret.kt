@@ -154,10 +154,13 @@ fun interpret(block: Block, state: InterpreterState) {
             var current: Block? = currentBlock.child
             var insideWhileBody = conditionResult
 
-            while (insideWhileBody && current != null && current.content !is BlockContent.End) {
+            while (insideWhileBody && current != null) {
                 interpret(current, state)
                 current = current.child
                 insideWhileBody = state.setCondition(logicalExpression)
+                if (current == currentBlock.EndBlock && insideWhileBody){
+                    current = currentBlock.child
+                }
             }
 
 
