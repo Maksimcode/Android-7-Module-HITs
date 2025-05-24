@@ -24,6 +24,8 @@ fun interpret(block: Block, state: InterpreterState) {
                 throw IllegalStateException("Отсутствие привязанного блока End")
             }
 
+            state.enterScope()
+
             val conditionResult = state.setCondition(logicalExpression)
 
             var current: Block? = currentBlock.child
@@ -79,12 +81,11 @@ fun interpret(block: Block, state: InterpreterState) {
             }
 
             var current: Block? = currentBlock.child
-            var insideIfBody = conditionResult && !anyPrevTrue
+            var insideElseIfBody = conditionResult && !anyPrevTrue
+            if (insideElseIfBody) state.enterScope()
 
-            while (current != null && current.content !is BlockContent.End) {
-                if (insideIfBody) {
-                    interpret(current, state)
-                }
+            while (current != null && current.content !is BlockContent.End && insideElseIfBody) {
+                interpret(current, state)
                 current = current.child
             }
 
@@ -128,12 +129,11 @@ fun interpret(block: Block, state: InterpreterState) {
             }
 
             var current: Block? = currentBlock.child
-            var insideIfBody = !anyPrevTrue
+            var insideElseBody = !anyPrevTrue
+            if (insideElseBody) state.enterScope()
 
-            while (current != null && current.content !is BlockContent.End) {
-                if (insideIfBody) {
-                    interpret(current, state)
-                }
+            while (current != null && current.content !is BlockContent.End && insideElseBody) {
+                interpret(current, state)
                 current = current.child
             }
 
@@ -153,6 +153,7 @@ fun interpret(block: Block, state: InterpreterState) {
 
             var current: Block? = currentBlock.child
             var insideWhileBody = conditionResult
+            if (insideWhileBody) state.enterScope()
 
             while (insideWhileBody && current != null) {
                 interpret(current, state)
@@ -172,6 +173,7 @@ fun interpret(block: Block, state: InterpreterState) {
             if (!currentBlock.hasRootBlock()){
                 throw IllegalStateException("Отсутствие привязанного блока HasBody")
             }
+            state.exitScope()
         }
         else -> {
             println("пока хз")

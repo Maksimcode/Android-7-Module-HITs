@@ -4,35 +4,76 @@ import com.example.android_7_module_hits.blocks.BlockContent
 import com.example.android_7_module_hits.blocks.DataType
 
 class InterpreterState {
-    private val variables = mutableMapOf<String, VariableContent>()
+    private val scopes = mutableListOf<MutableMap<String, VariableContent>>()
+
+    init {
+        scopes.add(mutableMapOf())
+    }
+
+    fun getVariables(): Map<String, VariableContent> {
+        val result = mutableMapOf<String, VariableContent>()
+        for (scope in scopes) {
+            result.putAll(scope)
+        }
+        return result
+    }
+
+    fun getCurrentScopeVariables(): Map<String, VariableContent> {
+        return scopes.last().toMap()
+    }
+
+    fun enterScope() {
+        scopes.add(mutableMapOf())
+    }
+
+    fun exitScope() {
+        if (scopes.size > 1) {
+            scopes.removeAt(scopes.lastIndex)
+        }
+    }
+
+    private fun findVariable(name: String): VariableContent? {
+        for (i in scopes.indices.reversed()) {
+            scopes[i][name]?.let { return it }
+        }
+        return null
+    }
+
+    private fun declareInCurrentScope(name: String, value: VariableContent) {
+        val currentScope = scopes.last()
+        if (currentScope.containsKey(name)) throw IllegalArgumentException("Переменная $name уже объявлена в текущей области")
+        currentScope[name] = value
+    }
 
 //    TODO: parsing variables by commas
     fun declareVariable(content: BlockContent.Declare) {
         if (content.name.isBlank()) throw IllegalArgumentException("Имя переменной не может быть пустым")
 
-        if (variables.containsKey(content.name)) throw IllegalArgumentException("Переменная уже объявлена")
-        variables[content.name] = VariableContent(
-            type = content.type,
-            value = content.value,
-            arrayLength = evaluateExpression(content.length).toString())
+        val evaluatedValue = evaluateExpression(content.value)
+        declareInCurrentScope(
+            content.name,
+            VariableContent(
+                type = content.type,
+                value = evaluatedValue,
+                arrayLength = evaluateExpression(content.length).toString()
+            )
+        )
     }
 
     fun assignValue(content: BlockContent.Assignment) {
         val name = content.name.trim()
         val arrayAccess = parseArrayAccess(name)
-
         var arrayName: String? = null
         var index: Int = 0
         var isIndexAccess = false
 
-        // Если это обращение к элементу массива
         if (arrayAccess != null) {
             isIndexAccess = true
             arrayName = arrayAccess.arrayName
             val indexExpr = arrayAccess.indexExpr
             index = evaluateExpression(indexExpr)
 
-            val arrayVar = variables[arrayName]
+            val arrayVar = findVariable(arrayName)
                 ?: throw IllegalArgumentException("Массив $arrayName не объявлен")
 
             if (index < 0 || index >= (arrayVar.value as List<*>).size) {
@@ -40,9 +81,8 @@ class InterpreterState {
             }
         }
 
-        // Определяем настоящую переменную для работы
         val realName = arrayName ?: name
-        val oldValue = variables[realName]
+        val oldValue = findVariable(realName)
             ?: throw IllegalStateException("Переменная $realName не объявлена")
 
         val type = oldValue.type
@@ -52,12 +92,10 @@ class InterpreterState {
             DataType.INTEGER -> evaluateExpression(newValue ?: "0")
             DataType.STRING -> evaluateStringExpression(newValue)
             DataType.BOOLEAN -> parseBooleanExpression(newValue)
-
             in listOf(DataType.ARR_INT, DataType.ARR_STR, DataType.ARR_BOOL) -> {
                 if (isIndexAccess) {
                     val arrayValue = oldValue.value as? MutableList<*>
                         ?: throw IllegalArgumentException("Неверный тип массива")
-
                     when (type) {
                         DataType.ARR_INT -> {
                             val intValue = evaluateExpression(newValue ?: "0")
@@ -80,7 +118,6 @@ class InterpreterState {
                         else -> throw IllegalArgumentException("Тип массива не поддерживается")
                     }
                 } else {
-                    // Полное присвоение массива
                     when (type) {
                         DataType.ARR_INT -> {
                             val cleanedValue = removeOuterBraces(newValue)
@@ -114,12 +151,12 @@ class InterpreterState {
                     }
                 }
             }
-
             else -> throw IllegalArgumentException("Тип переменной не поддерживается")
         }
 
         if (type != null && result != null) {
-            variables[realName] = VariableContent(
+            val currentScope = scopes.last { it.containsKey(realName) }
+            currentScope[realName] = VariableContent(
                 type = type,
                 value = result,
                 arrayLength = oldValue.arrayLength
@@ -133,7 +170,6 @@ class InterpreterState {
         return parseBooleanExpression(trimmedExpr)
     }
 
-    fun getVariables(): Map<String, VariableContent> = variables.toMap()
 
     fun splitArrayElements(value: String): List<String> {
         val result = mutableListOf<String>()
@@ -258,10 +294,8 @@ class InterpreterState {
         if (arrayAccess != null) {
             val arrayName = arrayAccess.arrayName
             val indexExpr = arrayAccess.indexExpr
-
-            val arrayVar = variables[arrayName]
+            val arrayVar = findVariable(arrayName)
                 ?: throw IllegalArgumentException("Массив $arrayName не найден")
-
             val index = evaluateExpression(indexExpr)
 
             return when (arrayVar.type) {
@@ -281,17 +315,15 @@ class InterpreterState {
             }
         }
 
-        if (variables.containsKey(token)) {
-            val variable = variables[token]!!
-            return when (variable.type) {
-                DataType.BOOLEAN -> variable.value.toString().toBooleanStrict()
-                DataType.INTEGER -> variable.value.toString().toInt()
-                DataType.STRING -> variable.value.toString()
-                else -> throw IllegalArgumentException("Неподдерживаемый тип переменной: ${variable.type}")
-            }
-        }
+        val variable = findVariable(token)
+            ?: throw IllegalArgumentException("Неизвестное значение: $token")
 
-        throw IllegalArgumentException("Неизвестное значение: $token")
+        return when (variable.type) {
+            DataType.BOOLEAN -> variable.value.toString().toBooleanStrict()
+            DataType.INTEGER -> variable.value.toString().toInt()
+            DataType.STRING -> variable.value.toString()
+            else -> throw IllegalArgumentException("Неподдерживаемый тип переменной: ${variable.type}")
+        }
     }
 
     private fun compareValues(left: Any, right: Any, op: String): Boolean {
