@@ -33,13 +33,22 @@ fun interpret(block: Block, state: InterpreterState) {
 
             while (current != null && current.content !is BlockContent.End) {
                 if (insideIfBody) {
-                    interpret(current, state)
+                    try{
+                        interpret(current, state)
+                    } catch (e : Exception) {
+                        InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
+                    }
                 }
                 current = current.child
             }
 
 
-            current?.child?.let { interpret(it, state) }
+            current?.child?.let {
+                try{
+                    interpret(it, state)
+                } catch (e : Exception) {
+                    InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
+                } }
             return
         }
 
@@ -85,12 +94,22 @@ fun interpret(block: Block, state: InterpreterState) {
             if (insideElseIfBody) state.enterScope()
 
             while (current != null && current.content !is BlockContent.End && insideElseIfBody) {
-                interpret(current, state)
+                try{
+                    interpret(current, state)
+                } catch (e : Exception) {
+                    InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
+                }
                 current = current.child
             }
 
 
-            current?.child?.let { interpret(it, state) }
+            current?.child?.let {
+                try{
+                    interpret(it, state)
+                } catch (e : Exception) {
+                    InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
+                }
+            }
             return
         }
 
@@ -133,12 +152,22 @@ fun interpret(block: Block, state: InterpreterState) {
             if (insideElseBody) state.enterScope()
 
             while (current != null && current.content !is BlockContent.End && insideElseBody) {
-                interpret(current, state)
+                try{
+                    interpret(current, state)
+                } catch (e : Exception) {
+                    InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
+                }
                 current = current.child
             }
 
 
-            current?.child?.let { interpret(it, state) }
+            current?.child?.let {
+                try{
+                    interpret(it, state)
+                } catch (e : Exception) {
+                    InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
+                }
+            }
             return
         }
 
@@ -156,7 +185,11 @@ fun interpret(block: Block, state: InterpreterState) {
             if (insideWhileBody) state.enterScope()
 
             while (insideWhileBody && current != null) {
-                interpret(current, state)
+                try{
+                    interpret(current, state)
+                } catch (e : Exception) {
+                    InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
+                }
                 current = current.child
                 insideWhileBody = state.setCondition(logicalExpression)
                 if (current == currentBlock.EndBlock && insideWhileBody){
@@ -165,7 +198,13 @@ fun interpret(block: Block, state: InterpreterState) {
             }
 
 
-            current?.child?.let { interpret(it, state) }
+            current?.child?.let {
+                try{
+                    interpret(it, state)
+                } catch (e : Exception) {
+                    InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
+                }
+            }
             return
         }
 
@@ -180,5 +219,11 @@ fun interpret(block: Block, state: InterpreterState) {
         }
     }
 
-    currentBlock.child?.let { interpret(it, state) }
+    currentBlock.child?.let {
+        try{
+            interpret(it, state)
+        } catch (e : Exception) {
+            InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
+        }
+    }
 }
