@@ -36,8 +36,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavController
-import com.example.android_7_module_hits.Blocks.Block
-import com.example.android_7_module_hits.Blocks.BlockContent
+import com.example.android_7_module_hits.blocks.Block
+import com.example.android_7_module_hits.blocks.BlockContent
 import com.example.android_7_module_hits.interpreter.runInterpreter
 import com.example.android_7_module_hits.ui.theme.FolderButtonSub
 import com.example.android_7_module_hits.ui.theme.RunButtonSub
@@ -61,7 +61,7 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.android_7_module_hits.Blocks.BlockType
+import com.example.android_7_module_hits.blocks.BlockType
 import com.example.android_7_module_hits.navigation.Screen
 import com.example.android_7_module_hits.ui.uiblocks.ElseBlockView
 import com.example.android_7_module_hits.ui.uiblocks.ElseIfBlockView

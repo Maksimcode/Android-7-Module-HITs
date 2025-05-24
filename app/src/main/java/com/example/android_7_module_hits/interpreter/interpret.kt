@@ -1,9 +1,9 @@
 package com.example.android_7_module_hits.interpreter
 
-import com.example.android_7_module_hits.Blocks.Block
-import com.example.android_7_module_hits.Blocks.BlockContent
-import com.example.android_7_module_hits.Blocks.ConditionBlock
-import com.example.android_7_module_hits.Blocks.ElseIfBlock
+import com.example.android_7_module_hits.blocks.Block
+import com.example.android_7_module_hits.blocks.BlockContent
+import com.example.android_7_module_hits.blocks.ConditionBlock
+import com.example.android_7_module_hits.blocks.ElseIfBlock
 
 fun interpret(block: Block, state: InterpreterState) {
     var currentBlock = block

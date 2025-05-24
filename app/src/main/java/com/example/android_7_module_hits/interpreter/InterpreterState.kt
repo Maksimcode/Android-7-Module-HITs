@@ -1,7 +1,7 @@
 package com.example.android_7_module_hits.interpreter
 
-import com.example.android_7_module_hits.Blocks.BlockContent
-import com.example.android_7_module_hits.Blocks.DataType
+import com.example.android_7_module_hits.blocks.BlockContent
+import com.example.android_7_module_hits.blocks.DataType
 
 class InterpreterState {
     private val variables = mutableMapOf<String, VariableContent>()
