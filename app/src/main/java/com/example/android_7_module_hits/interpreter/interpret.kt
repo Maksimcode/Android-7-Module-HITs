@@ -142,6 +142,29 @@ fun interpret(block: Block, state: InterpreterState) {
             return
         }
 
+        is BlockContent.While -> {
+            val logicalExpression = content.expression
+
+            if (!currentBlock.hasEndBlock()){
+                throw IllegalStateException("Отсутствие привязанного блока End")
+            }
+
+            val conditionResult = state.setCondition(logicalExpression)
+
+            var current: Block? = currentBlock.child
+            var insideWhileBody = conditionResult
+
+            while (insideWhileBody && current != null && current.content !is BlockContent.End) {
+                interpret(current, state)
+                current = current.child
+                insideWhileBody = state.setCondition(logicalExpression)
+            }
+
+
+            current?.child?.let { interpret(it, state) }
+            return
+        }
+
         is BlockContent.End -> {
             if (!currentBlock.hasRootBlock()){
                 throw IllegalStateException("Отсутствие привязанного блока HasBody")
