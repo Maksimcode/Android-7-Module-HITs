@@ -65,6 +65,7 @@ import com.example.android_7_module_hits.blocks.BlockType
 import com.example.android_7_module_hits.navigation.Screen
 import com.example.android_7_module_hits.ui.uiblocks.ElseBlockView
 import com.example.android_7_module_hits.ui.uiblocks.ElseIfBlockView
+import com.example.android_7_module_hits.ui.uiblocks.WhileBlockView
 import com.example.android_7_module_hits.viewModel.BlockViewModel
 import com.example.android_7_module_hits.viewModel.logAllBlocks
 import kotlinx.coroutines.launch
@@ -212,6 +213,9 @@ fun BlockView(block: Block) {
         }
         is BlockContent.End -> {
             EndBlockView(content, block)
+        }
+        is BlockContent.While -> {
+            WhileBlockView(content, block)
         }
         else -> {
             Text("Неизвестный тип блока")
