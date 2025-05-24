@@ -45,20 +45,40 @@ class InterpreterState {
         currentScope[name] = value
     }
 
-//    TODO: parsing variables by commas
-    fun declareVariable(content: BlockContent.Declare) {
-        if (content.name.isBlank()) throw IllegalArgumentException("Имя переменной не может быть пустым")
+fun declareVariable(content: BlockContent.Declare) {
+    val rawNames = content.name.split(',').map { it.trim() }
+
+    if (rawNames.isEmpty()) {
+        throw IllegalArgumentException("Не указано имя переменной")
+    }
+
+    for ((index, name) in rawNames.withIndex()) {
+        if (name.isBlank()) {
+            throw IllegalArgumentException("Имя переменной не может быть пустым")
+        }
+
+        if (findVariable(name) != null) {
+            throw IllegalArgumentException("Переменная $name уже объявлена в текущей области")
+        }
 
         val evaluatedValue = evaluateExpression(content.value)
+
+        val arrayLength = if (content.type in listOf(DataType.ARR_INT, DataType.ARR_STR, DataType.ARR_BOOL)) {
+            evaluateExpression(content.length ?: "0").toString()
+        } else {
+            "0"
+        }
+
         declareInCurrentScope(
-            content.name,
+            name,
             VariableContent(
                 type = content.type,
                 value = evaluatedValue,
-                arrayLength = evaluateExpression(content.length).toString()
+                arrayLength = arrayLength
             )
         )
     }
+}
 
     fun assignValue(content: BlockContent.Assignment) {
         val name = content.name.trim()
@@ -273,24 +293,39 @@ class InterpreterState {
         return result
     }
 
+    private fun evaluateExpressionIfPossible(token: String): Any {
+        return try {
+            evaluateExpression(token)
+        } catch (e: Exception) {
+            resolveValue(token)
+        }
+    }
+
     private fun evaluateComparison(expr: String): Boolean {
         val comparisonRegex = Regex("""(.+?)\s*([=!><]=?|!=)\s*(.+)""")
         val match = comparisonRegex.matchEntire(expr.trim()) ?: throw IllegalArgumentException("Неверный формат условия: $expr")
         val (leftStr, op, rightStr) = match.destructured
 
-        val left = resolveValue(leftStr.trim())
-        val right = resolveValue(rightStr.trim())
+        val left = evaluateExpressionIfPossible(leftStr.trim())
+        val right = evaluateExpressionIfPossible(rightStr.trim())
 
         return compareValues(left, right, op)
     }
 
     private fun resolveValue(token: String): Any {
-        val lower = token.lowercase()
-        if (lower == "true" || lower == "1") return true
-        if (lower == "false" || lower == "0") return false
-        if (token.matches(Regex("-?\\d+"))) return token.toInt()
+        val trimmedToken = token.trim()
 
-        val arrayAccess = parseArrayAccess(token)
+        val lower = trimmedToken.lowercase()
+        if (lower == "true") return true
+        if (lower == "false") return false
+
+        if (trimmedToken.matches(Regex("-?\\d+"))) return trimmedToken.toInt()
+
+        if (trimmedToken.startsWith("\"") && trimmedToken.endsWith("\"")) {
+            return trimmedToken.substring(1, trimmedToken.length - 1)
+        }
+
+        val arrayAccess = parseArrayAccess(trimmedToken)
         if (arrayAccess != null) {
             val arrayName = arrayAccess.arrayName
             val indexExpr = arrayAccess.indexExpr
@@ -315,13 +350,25 @@ class InterpreterState {
             }
         }
 
-        val variable = findVariable(token)
-            ?: throw IllegalArgumentException("Неизвестное значение: $token")
+        if (trimmedToken.startsWith("{") && trimmedToken.endsWith("}")) {
+            val elements = splitArrayElements(trimmedToken)
+            return elements.map { element ->
+                when {
+                    element.toBooleanStrictOrNull() != null -> element.toBoolean()
+                    element.matches(Regex("-?\\d+")) -> element.toInt()
+                    else -> element
+                }
+            }
+        }
+
+        val variable = findVariable(trimmedToken)
+            ?: throw IllegalArgumentException("Неизвестное значение: $trimmedToken")
 
         return when (variable.type) {
             DataType.BOOLEAN -> variable.value.toString().toBooleanStrict()
             DataType.INTEGER -> variable.value.toString().toInt()
             DataType.STRING -> variable.value.toString()
+            in listOf(DataType.ARR_INT, DataType.ARR_STR, DataType.ARR_BOOL) -> variable.value
             else -> throw IllegalArgumentException("Неподдерживаемый тип переменной: ${variable.type}")
         }
     }
