@@ -36,6 +36,12 @@ sealed class BlockContentState {
     ) : BlockContentState()
 
     @Serializable
+    @SerialName("while")
+    data class While(
+        val expression: String
+    ) : BlockContentState()
+
+    @Serializable
     @SerialName("end")
     object End : BlockContentState()
 
