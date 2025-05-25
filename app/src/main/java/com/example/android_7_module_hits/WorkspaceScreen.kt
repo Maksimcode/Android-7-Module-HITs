@@ -63,10 +63,13 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.android_7_module_hits.Blocks.BlockType
 import com.example.android_7_module_hits.navigation.Screen
+import com.example.android_7_module_hits.notifications.InfoNotification
 import com.example.android_7_module_hits.ui.uiblocks.ElseBlockView
 import com.example.android_7_module_hits.ui.uiblocks.ElseIfBlockView
 import com.example.android_7_module_hits.viewModel.BlockViewModel
 import com.example.android_7_module_hits.viewModel.logAllBlocks
+import com.example.android_7_module_hits.notifications.UiNotification
+import com.example.android_7_module_hits.notifications.NotificationHost
 import kotlinx.coroutines.launch
 
 
@@ -79,6 +82,8 @@ fun MainScreen(
     val scope = rememberCoroutineScope()
     val configuration = LocalConfiguration.current
     val drawerWidth = configuration.screenWidthDp.dp * 0.6f
+
+    var currentNotification by remember { mutableStateOf<UiNotification?>(null) }
 
     var isConsoleOpen by remember { mutableStateOf(false) }
 
@@ -168,15 +173,25 @@ fun MainScreen(
                         ) {
                             BottomCircleButtons(
                                 allBlocks = blocks,
-                                viewModel = viewModel,
                                 onConsoleClick = {
                                     isConsoleOpen = true
+                                },
+                                onSaveClick = {
+                                    viewModel.saveBlocks()
+                                    showNotification(
+                                        scope,
+                                        { currentNotification = it },
+                                        InfoNotification(onDismiss = { currentNotification = null })
+                                    )
                                 }
                             )
                         }
                     }
                 }
             )
+
+            NotificationHost(notification = currentNotification)
+
             if (isConsoleOpen) {
                 ConsoleMenu(
                     onDismissRequest = { isConsoleOpen = false }
@@ -214,7 +229,7 @@ fun BlockView(block: Block) {
             EndBlockView(content, block)
         }
         else -> {
-            Text("Неизвестный тип блока")
+            Text("Unknown block type")
         }
     }
 }
@@ -283,7 +298,7 @@ fun DraggableBlock(
         if (showDeleteIcon.value) {
             Icon(
                 imageVector = Icons.Filled.DeleteOutline,
-                contentDescription = "Удалить блок",
+                contentDescription = "Delete Block",
                 tint = Color.Red,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
@@ -358,8 +373,8 @@ fun ConsoleMenu(
 @Composable
 fun BottomCircleButtons(
     allBlocks: List<Block>,
-    viewModel: BlockViewModel,
-    onConsoleClick: () -> Unit
+    onConsoleClick: () -> Unit,
+    onSaveClick: () -> Unit
 ) {
     val buttonColors = listOf(
         FolderButtonMain,
@@ -410,7 +425,7 @@ fun BottomCircleButtons(
                         .clickable {
                             when (index) {
                                 0 -> {
-                                    viewModel.saveBlocks()
+                                    onSaveClick()
                                 }
                                 1 -> {}
                                 2 -> {}
@@ -425,7 +440,7 @@ fun BottomCircleButtons(
                 ) {
                     Icon(
                         imageVector = iconList[index],
-                        contentDescription = "Иконка ${index + 1}",
+                        contentDescription = "Icon ${index + 1}",
                         tint = iconTints[index],
                         modifier = Modifier.size(32.dp)
                     )
