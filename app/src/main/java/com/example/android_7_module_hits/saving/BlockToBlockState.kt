@@ -21,9 +21,12 @@ fun Block.toBlockState(): BlockState {
         is BlockContent.ElseIf -> BlockContentState.ElseIf(
             expression = (this.content as BlockContent.ElseIf).expression
         )
+        is BlockContent.While -> BlockContentState.While(
+            expression = (this.content as BlockContent.While).expression
+        )
         is BlockContent.End -> BlockContentState.End
         is BlockContent.Else -> BlockContentState.Else
-        else -> throw IllegalArgumentException("Неизвестный тип содержимого")
+        else -> throw IllegalArgumentException("Unknown content type")
     }
 
     return BlockState(
