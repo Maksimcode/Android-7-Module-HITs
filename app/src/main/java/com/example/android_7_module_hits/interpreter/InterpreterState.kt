@@ -45,19 +45,39 @@ class InterpreterState {
         currentScope[name] = value
     }
 
-//    TODO: parsing variables by commas
     fun declareVariable(content: BlockContent.Declare) {
-        if (content.name.isBlank()) throw IllegalArgumentException("Имя переменной не может быть пустым")
+        val rawNames = content.name.split(',').map { it.trim() }
 
-        val evaluatedValue = evaluateExpression(content.value)
-        declareInCurrentScope(
-            content.name,
-            VariableContent(
-                type = content.type,
-                value = evaluatedValue,
-                arrayLength = evaluateExpression(content.length).toString()
+        if (rawNames.isEmpty()) {
+            throw IllegalArgumentException("Не указано имя переменной")
+        }
+
+        for ((index, name) in rawNames.withIndex()) {
+            if (name.isBlank()) {
+                throw IllegalArgumentException("Имя переменной не может быть пустым")
+            }
+
+            if (findVariable(name) != null) {
+                throw IllegalArgumentException("Переменная $name уже объявлена в текущей области")
+            }
+
+            val evaluatedValue = evaluateExpression(content.value)
+
+            val arrayLength = if (content.type in listOf(DataType.ARR_INT, DataType.ARR_STR, DataType.ARR_BOOL)) {
+                evaluateExpression(content.length ?: "0").toString()
+            } else {
+                "0"
+            }
+
+            declareInCurrentScope(
+                name,
+                VariableContent(
+                    type = content.type,
+                    value = evaluatedValue,
+                    arrayLength = arrayLength
+                )
             )
-        )
+        }
     }
 
     fun assignValue(content: BlockContent.Assignment) {
@@ -87,30 +107,41 @@ class InterpreterState {
 
         val type = oldValue.type
         val newValue = content.value
+        val resolvedValue = resolveValue(newValue)
 
         val result: Any? = when(type) {
-            DataType.INTEGER -> evaluateExpression(newValue ?: "0")
-            DataType.STRING -> evaluateStringExpression(newValue)
-            DataType.BOOLEAN -> parseBooleanExpression(newValue)
+            DataType.INTEGER -> {
+                if (resolvedValue is Int) resolvedValue else throw IllegalArgumentException("Ожидается целое число")
+            }
+            DataType.STRING -> {
+                if (resolvedValue is String) resolvedValue else throw IllegalArgumentException("Ожидается строка")
+            }
+            DataType.BOOLEAN -> {
+                if (resolvedValue is Boolean) resolvedValue else throw IllegalArgumentException("Ожидается boolean")
+            }
             in listOf(DataType.ARR_INT, DataType.ARR_STR, DataType.ARR_BOOL) -> {
                 if (isIndexAccess) {
                     val arrayValue = oldValue.value as? MutableList<*>
                         ?: throw IllegalArgumentException("Неверный тип массива")
+
                     when (type) {
                         DataType.ARR_INT -> {
-                            val intValue = evaluateExpression(newValue ?: "0")
+                            // resolvedValue должно быть Int
+                            val intValue = if (resolvedValue is Int) resolvedValue else 0
                             val mutableArray = arrayValue.toMutableList() as MutableList<Int>
                             mutableArray[index] = intValue
                             mutableArray
                         }
                         DataType.ARR_STR -> {
-                            val strValue = evaluateStringExpression(newValue)
+                            // resolvedValue должно быть String
+                            val strValue = if (resolvedValue is String) resolvedValue else ""
                             val mutableArray = arrayValue.toMutableList() as MutableList<String>
                             mutableArray[index] = strValue
                             mutableArray
                         }
                         DataType.ARR_BOOL -> {
-                            val boolValue = parseBooleanExpression(newValue)
+                            // resolvedValue должно быть Boolean
+                            val boolValue = if (resolvedValue is Boolean) resolvedValue else false
                             val mutableArray = arrayValue.toMutableList() as MutableList<Boolean>
                             mutableArray[index] = boolValue
                             mutableArray
@@ -120,30 +151,30 @@ class InterpreterState {
                 } else {
                     when (type) {
                         DataType.ARR_INT -> {
-                            val cleanedValue = removeOuterBraces(newValue)
-                            val elements = splitArrayElements(cleanedValue)
                             val arrLen = oldValue.arrayLength.toInt()
                             val res = mutableListOf<Int>()
                             for (i in 0 until arrLen) {
-                                res.add(evaluateExpression(elements.getOrNull(i) ?: "0"))
+                                // Здесь newValue — это вся строка в фигурных скобках {1,2,3}
+                                val element = splitArrayElements(newValue).getOrNull(i) ?: "0"
+                                res.add(evaluateExpression(element))
                             }
                             res
                         }
                         DataType.ARR_STR -> {
-                            val elements = splitArrayElements(newValue)
                             val arrLen = oldValue.arrayLength.toInt()
                             val res = mutableListOf<String>()
                             for (i in 0 until arrLen) {
-                                res.add(evaluateStringExpression(elements.getOrNull(i) ?: ""))
+                                val element = splitArrayElements(newValue).getOrNull(i) ?: ""
+                                res.add(evaluateStringExpression(element))
                             }
                             res
                         }
                         DataType.ARR_BOOL -> {
-                            val elements = splitArrayElements(newValue)
                             val arrLen = oldValue.arrayLength.toInt()
                             val res = mutableListOf<Boolean>()
                             for (i in 0 until arrLen) {
-                                res.add(parseBooleanExpression(elements.getOrNull(i) ?: "false"))
+                                val element = splitArrayElements(newValue).getOrNull(i) ?: "false"
+                                res.add(parseBooleanExpression(element))
                             }
                             res
                         }
@@ -273,31 +304,41 @@ class InterpreterState {
         return result
     }
 
+    private fun evaluateExpressionIfPossible(token: String): Any {
+        return try {
+            evaluateExpression(token)
+        } catch (e: Exception) {
+            resolveValue(token)
+        }
+    }
+
     private fun evaluateComparison(expr: String): Boolean {
         val comparisonRegex = Regex("""(.+?)\s*([=!><]=?|!=)\s*(.+)""")
         val match = comparisonRegex.matchEntire(expr.trim()) ?: throw IllegalArgumentException("Неверный формат условия: $expr")
         val (leftStr, op, rightStr) = match.destructured
 
-        val left = resolveValue(leftStr.trim())
-        val right = resolveValue(rightStr.trim())
+        val left = evaluateExpressionIfPossible(leftStr.trim())
+        val right = evaluateExpressionIfPossible(rightStr.trim())
 
         return compareValues(left, right, op)
     }
 
     private fun resolveValue(token: String): Any {
-        val lower = token.lowercase()
-        if (lower == "true" || lower == "1") return true
-        if (lower == "false" || lower == "0") return false
-        if (token.matches(Regex("-?\\d+"))) return token.toInt()
+        val trimmedToken = token.trim()
 
-        val arrayAccess = parseArrayAccess(token)
+        val arrayAccess = parseArrayAccess(trimmedToken)
         if (arrayAccess != null) {
             val arrayName = arrayAccess.arrayName
             val indexExpr = arrayAccess.indexExpr
-            val arrayVar = findVariable(arrayName)
-                ?: throw IllegalArgumentException("Массив $arrayName не найден")
+
             val index = evaluateExpression(indexExpr)
 
+            val arrayVar = findVariable(arrayName)
+                ?: throw IllegalArgumentException("Массив $arrayName не найден")
+
+            if (index < 0 || index >= (arrayVar.value as List<*>).size) {
+                throw IndexOutOfBoundsException("Индекс $index вне диапазона")
+            }
             return when (arrayVar.type) {
                 DataType.ARR_INT -> {
                     val arr = arrayVar.value as? List<Int> ?: emptyList()
@@ -315,13 +356,35 @@ class InterpreterState {
             }
         }
 
-        val variable = findVariable(token)
-            ?: throw IllegalArgumentException("Неизвестное значение: $token")
+        val lower = trimmedToken.lowercase()
+        if (lower == "true") return true
+        if (lower == "false") return false
+
+        if (trimmedToken.matches(Regex("-?\\d+"))) return trimmedToken.toInt()
+
+        if (trimmedToken.startsWith("\"") && trimmedToken.endsWith("\"")) {
+            return trimmedToken.substring(1, trimmedToken.length - 1)
+        }
+
+        if (trimmedToken.startsWith("{") && trimmedToken.endsWith("}")) {
+            val elements = splitArrayElements(trimmedToken)
+            return elements.map { element ->
+                when {
+                    element.toBooleanStrictOrNull() != null -> element.toBoolean()
+                    element.matches(Regex("-?\\d+")) -> element.toInt()
+                    else -> element
+                }
+            }
+        }
+
+        val variable = findVariable(trimmedToken)
+            ?: throw IllegalArgumentException("Неизвестное значение: $trimmedToken")
 
         return when (variable.type) {
             DataType.BOOLEAN -> variable.value.toString().toBooleanStrict()
             DataType.INTEGER -> variable.value.toString().toInt()
             DataType.STRING -> variable.value.toString()
+            in listOf(DataType.ARR_INT, DataType.ARR_STR, DataType.ARR_BOOL) -> variable.value
             else -> throw IllegalArgumentException("Неподдерживаемый тип переменной: ${variable.type}")
         }
     }

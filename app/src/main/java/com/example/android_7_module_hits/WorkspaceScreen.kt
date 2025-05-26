@@ -55,6 +55,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.android_7_module_hits.ui.WorkspaceFuns.BlockView
 import com.example.android_7_module_hits.blocks.BlockType
+import com.example.android_7_module_hits.interpreter.InterpreterLogger
 import com.example.android_7_module_hits.navigation.Screen
 import com.example.android_7_module_hits.ui.WorkspaceFuns.AttachmentHighlight
 import com.example.android_7_module_hits.ui.WorkspaceFuns.ConsoleMenu
@@ -196,6 +197,13 @@ fun MainScreen(
                     Column {
                         Text(text = "Console Output:")
                         Text(text = ">> Interpreter is running...")
+                        if (InterpreterLogger.errors.isEmpty()) {
+                            Text(text = "Ошибок нет")
+                        } else {
+                            for (error in InterpreterLogger.errors) {
+                                Text(text = error)
+                            }
+                        }
                     }
                 }
             }
