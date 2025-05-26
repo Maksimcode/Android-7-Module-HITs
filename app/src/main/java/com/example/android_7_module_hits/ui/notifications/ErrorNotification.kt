@@ -1,4 +1,4 @@
-package com.example.android_7_module_hits.notifications
+package com.example.android_7_module_hits.ui.notifications
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,14 +11,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.outlined.CheckBox
-import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,17 +24,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.android_7_module_hits.ui.theme.ErrorNotificationBackgroundColor
+import com.example.android_7_module_hits.ui.theme.ErrorNotificationTextColor
 import com.example.android_7_module_hits.ui.theme.NotificationTextStyle
 import com.example.android_7_module_hits.ui.theme.NotificationTitleStyle
-import com.example.android_7_module_hits.ui.theme.SuccessNotificationBackgroundColor
-import com.example.android_7_module_hits.ui.theme.SuccessNotificationTextColor
 
-data class SuccessNotification(
-    override val message: String = "Successful compilation",
+data class ErrorNotification(
+    override val message: String = "Something is creating script errors",
     val onDismiss: () -> Unit = {}
 ) : UiNotification() {
-    override val backgroundColor: Color = SuccessNotificationBackgroundColor
-    override val textColor: Color = SuccessNotificationTextColor
+    override val backgroundColor: Color = ErrorNotificationBackgroundColor
+    override val textColor: Color = ErrorNotificationTextColor
 
     @Composable
     override fun Render() {
@@ -56,13 +54,13 @@ data class SuccessNotification(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.CheckBox,
-                        contentDescription = "Success Icon",
+                        imageVector = Icons.Outlined.ErrorOutline,
+                        contentDescription = "Error Icon",
                         tint = textColor
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Success",
+                        text = "Error",
                         style = NotificationTitleStyle,
                         color = textColor
                     )
@@ -93,8 +91,8 @@ data class SuccessNotification(
 
 @Preview(showBackground = false)
 @Composable
-fun SuccessNotificationPreview() {
+fun ErrorNotificationPreview() {
     MaterialTheme {
-        SuccessNotification(onDismiss = {}).Render()
+        ErrorNotification(onDismiss = {}).Render()
     }
 }

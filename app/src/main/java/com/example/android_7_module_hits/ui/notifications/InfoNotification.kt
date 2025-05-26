@@ -1,4 +1,4 @@
-package com.example.android_7_module_hits.notifications
+package com.example.android_7_module_hits.ui.notifications
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,15 +11,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.outlined.CheckBox
-import androidx.compose.material.icons.outlined.Warning
-import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,18 +21,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.outlined.Info
+import com.example.android_7_module_hits.ui.theme.InfoNotificationBackgroundColor
+import com.example.android_7_module_hits.ui.theme.InfoNotificationTextColor
 import com.example.android_7_module_hits.ui.theme.NotificationTextStyle
 import com.example.android_7_module_hits.ui.theme.NotificationTitleStyle
-import com.example.android_7_module_hits.ui.theme.WarningNotificationBackgroundColor
-import com.example.android_7_module_hits.ui.theme.WarningNotificationTextColor
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 
-data class WarningNotification(
-    override val message: String = "Something is working wrong",
+data class InfoNotification(
+    override val message: String = "Project is saved",
     val onDismiss: () -> Unit = {}
 ) : UiNotification() {
-    override val backgroundColor: Color = WarningNotificationBackgroundColor
-    override val textColor: Color = WarningNotificationTextColor
+    override val backgroundColor: Color = InfoNotificationBackgroundColor
+    override val textColor: Color = InfoNotificationTextColor
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Render() {
         Card(
@@ -57,13 +56,13 @@ data class WarningNotification(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.WarningAmber,
-                        contentDescription = "Warning Icon",
+                        imageVector = Icons.Outlined.Info,
+                        contentDescription = "Info Icon",
                         tint = textColor
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Warning",
+                        text = "Info",
                         style = NotificationTitleStyle,
                         color = textColor
                     )
@@ -91,10 +90,12 @@ data class WarningNotification(
         }
     }
 }
+
 @Preview(showBackground = false)
 @Composable
-fun WarningNotificationPreview() {
+fun InfoNotificationPreview() {
     MaterialTheme {
-        WarningNotification(onDismiss = {}).Render()
+        InfoNotification(onDismiss = {}).Render()
     }
 }
+

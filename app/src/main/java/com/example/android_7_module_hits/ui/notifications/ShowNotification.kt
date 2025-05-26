@@ -1,6 +1,5 @@
-package com.example.android_7_module_hits
+package com.example.android_7_module_hits.ui.notifications
 
-import com.example.android_7_module_hits.notifications.UiNotification
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
