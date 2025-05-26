@@ -13,9 +13,11 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
+// Block colors
 val VariablesColor = Color(0xFFFF8159)
 val MathColor = Color(0xFF456CE8)
 
+// Button colors
 val FolderButtonMain = Color(0xFF456CE8)
 val FolderButtonSub = Color(0xFFCFD8F9)
 val StopButtonMain = Color(0xFFFF5352)
@@ -27,3 +29,13 @@ val RunButtonSub = Color(0xFFC4F3D9)
 
 val MainTextColor = Color(0xFF344054)
 val LibrarySubTitle = Color(0xFF8890A5)
+
+// Notification Colors
+val SuccessNotificationTextColor = Color(0xFF11B95C)
+val SuccessNotificationBackgroundColor = Color(0xFFE7FAF0)
+val InfoNotificationTextColor = Color(0xFF004CDF)
+val InfoNotificationBackgroundColor = Color(0xFFE6EEFF)
+val WarningNotificationTextColor = Color(0xFFF49E00)
+val WarningNotificationBackgroundColor = Color(0xFFFFF7EA)
+val ErrorNotificationTextColor = Color(0xFFE43700)
+val ErrorNotificationBackgroundColor = Color(0xFFFFECE6)

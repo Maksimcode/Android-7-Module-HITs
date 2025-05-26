@@ -8,6 +8,7 @@ import com.example.android_7_module_hits.blocks.DeclarationBlock
 import com.example.android_7_module_hits.blocks.ElseBlock
 import com.example.android_7_module_hits.blocks.ElseIfBlock
 import com.example.android_7_module_hits.blocks.EndBlock
+import com.example.android_7_module_hits.blocks.WhileBlock
 
 fun BlockState.toBlock(): Block {
     val position = androidx.compose.ui.geometry.Offset(positionX, positionY)
@@ -54,6 +55,16 @@ fun BlockState.toBlock(): Block {
                 this.position = position
             }
         }
+
+        BlockType.WHILE -> {
+            val contentState = content as BlockContentState.While
+            WhileBlock(
+                logicalExpression = contentState.expression
+            ).apply {
+                this.position = position
+            }
+        }
+
         BlockType.END -> {
             EndBlock().apply {
                 this.position = position
