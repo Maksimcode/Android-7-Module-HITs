@@ -29,7 +29,7 @@ import com.example.android_7_module_hits.blocks.WhileBlock
 @Composable
 fun BlockPalette(onBlockSelected: (Block) -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(text = "Select a block")
+        Text(text = "Select block")
         Spacer(modifier = Modifier.height(8.dp))
         availableBlocks.forEach { template ->
             BlockPaletteItem(template = template, onBlockSelected = onBlockSelected)
@@ -41,7 +41,6 @@ fun BlockPalette(onBlockSelected: (Block) -> Unit) {
 fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) {
     Box(
         modifier = Modifier
-            .background(Color.LightGray)
             .clickable {
                 val newBlock = when (template.type) {
                     BlockType.DECLARE ->

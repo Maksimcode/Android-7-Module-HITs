@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
+import com.example.android_7_module_hits.ui.theme.ConditionColor
 
 @Composable
 fun ElseBlockView(content: BlockContent.Else, block: Block) {
@@ -22,7 +23,8 @@ fun ElseBlockView(content: BlockContent.Else, block: Block) {
     modifier = Modifier
         .width(210.dp)
         .padding(4.dp),
-    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(containerColor = ConditionColor)
     ){
         Column(modifier = Modifier.padding(8.dp)){
             Row(verticalAlignment = Alignment.CenterVertically) {

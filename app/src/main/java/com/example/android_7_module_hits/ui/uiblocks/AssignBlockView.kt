@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -23,11 +24,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
+import com.example.android_7_module_hits.ui.theme.AssignmentColor
+
 
 @Composable
 fun AssignBlockView(content: BlockContent.Assignment, block: Block){
@@ -40,7 +44,8 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
         modifier = Modifier
             .width(210.dp)
             .padding(4.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(containerColor = AssignmentColor)
     ){
         Column(modifier = Modifier.padding(8.dp)){
             if (isEditingName) {
@@ -52,7 +57,7 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text(text = "Введите имя переменной:")
+                            Text(text = "Variable name:")
                             Spacer(modifier = Modifier.height(6.dp))
                             TextField(
                                 value = editedName,
@@ -71,7 +76,7 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                                         isEditingName = false
                                     }
                                 ) {
-                                    Text("Отмена")
+                                    Text("Cancel")
                                 }
                                 TextButton(
                                     onClick = {
@@ -79,7 +84,7 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                                         isEditingName = false
                                     }
                                 ) {
-                                    Text("Сохранить")
+                                    Text("Save")
                                 }
                             }
                         }
@@ -94,7 +99,7 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text(text = "Введите значение переменной:")
+                            Text(text = "Variable value:")
                             Spacer(modifier = Modifier.height(6.dp))
                             TextField(
                                 value = editedValue,
@@ -113,16 +118,15 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                                         isEditingValue = false
                                     }
                                 ) {
-                                    Text("Отмена")
+                                    Text("Cancel")
                                 }
-
                                 TextButton(
                                     onClick = {
                                         content.value = editedValue
                                         isEditingValue = false
                                     }
                                 ) {
-                                    Text("Сохранить")
+                                    Text("Save")
                                 }
                             }
                         }
@@ -133,21 +137,23 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                     Text(text = "set ", color = Color.Black)
                     Box(
                         modifier = Modifier
-                            .background(Color.LightGray)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Color.White)
                             .clickable { isEditingName = true }
                             .padding(horizontal = 4.dp, vertical = 2.dp)
                     ) {
-                        Text(text = editedName, color = Color.Blue)
+                        Text(text = editedName, color = Color.Gray)
                     }
                     Text(text = " to ", color = Color.Black)
 
                     Box(
                         modifier = Modifier
-                            .background(Color.LightGray)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Color.White)
                             .clickable { isEditingValue = true }
                             .padding(horizontal = 4.dp, vertical = 2.dp)
                     ) {
-                        Text(text = editedValue, color = Color.Blue)
+                        Text(text = editedValue, color = Color.Gray)
                     }
                 }
             }

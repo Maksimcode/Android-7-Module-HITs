@@ -41,12 +41,13 @@ android {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("androidx.navigation:navigation-compose:2.9.0")
-    implementation("androidx.compose.ui:ui:1.8.1")
-    implementation("androidx.compose.material:material:1.8.1")
+    implementation("androidx.compose.ui:ui:1.8.2")
+    implementation("androidx.compose.material:material:1.8.2")
     implementation("androidx.compose.material:material-icons-core:1.7.8")
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
+    implementation("com.google.accompanist:accompanist-insets:0.30.1")
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
