@@ -267,11 +267,27 @@ fun DraggableBlock(
                     onDragEnd = {
                         val attachableParent = viewModel.findAttachableParent(block, offset)
                         if (attachableParent != null) {
-                            onAttach?.invoke(attachableParent, block)
-                            offset = Offset(
-                                attachableParent.position.x,
-                                attachableParent.position.y + 150f
-                            )
+                            if (attachableParent.type == BlockType.ELSE_IF){
+                                onAttach?.invoke(attachableParent, block)
+                                offset = Offset(
+                                    attachableParent.position.x,
+                                    attachableParent.position.y + 230f
+                                )
+                            }
+                            else if (attachableParent.type == BlockType.DECLARE){
+                                onAttach?.invoke(attachableParent, block)
+                                offset = Offset(
+                                    attachableParent.position.x,
+                                    attachableParent.position.y + 285f
+                                )
+                            }
+                            else {
+                                onAttach?.invoke(attachableParent, block)
+                                offset = Offset(
+                                    attachableParent.position.x,
+                                    attachableParent.position.y + 150f
+                                )
+                            }
                         }
                         if (block.type == BlockType.END ||
                             block.type == BlockType.ELSE_IF ||
