@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -21,10 +22,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
+import com.example.android_7_module_hits.ui.theme.AssignmentColor
+
 
 @Composable
 fun AssignBlockView(content: BlockContent.Assignment, block: Block){
@@ -37,7 +41,8 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
         modifier = Modifier
             .width(200.dp)
             .padding(4.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(containerColor = AssignmentColor)
     ){
         Column(modifier = Modifier.padding(8.dp)){
             if (isEditingName)
@@ -47,7 +52,7 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                     onValueChange = {newText ->
                         editedName = newText
                     },
-                    label = { Text(text = "Имя переменной") },
+                    label = { Text(text = "Variable name") },
                     modifier = Modifier.width(150.dp)
                 )
                 Row(
@@ -60,7 +65,7 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                             isEditingName = false
                         }
                     ) {
-                        Text("Отмена")
+                        Text("Cancel")
                     }
 
                     TextButton(
@@ -69,7 +74,7 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                             isEditingName = false
                         }
                     ) {
-                        Text("Сохранить")
+                        Text("Save")
                     }
                 }
             } else if (isEditingValue) {
@@ -78,7 +83,7 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                     onValueChange = {newText ->
                         editedValue = newText
                     },
-                    label = { Text(text = "Значение переменной") },
+                    label = { Text(text = "Variable value") },
                     modifier = Modifier.width(150.dp)
                 )
                 Row(
@@ -91,7 +96,7 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                             isEditingValue = false
                         }
                     ) {
-                        Text("Отмена")
+                        Text("Cancel")
                     }
 
                     TextButton(
@@ -100,28 +105,30 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                             isEditingValue = false
                         }
                     ) {
-                        Text("Сохранить")
+                        Text("Save")
                     }
                 }
             } else{
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .background(Color.LightGray)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Color.White)
                             .clickable { isEditingName = true }
                             .padding(horizontal = 4.dp, vertical = 2.dp)
                     ) {
-                        Text(text = editedName, color = Color.Blue)
+                        Text(text = editedName, color = Color.Gray)
                     }
                     Text(text = " = ", color = Color.Black)
 
                     Box(
                         modifier = Modifier
-                            .background(Color.LightGray)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Color.White)
                             .clickable { isEditingValue = true }
                             .padding(horizontal = 4.dp, vertical = 2.dp)
                     ) {
-                        Text(text = editedValue, color = Color.Blue)
+                        Text(text = editedValue, color = Color.Gray)
                     }
 
                     Text(text = ";", color = Color.Black)
