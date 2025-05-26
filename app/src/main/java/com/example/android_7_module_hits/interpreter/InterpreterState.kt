@@ -107,30 +107,41 @@ class InterpreterState {
 
         val type = oldValue.type
         val newValue = content.value
+        val resolvedValue = resolveValue(newValue)
 
         val result: Any? = when(type) {
-            DataType.INTEGER -> evaluateExpression(newValue ?: "0")
-            DataType.STRING -> evaluateStringExpression(newValue)
-            DataType.BOOLEAN -> parseBooleanExpression(newValue)
+            DataType.INTEGER -> {
+                if (resolvedValue is Int) resolvedValue else throw IllegalArgumentException("Ожидается целое число")
+            }
+            DataType.STRING -> {
+                if (resolvedValue is String) resolvedValue else throw IllegalArgumentException("Ожидается строка")
+            }
+            DataType.BOOLEAN -> {
+                if (resolvedValue is Boolean) resolvedValue else throw IllegalArgumentException("Ожидается boolean")
+            }
             in listOf(DataType.ARR_INT, DataType.ARR_STR, DataType.ARR_BOOL) -> {
                 if (isIndexAccess) {
                     val arrayValue = oldValue.value as? MutableList<*>
                         ?: throw IllegalArgumentException("Неверный тип массива")
+
                     when (type) {
                         DataType.ARR_INT -> {
-                            val intValue = evaluateExpression(newValue ?: "0")
+                            // resolvedValue должно быть Int
+                            val intValue = if (resolvedValue is Int) resolvedValue else 0
                             val mutableArray = arrayValue.toMutableList() as MutableList<Int>
                             mutableArray[index] = intValue
                             mutableArray
                         }
                         DataType.ARR_STR -> {
-                            val strValue = evaluateStringExpression(newValue)
+                            // resolvedValue должно быть String
+                            val strValue = if (resolvedValue is String) resolvedValue else ""
                             val mutableArray = arrayValue.toMutableList() as MutableList<String>
                             mutableArray[index] = strValue
                             mutableArray
                         }
                         DataType.ARR_BOOL -> {
-                            val boolValue = parseBooleanExpression(newValue)
+                            // resolvedValue должно быть Boolean
+                            val boolValue = if (resolvedValue is Boolean) resolvedValue else false
                             val mutableArray = arrayValue.toMutableList() as MutableList<Boolean>
                             mutableArray[index] = boolValue
                             mutableArray
@@ -140,30 +151,30 @@ class InterpreterState {
                 } else {
                     when (type) {
                         DataType.ARR_INT -> {
-                            val cleanedValue = removeOuterBraces(newValue)
-                            val elements = splitArrayElements(cleanedValue)
                             val arrLen = oldValue.arrayLength.toInt()
                             val res = mutableListOf<Int>()
                             for (i in 0 until arrLen) {
-                                res.add(evaluateExpression(elements.getOrNull(i) ?: "0"))
+                                // Здесь newValue — это вся строка в фигурных скобках {1,2,3}
+                                val element = splitArrayElements(newValue).getOrNull(i) ?: "0"
+                                res.add(evaluateExpression(element))
                             }
                             res
                         }
                         DataType.ARR_STR -> {
-                            val elements = splitArrayElements(newValue)
                             val arrLen = oldValue.arrayLength.toInt()
                             val res = mutableListOf<String>()
                             for (i in 0 until arrLen) {
-                                res.add(evaluateStringExpression(elements.getOrNull(i) ?: ""))
+                                val element = splitArrayElements(newValue).getOrNull(i) ?: ""
+                                res.add(evaluateStringExpression(element))
                             }
                             res
                         }
                         DataType.ARR_BOOL -> {
-                            val elements = splitArrayElements(newValue)
                             val arrLen = oldValue.arrayLength.toInt()
                             val res = mutableListOf<Boolean>()
                             for (i in 0 until arrLen) {
-                                res.add(parseBooleanExpression(elements.getOrNull(i) ?: "false"))
+                                val element = splitArrayElements(newValue).getOrNull(i) ?: "false"
+                                res.add(parseBooleanExpression(element))
                             }
                             res
                         }
@@ -315,16 +326,6 @@ class InterpreterState {
     private fun resolveValue(token: String): Any {
         val trimmedToken = token.trim()
 
-        val lower = trimmedToken.lowercase()
-        if (lower == "true") return true
-        if (lower == "false") return false
-
-        if (trimmedToken.matches(Regex("-?\\d+"))) return trimmedToken.toInt()
-
-        if (trimmedToken.startsWith("\"") && trimmedToken.endsWith("\"")) {
-            return trimmedToken.substring(1, trimmedToken.length - 1)
-        }
-
         val arrayAccess = parseArrayAccess(trimmedToken)
         if (arrayAccess != null) {
             val arrayName = arrayAccess.arrayName
@@ -335,6 +336,9 @@ class InterpreterState {
             val arrayVar = findVariable(arrayName)
                 ?: throw IllegalArgumentException("Массив $arrayName не найден")
 
+            if (index < 0 || index >= (arrayVar.value as List<*>).size) {
+                throw IndexOutOfBoundsException("Индекс $index вне диапазона")
+            }
             return when (arrayVar.type) {
                 DataType.ARR_INT -> {
                     val arr = arrayVar.value as? List<Int> ?: emptyList()
@@ -350,6 +354,16 @@ class InterpreterState {
                 }
                 else -> throw IllegalArgumentException("Невозможно получить значение из не-массива")
             }
+        }
+
+        val lower = trimmedToken.lowercase()
+        if (lower == "true") return true
+        if (lower == "false") return false
+
+        if (trimmedToken.matches(Regex("-?\\d+"))) return trimmedToken.toInt()
+
+        if (trimmedToken.startsWith("\"") && trimmedToken.endsWith("\"")) {
+            return trimmedToken.substring(1, trimmedToken.length - 1)
         }
 
         if (trimmedToken.startsWith("{") && trimmedToken.endsWith("}")) {
