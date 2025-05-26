@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
 import com.example.android_7_module_hits.ui.theme.AssignmentColor
@@ -39,77 +42,99 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
 
     Card(
         modifier = Modifier
-            .width(200.dp)
+            .width(210.dp)
             .padding(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = AssignmentColor)
     ){
         Column(modifier = Modifier.padding(8.dp)){
-            if (isEditingName)
-            {
-                TextField(
-                    value = editedName,
-                    onValueChange = {newText ->
-                        editedName = newText
-                    },
-                    label = { Text(text = "Variable name") },
-                    modifier = Modifier.width(150.dp)
-                )
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(
-                        onClick = {
-                            editedName = content.name ?: "Variable"
-                            isEditingName = false
-                        }
+            if (isEditingName) {
+                Dialog(onDismissRequest = { isEditingName = false }) {
+                    Card(
+                        modifier = Modifier
+                            .width(300.dp)
+                            .padding(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                     ) {
-                        Text("Cancel")
-                    }
-
-                    TextButton(
-                        onClick = {
-                            content.name = editedName
-                            isEditingName = false
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(text = "Variable name:")
+                            Spacer(modifier = Modifier.height(6.dp))
+                            TextField(
+                                value = editedName,
+                                onValueChange = { newText ->
+                                    editedName = newText
+                                },
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Row(
+                                horizontalArrangement = Arrangement.End,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                TextButton(
+                                    onClick = {
+                                        editedName = content.name ?: "Variable"
+                                        isEditingName = false
+                                    }
+                                ) {
+                                    Text("Cancel")
+                                }
+                                TextButton(
+                                    onClick = {
+                                        content.name = editedName
+                                        isEditingName = false
+                                    }
+                                ) {
+                                    Text("Save")
+                                }
+                            }
                         }
-                    ) {
-                        Text("Save")
                     }
                 }
             } else if (isEditingValue) {
-                TextField(
-                    value = editedValue,
-                    onValueChange = {newText ->
-                        editedValue = newText
-                    },
-                    label = { Text(text = "Variable value") },
-                    modifier = Modifier.width(150.dp)
-                )
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(
-                        onClick = {
-                            editedValue = content.value ?: "0"
-                            isEditingValue = false
-                        }
+                Dialog(onDismissRequest = { isEditingValue = false }) {
+                    Card(
+                        modifier = Modifier
+                            .width(300.dp)
+                            .padding(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                     ) {
-                        Text("Cancel")
-                    }
-
-                    TextButton(
-                        onClick = {
-                            content.value = editedValue
-                            isEditingValue = false
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(text = "Variable value:")
+                            Spacer(modifier = Modifier.height(6.dp))
+                            TextField(
+                                value = editedValue,
+                                onValueChange = { newText ->
+                                    editedValue = newText
+                                },
+                                modifier = Modifier
+                            )
+                            Row(
+                                horizontalArrangement = Arrangement.End,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                TextButton(
+                                    onClick = {
+                                        editedValue = content.value ?: "0"
+                                        isEditingValue = false
+                                    }
+                                ) {
+                                    Text("Cancel")
+                                }
+                                TextButton(
+                                    onClick = {
+                                        content.value = editedValue
+                                        isEditingValue = false
+                                    }
+                                ) {
+                                    Text("Save")
+                                }
+                            }
                         }
-                    ) {
-                        Text("Save")
                     }
                 }
             } else{
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "set ", color = Color.Black)
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
@@ -119,7 +144,7 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                     ) {
                         Text(text = editedName, color = Color.Gray)
                     }
-                    Text(text = " = ", color = Color.Black)
+                    Text(text = " to ", color = Color.Black)
 
                     Box(
                         modifier = Modifier
@@ -130,8 +155,6 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                     ) {
                         Text(text = editedValue, color = Color.Gray)
                     }
-
-                    Text(text = ";", color = Color.Black)
                 }
             }
         }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
 import com.example.android_7_module_hits.blocks.DataType
@@ -46,48 +48,57 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
     val options = listOf(DataType.INTEGER, DataType.STRING, DataType.BOOLEAN,
                          DataType.ARR_INT, DataType.ARR_STR, DataType.ARR_BOOL)
 
+
     Card(
         modifier = Modifier
-            .width(200.dp)
+            .width(210.dp)
             .padding(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = DeclareColor)
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
             if (isEditingName) {
-                TextField(
-                    value = editedName,
-                    onValueChange = { newText ->
-                        editedName = newText
-                    },
-                    label = { Text("Variable name") },
-                    modifier = Modifier
-                        .width(150.dp)
-                )
-
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(
-                        onClick = {
-                            editedName = content.name ?: "Variable"
-                            isEditingName = false
-                        }
+                Dialog(onDismissRequest = { isEditingName = false }) {
+                    Card(
+                        modifier = Modifier
+                            .width(300.dp)
+                            .padding(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                     ) {
-                        Text("Cancel")
-                    }
-
-                    TextButton(
-                        onClick = {
-                            content.name = editedName
-                            isEditingName = false
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(text = "Variable name:")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            TextField(
+                                value = editedName,
+                                onValueChange = { newText ->
+                                    editedName = newText
+                                },
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Row(
+                                horizontalArrangement = Arrangement.End,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                TextButton(
+                                    onClick = {
+                                        editedName = content.name ?: "Variable"
+                                        isEditingName = false
+                                    }
+                                ) {
+                                    Text("Cancel")
+                                }
+                                TextButton(
+                                    onClick = {
+                                        content.name = editedName
+                                        isEditingName = false
+                                    }
+                                ) {
+                                    Text("Save")
+                                }
+                            }
                         }
-                    ) {
-                        Text("Save")
                     }
                 }
-
             } else if(isEditingType){
                 DropdownMenu(
                     expanded = isEditingType,
@@ -111,51 +122,100 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                 if(editedType == DataType.ARR_BOOL ||
                     editedType == DataType.ARR_STR ||
                     editedType == DataType.ARR_INT){
-                    if(isEditingLength){
-                        TextField(
-                            value = editedLength,
-                            onValueChange = { newText ->
-                                editedLength = newText
-                            },
-                            label = { Text("Array Length") },
-                            modifier = Modifier
-                                .width(150.dp)
-                        )
-
-                        Row(
-                            horizontalArrangement = Arrangement.End,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            TextButton(
-                                onClick = {
-                                    editedLength = content.name ?: "0"
-                                    isEditingLength = false
-                                }
+                    if (isEditingLength) {
+                        Dialog(onDismissRequest = { isEditingLength = false }) {
+                            Card(
+                                modifier = Modifier
+                                    .width(300.dp)
+                                    .padding(16.dp),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                             ) {
-                                Text("Cancel")
-                            }
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text(text = "Array Length:")
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    TextField(
+                                        value = editedLength,
+                                        onValueChange = { newText ->
+                                            editedLength = newText
+                                        },
+                                        modifier = Modifier
+                                            .height(60.dp)
+                                    )
 
-                            TextButton(
-                                onClick = {
-                                    content.length = editedLength
-                                    isEditingLength = false
+                                    Row(
+                                        horizontalArrangement = Arrangement.End,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        TextButton(
+                                            onClick = {
+                                                editedLength = content.name ?: "0"
+                                                isEditingLength = false
+                                            }
+                                        ) {
+                                            Text("Cancel")
+                                        }
+
+                                        TextButton(
+                                            onClick = {
+                                                content.length = editedLength
+                                                isEditingLength = false
+                                            }
+                                        ) {
+                                            Text("Save")
+                                        }
+                                    }
                                 }
-                            ) {
-                                Text("Save")
                             }
                         }
                     }
                     else{
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(Color.White)
-                                    .clickable { isEditingType = true }
-                                    .padding(horizontal = 4.dp, vertical = 2.dp)
-                            ) {
-                                Text(text = displayText(editedType), color = Color.Gray)
+                        Column (modifier = Modifier.height(80.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(text = "create", color = Color.Black)
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(Color.White)
+                                        .clickable { isEditingName = true }
+                                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                                ) {
+                                    Text(text = editedName, color = Color.Gray)
+                                }
                             }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(text = "as", color = Color.Black)
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(Color.White)
+                                        .clickable { isEditingType = true }
+                                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                                ) {
+                                    Text(text = displayText(editedType), color = Color.Gray)
+                                }
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(text = ":", color = Color.Black)
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .background(Color.LightGray)
+                                        .clickable { isEditingLength = true }
+                                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                                ) {
+                                    Text(text = editedLength, color = Color.Blue)
+                                }
+                            }
+                        }
+                    }
+
+                }else {
+                    Column (modifier = Modifier.height(80.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = "create", color = Color.Black)
                             Spacer(modifier = Modifier.width(5.dp))
                             Box(
                                 modifier = Modifier
@@ -166,44 +226,21 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                             ) {
                                 Text(text = editedName, color = Color.Gray)
                             }
-                            Text(text = "[ ", color = Color.Black)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(text = "as", color = Color.Black)
+                            Spacer(modifier = Modifier.width(5.dp))
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
                                     .background(Color.LightGray)
-                                    .clickable{ isEditingLength = true }
+                                    .clickable { isEditingType = true }
                                     .padding(horizontal = 4.dp, vertical = 2.dp)
-                            ){
-                                Text(text = editedLength, color = Color.Gray)
+                            ) {
+                                Text(text = displayText(editedType), color = Color.Gray)
                             }
-
-                            Text(text = " ];", color = Color.Black)
                         }
-                    }
-
-                }else {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(Color.White)
-                                .clickable { isEditingType = true }
-                                .padding(horizontal = 4.dp, vertical = 2.dp)
-                        ) {
-                            Text(text = displayText(editedType), color = Color.Gray)
-                        }
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(Color.White)
-                                .clickable { isEditingName = true }
-                                .padding(horizontal = 4.dp, vertical = 2.dp)
-                        ) {
-                            Text(text = editedName, color = Color.Gray)
-                        }
-
-                        Text(text = ";", color = Color.Black)
                     }
                 }
             }
@@ -213,12 +250,12 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
 
 fun displayText(selectedType: DataType): String{
     return when(selectedType){
-        DataType.INTEGER -> "int"
-        DataType.STRING -> "string"
-        DataType.BOOLEAN -> "bool"
-        DataType.ARR_INT -> "arr int"
-        DataType.ARR_STR -> "arr str"
-        DataType.ARR_BOOL -> "arr bool"
+        DataType.INTEGER -> "integer"
+        DataType.STRING -> "text"
+        DataType.BOOLEAN -> "boolean"
+        DataType.ARR_INT -> "array (integer)"
+        DataType.ARR_STR -> "array (text)"
+        DataType.ARR_BOOL -> "array (boolean)"
         else -> "pupu"
     }
 }

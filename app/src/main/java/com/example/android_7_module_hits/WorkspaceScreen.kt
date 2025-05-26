@@ -55,6 +55,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.android_7_module_hits.ui.workspaceFuns.BlockView
 import com.example.android_7_module_hits.blocks.BlockType
+import com.example.android_7_module_hits.interpreter.InterpreterLogger
 import com.example.android_7_module_hits.navigation.Screen
 import com.example.android_7_module_hits.ui.workspaceFuns.AttachmentHighlight
 import com.example.android_7_module_hits.ui.workspaceFuns.ConsoleMenu
@@ -200,6 +201,13 @@ fun MainScreen(
                     Column {
                         Text(text = "Console Output:")
                         Text(text = ">> Interpreter is running...")
+                        if (InterpreterLogger.errors.isEmpty()) {
+                            Text(text = "Ошибок нет")
+                        } else {
+                            for (error in InterpreterLogger.errors) {
+                                Text(text = error)
+                            }
+                        }
                     }
                 }
             }
@@ -235,11 +243,27 @@ fun DraggableBlock(
                     onDragEnd = {
                         val attachableParent = viewModel.findAttachableParent(block, offset)
                         if (attachableParent != null) {
-                            onAttach?.invoke(attachableParent, block)
-                            offset = Offset(
-                                attachableParent.position.x,
-                                attachableParent.position.y + 150f
-                            )
+                            if (attachableParent.type == BlockType.ELSE_IF){
+                                onAttach?.invoke(attachableParent, block)
+                                offset = Offset(
+                                    attachableParent.position.x,
+                                    attachableParent.position.y + 230f
+                                )
+                            }
+                            else if (attachableParent.type == BlockType.DECLARE){
+                                onAttach?.invoke(attachableParent, block)
+                                offset = Offset(
+                                    attachableParent.position.x,
+                                    attachableParent.position.y + 285f
+                                )
+                            }
+                            else {
+                                onAttach?.invoke(attachableParent, block)
+                                offset = Offset(
+                                    attachableParent.position.x,
+                                    attachableParent.position.y + 150f
+                                )
+                            }
                         }
                         if (block.type == BlockType.END ||
                             block.type == BlockType.ELSE_IF ||

@@ -21,14 +21,14 @@ fun ElseBlockView(content: BlockContent.Else, block: Block) {
 
     Card(
     modifier = Modifier
-        .width(200.dp)
+        .width(210.dp)
         .padding(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = ConditionColor)
     ){
         Column(modifier = Modifier.padding(8.dp)){
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "else {", color = Color.Black)
+                Text(text = "otherwise do ", color = Color.Black)
             }
         }
     }

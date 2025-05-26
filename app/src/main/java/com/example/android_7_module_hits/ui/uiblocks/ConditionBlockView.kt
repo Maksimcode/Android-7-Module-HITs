@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
 import com.example.android_7_module_hits.ui.theme.ConditionColor
@@ -38,7 +41,7 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block){
 
     Card(
         modifier = Modifier
-            .width(200.dp)
+            .width(210.dp)
             .padding(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = ConditionColor)
@@ -46,34 +49,45 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block){
         Column(modifier = Modifier.padding(8.dp)){
             if (isEditingExpression)
             {
-                TextField(
-                    value = editedExpression,
-                    onValueChange = {newText ->
-                        editedExpression = newText
-                    },
-                    label = { Text(text = "Logical expression:") },
-                    modifier = Modifier.width(150.dp)
-                )
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(
-                        onClick = {
-                            editedExpression = content.expression ?: "true"
-                            isEditingExpression = false
-                        }
+                Dialog(onDismissRequest = { isEditingExpression = false }) {
+                    Card(
+                        modifier = Modifier
+                            .width(300.dp)
+                            .padding(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                     ) {
-                        Text("Cancel")
-                    }
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(text = "Logical expression:")
+                            Spacer(modifier = Modifier.height(6.dp))
+                            TextField(
+                                value = editedExpression,
+                                onValueChange = { newText ->
+                                    editedExpression = newText
+                                },
+                            )
+                            Row(
+                                horizontalArrangement = Arrangement.End,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                TextButton(
+                                    onClick = {
+                                        editedExpression = content.expression ?: "true"
+                                        isEditingExpression = false
+                                    }
+                                ) {
+                                    Text("Cancel")
+                                }
 
-                    TextButton(
-                        onClick = {
-                            content.expression = editedExpression
-                            isEditingExpression = false
+                                TextButton(
+                                    onClick = {
+                                        content.expression = editedExpression
+                                        isEditingExpression = false
+                                    }
+                                ) {
+                                    Text("Save")
+                                }
+                            }
                         }
-                    ) {
-                        Text("Save")
                     }
                 }
             } else{
@@ -89,7 +103,7 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block){
                         Text(text = editedExpression, color = Color.Gray)
                     }
 
-                    Text(text = " ) {", color = Color.Black)
+                    Text(text = " ) is true", color = Color.Black)
                 }
             }
         }
