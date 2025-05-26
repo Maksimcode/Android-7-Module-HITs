@@ -49,12 +49,27 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateBlockPosition(blockId: String, newPosition: Offset) {
-        val updated = _blocks.value.map { block ->
-            if (block.id == blockId)
-                block.position = newPosition
-            block
+        viewModelScope.launch {
+            val blocks = _blocks.value.toMutableList()
+            val block = blocks.find { it.id == blockId } ?: return@launch
+
+            val delta = newPosition - block.position
+
+            block.position = newPosition
+
+            moveChildren(block, delta, blocks)
+
+            _blocks.value = blocks
         }
-        _blocks.value = updated
+    }
+
+    private fun moveChildren(parent: Block, delta: Offset, blocks: MutableList<Block>) {
+        if (parent.child != null) {
+            val child = blocks.find { it.id == parent.child?.id } ?: return
+            child.position += delta
+            moveChildren(child, delta, blocks)
+        }
+
     }
 
     fun deleteBlock(blockId: String) {
@@ -166,7 +181,15 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
 
 fun logAllBlocks(blocks : List<Block>){
     blocks.forEach {
-        println("ID: ${it.id}, root: ${it.rootBlock?.id}, end: ${it.EndBlock?.id}")
+        println("ID: ${it.id}, type: ${it.type}, value: ${it.content} root: ${it.rootBlock?.id}, end: ${it.EndBlock?.id}")
     }
+}
+
+operator fun Offset.plus(other: Offset): Offset {
+    return Offset(this.x + other.x, this.y + other.y)
+}
+
+operator fun Offset.minus(other: Offset): Offset {
+    return Offset(this.x - other.x, this.y - other.y)
 }
 

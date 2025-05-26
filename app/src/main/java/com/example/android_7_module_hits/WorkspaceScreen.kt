@@ -281,9 +281,10 @@ fun DraggableBlock(
                                 attachableParent.position.y + 150f
                             )
                         }
-                        if (block.type == BlockType.END ||
+                        if ((block.type == BlockType.END ||
                             block.type == BlockType.ELSE_IF ||
-                            block.type == BlockType.ELSE){
+                            block.type == BlockType.ELSE) &&
+                            block.parent != null){
                             block.parent?.let {viewModel.attachHasBodyBlock(block, it)}
                         }
 
@@ -295,17 +296,16 @@ fun DraggableBlock(
                 )
             }
     ) {
-        Column {
-            BlockView(block)
 
-            if (offset != block.position) {
-                val attachableParent = viewModel.findAttachableParent(block, offset)
-                if (attachableParent != null) {
-                    Log.d("highlight", "type parent - ${attachableParent.type}, child - ${block.type}")
-                    AttachmentHighlight(attachableParent.position)
-                }
+        if (offset != block.position) {
+            val attachableParent = viewModel.findAttachableParent(block, offset)
+            if (attachableParent != null) {
+                Log.d("highlight", "type parent - ${attachableParent.type}, child - ${block.type}")
+                AttachmentHighlight(attachableParent.position)
             }
         }
+
+        BlockView(block)
 
         if (showDeleteIcon.value) {
             Icon(
