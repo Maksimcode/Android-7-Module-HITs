@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
@@ -23,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
 
@@ -35,76 +38,99 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
 
     Card(
         modifier = Modifier
-            .width(200.dp)
+            .width(210.dp)
             .padding(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ){
         Column(modifier = Modifier.padding(8.dp)){
-            if (isEditingName)
-            {
-                TextField(
-                    value = editedName,
-                    onValueChange = {newText ->
-                        editedName = newText
-                    },
-                    label = { Text(text = "Имя переменной") },
-                    modifier = Modifier.width(150.dp)
-                )
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(
-                        onClick = {
-                            editedName = content.name ?: "Variable"
-                            isEditingName = false
-                        }
+            if (isEditingName) {
+                Dialog(onDismissRequest = { isEditingName = false }) {
+                    Card(
+                        modifier = Modifier
+                            .width(300.dp)
+                            .padding(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                     ) {
-                        Text("Отмена")
-                    }
-
-                    TextButton(
-                        onClick = {
-                            content.name = editedName
-                            isEditingName = false
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(text = "Введите имя переменной:")
+                            Spacer(modifier = Modifier.height(6.dp))
+                            TextField(
+                                value = editedName,
+                                onValueChange = { newText ->
+                                    editedName = newText
+                                },
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Row(
+                                horizontalArrangement = Arrangement.End,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                TextButton(
+                                    onClick = {
+                                        editedName = content.name ?: "Variable"
+                                        isEditingName = false
+                                    }
+                                ) {
+                                    Text("Отмена")
+                                }
+                                TextButton(
+                                    onClick = {
+                                        content.name = editedName
+                                        isEditingName = false
+                                    }
+                                ) {
+                                    Text("Сохранить")
+                                }
+                            }
                         }
-                    ) {
-                        Text("Сохранить")
                     }
                 }
             } else if (isEditingValue) {
-                TextField(
-                    value = editedValue,
-                    onValueChange = {newText ->
-                        editedValue = newText
-                    },
-                    label = { Text(text = "Значение переменной") },
-                    modifier = Modifier.width(150.dp)
-                )
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    TextButton(
-                        onClick = {
-                            editedValue = content.value ?: "0"
-                            isEditingValue = false
-                        }
+                Dialog(onDismissRequest = { isEditingValue = false }) {
+                    Card(
+                        modifier = Modifier
+                            .width(300.dp)
+                            .padding(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                     ) {
-                        Text("Отмена")
-                    }
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(text = "Введите значение переменной:")
+                            Spacer(modifier = Modifier.height(6.dp))
+                            TextField(
+                                value = editedValue,
+                                onValueChange = { newText ->
+                                    editedValue = newText
+                                },
+                                modifier = Modifier
+                            )
+                            Row(
+                                horizontalArrangement = Arrangement.End,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                TextButton(
+                                    onClick = {
+                                        editedValue = content.value ?: "0"
+                                        isEditingValue = false
+                                    }
+                                ) {
+                                    Text("Отмена")
+                                }
 
-                    TextButton(
-                        onClick = {
-                            content.value = editedValue
-                            isEditingValue = false
+                                TextButton(
+                                    onClick = {
+                                        content.value = editedValue
+                                        isEditingValue = false
+                                    }
+                                ) {
+                                    Text("Сохранить")
+                                }
+                            }
                         }
-                    ) {
-                        Text("Сохранить")
                     }
                 }
             } else{
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = "set ", color = Color.Black)
                     Box(
                         modifier = Modifier
                             .background(Color.LightGray)
@@ -113,7 +139,7 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                     ) {
                         Text(text = editedName, color = Color.Blue)
                     }
-                    Text(text = " = ", color = Color.Black)
+                    Text(text = " to ", color = Color.Black)
 
                     Box(
                         modifier = Modifier
@@ -123,8 +149,6 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                     ) {
                         Text(text = editedValue, color = Color.Blue)
                     }
-
-                    Text(text = ";", color = Color.Black)
                 }
             }
         }
