@@ -45,40 +45,40 @@ class InterpreterState {
         currentScope[name] = value
     }
 
-fun declareVariable(content: BlockContent.Declare) {
-    val rawNames = content.name.split(',').map { it.trim() }
+    fun declareVariable(content: BlockContent.Declare) {
+        val rawNames = content.name.split(',').map { it.trim() }
 
-    if (rawNames.isEmpty()) {
-        throw IllegalArgumentException("Не указано имя переменной")
-    }
-
-    for ((index, name) in rawNames.withIndex()) {
-        if (name.isBlank()) {
-            throw IllegalArgumentException("Имя переменной не может быть пустым")
+        if (rawNames.isEmpty()) {
+            throw IllegalArgumentException("Не указано имя переменной")
         }
 
-        if (findVariable(name) != null) {
-            throw IllegalArgumentException("Переменная $name уже объявлена в текущей области")
-        }
+        for ((index, name) in rawNames.withIndex()) {
+            if (name.isBlank()) {
+                throw IllegalArgumentException("Имя переменной не может быть пустым")
+            }
 
-        val evaluatedValue = evaluateExpression(content.value)
+            if (findVariable(name) != null) {
+                throw IllegalArgumentException("Переменная $name уже объявлена в текущей области")
+            }
 
-        val arrayLength = if (content.type in listOf(DataType.ARR_INT, DataType.ARR_STR, DataType.ARR_BOOL)) {
-            evaluateExpression(content.length ?: "0").toString()
-        } else {
-            "0"
-        }
+            val evaluatedValue = evaluateExpression(content.value)
 
-        declareInCurrentScope(
-            name,
-            VariableContent(
-                type = content.type,
-                value = evaluatedValue,
-                arrayLength = arrayLength
+            val arrayLength = if (content.type in listOf(DataType.ARR_INT, DataType.ARR_STR, DataType.ARR_BOOL)) {
+                evaluateExpression(content.length ?: "0").toString()
+            } else {
+                "0"
+            }
+
+            declareInCurrentScope(
+                name,
+                VariableContent(
+                    type = content.type,
+                    value = evaluatedValue,
+                    arrayLength = arrayLength
+                )
             )
-        )
+        }
     }
-}
 
     fun assignValue(content: BlockContent.Assignment) {
         val name = content.name.trim()
@@ -329,9 +329,11 @@ fun declareVariable(content: BlockContent.Declare) {
         if (arrayAccess != null) {
             val arrayName = arrayAccess.arrayName
             val indexExpr = arrayAccess.indexExpr
+
+            val index = evaluateExpression(indexExpr)
+
             val arrayVar = findVariable(arrayName)
                 ?: throw IllegalArgumentException("Массив $arrayName не найден")
-            val index = evaluateExpression(indexExpr)
 
             return when (arrayVar.type) {
                 DataType.ARR_INT -> {
