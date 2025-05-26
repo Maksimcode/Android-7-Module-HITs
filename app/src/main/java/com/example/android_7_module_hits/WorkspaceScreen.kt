@@ -16,7 +16,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -32,21 +31,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavController
 import com.example.android_7_module_hits.blocks.Block
-import com.example.android_7_module_hits.blocks.BlockContent
 import com.example.android_7_module_hits.interpreter.runInterpreter
 import com.example.android_7_module_hits.ui.theme.FolderButtonSub
 import com.example.android_7_module_hits.ui.theme.RunButtonSub
 import com.example.android_7_module_hits.ui.theme.SettingsButtonSub
 import com.example.android_7_module_hits.ui.theme.StopButtonSub
-import com.example.android_7_module_hits.ui.uiblocks.AssignBlockView
-import com.example.android_7_module_hits.ui.uiblocks.ConditionBlockView
-import com.example.android_7_module_hits.ui.uiblocks.DeclareBlockView
-import com.example.android_7_module_hits.ui.uiblocks.EndBlockView
 import kotlin.math.roundToInt
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
@@ -55,22 +48,24 @@ import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.android_7_module_hits.ui.WorkspaceFuns.BlockView
 import com.example.android_7_module_hits.blocks.BlockType
 import com.example.android_7_module_hits.navigation.Screen
-import com.example.android_7_module_hits.notifications.InfoNotification
-import com.example.android_7_module_hits.ui.uiblocks.ElseBlockView
-import com.example.android_7_module_hits.ui.uiblocks.ElseIfBlockView
-import com.example.android_7_module_hits.ui.uiblocks.WhileBlockView
+import com.example.android_7_module_hits.ui.WorkspaceFuns.AttachmentHighlight
+import com.example.android_7_module_hits.ui.WorkspaceFuns.ConsoleMenu
+import com.example.android_7_module_hits.ui.WorkspaceFuns.InfiniteCanvas
+import com.example.android_7_module_hits.ui.notifications.InfoNotification
 import com.example.android_7_module_hits.viewModel.BlockViewModel
 import com.example.android_7_module_hits.viewModel.logAllBlocks
-import com.example.android_7_module_hits.notifications.UiNotification
-import com.example.android_7_module_hits.notifications.NotificationHost
+import com.example.android_7_module_hits.ui.notifications.UiNotification
+import com.example.android_7_module_hits.ui.notifications.NotificationHost
+import com.example.android_7_module_hits.ui.notifications.showNotification
+import com.example.android_7_module_hits.ui.uiblocks.BlockPalette
 import kotlinx.coroutines.launch
 
 
@@ -209,37 +204,6 @@ fun MainScreen(
 }
 
 @Composable
-fun BlockView(block: Block) {
-    when (val content = block.content) {
-        is BlockContent.Declare -> {
-            DeclareBlockView(content, block)
-        }
-        is BlockContent.Assignment -> {
-            AssignBlockView(content, block)
-        }
-        is BlockContent.Condition -> {
-            ConditionBlockView(content, block)
-        }
-        is BlockContent.ElseIf -> {
-            ElseIfBlockView(content, block)
-        }
-        is BlockContent.Else -> {
-            ElseBlockView(content, block)
-        }
-        is BlockContent.End -> {
-            EndBlockView(content, block)
-        }
-        is BlockContent.While -> {
-            WhileBlockView(content, block)
-        }
-        else -> {
-            Text("Unknown block type")
-        }
-    }
-}
-
-
-@Composable
 fun DraggableBlock(
     block: Block,
     viewModel: BlockViewModel,
@@ -289,7 +253,6 @@ fun DraggableBlock(
     ) {
         Column {
             BlockView(block)
-
             if (offset != block.position) {
                 val attachableParent = viewModel.findAttachableParent(block, offset)
                 if (attachableParent != null) {
@@ -311,65 +274,6 @@ fun DraggableBlock(
                         onDelete(block.id)
                     }
             )
-        }
-    }
-}
-
-@Composable
-fun AttachmentHighlight(position: Offset) {
-    Box(
-        modifier = Modifier
-            .background(Color.Green.copy(alpha = 0.3f))
-            .size(width = 200.dp, height = 16.dp)
-            .offset { IntOffset(position.x.roundToInt(), position.y.roundToInt())}
-    )
-}
-
-@Composable
-fun InfiniteCanvas(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    var offset by remember { mutableStateOf(Offset.Zero) }
-
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .pointerInput(Unit) {
-                detectTransformGestures(
-                    panZoomLock = false,
-                    onGesture = { centroid, pan, zoom, rotation ->
-                        offset += pan
-                    }
-                )
-            }
-            .graphicsLayer(
-                translationX = offset.x,
-                translationY = offset.y
-            )
-    ) {
-        content()
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ConsoleMenu(
-    onDismissRequest: () -> Unit,
-    content: @Composable () -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
-        dragHandle = { /* Если консольный вывод не будет влезать, эта штука поможет сделать нам "ручку" для расщирения окна */ }
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-                .padding(16.dp)
-        ) {
-            content()
         }
     }
 }

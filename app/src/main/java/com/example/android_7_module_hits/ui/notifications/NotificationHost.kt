@@ -1,4 +1,4 @@
-package com.example.android_7_module_hits.notifications
+package com.example.android_7_module_hits.ui.notifications
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth

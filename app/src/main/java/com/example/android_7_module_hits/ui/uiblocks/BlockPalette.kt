@@ -1,4 +1,4 @@
-package com.example.android_7_module_hits
+package com.example.android_7_module_hits.ui.uiblocks
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,8 +25,6 @@ import com.example.android_7_module_hits.blocks.ElseBlock
 import com.example.android_7_module_hits.blocks.ElseIfBlock
 import com.example.android_7_module_hits.blocks.EndBlock
 import com.example.android_7_module_hits.blocks.WhileBlock
-import com.example.android_7_module_hits.ui.uiblocks.BlockTemplate
-import com.example.android_7_module_hits.ui.uiblocks.availableBlocks
 
 @Composable
 fun BlockPalette(onBlockSelected: (Block) -> Unit) {
