@@ -141,7 +141,7 @@ class InterpreterState {
                             mutableArray
                         }
                         DataType.ARR_BOOL -> {
-                            val boolValue = if (resolvedValue is Boolean) resolvedValue else evaluateLogicalExpression(newValue)
+                            val boolValue = if (resolvedValue is Boolean) resolvedValue else parseBooleanExpression(newValue)
                             val mutableArray = arrayValue.toMutableList() as MutableList<Boolean>
                             mutableArray[index] = boolValue
                             mutableArray
@@ -197,7 +197,11 @@ class InterpreterState {
 
     fun setCondition(expr: String): Boolean {
         val trimmedExpr = expr.trim()
-        return parseBooleanExpression(trimmedExpr)
+        var resolvedValue: Any? = null
+        try {
+            resolvedValue = resolveValue(trimmedExpr)
+        } catch (e: Exception){ }
+        return if (resolvedValue is Boolean) resolvedValue else parseBooleanExpression(trimmedExpr)
     }
 
 
