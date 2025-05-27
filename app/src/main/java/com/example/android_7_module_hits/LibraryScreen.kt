@@ -30,8 +30,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.navigation.NavController
-import com.example.android_7_module_hits.ui.theme.deepblue
-import com.example.android_7_module_hits.ui.theme.lightblue
+import com.example.android_7_module_hits.ui.theme.deepBlue
+import com.example.android_7_module_hits.ui.theme.lightBlue
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.shadow
@@ -41,6 +41,9 @@ import androidx.compose.ui.text.style.TextAlign
 import com.example.android_7_module_hits.navigation.Screen
 import com.example.android_7_module_hits.ui.theme.LibrarySubTitle
 import com.example.android_7_module_hits.ui.theme.MainTextColor
+import com.example.android_7_module_hits.ui.theme.NotSelectedTabColor
+import com.example.android_7_module_hits.ui.theme.SelectedTabColor
+import com.example.android_7_module_hits.ui.theme.ShadowColor
 
 
 @Composable
@@ -62,7 +65,7 @@ fun MainContent(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
             ) {
                 tabTitles.forEachIndexed { index, title ->
                     TabButton(
@@ -77,8 +80,7 @@ fun MainContent(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
-                    .padding(bottom = 80.dp),
+                    .weight(1f),
                 contentAlignment = Alignment.Center
             ) {
                 when (selectedTabIndex) {
@@ -127,26 +129,26 @@ fun TabButton(
     onClick: () -> Unit
 ) {
     val baseModifier = Modifier
-        .width(180.dp)
+        .width(168.dp)
         .height(52.dp)
-        .background(color = Color(0xFFCFD8F9), shape = RoundedCornerShape(24.dp))
+        .background(color = SelectedTabColor, shape = RoundedCornerShape(24.dp))
 
     val modifier = if (selected) {
         Modifier
             .shadow(
                 elevation = 25.dp,
-                spotColor = Color(0x40E2E2E2),
-                ambientColor = Color(0x40E2E2E2)
+                spotColor = ShadowColor,
+                ambientColor = ShadowColor
             )
             .then(baseModifier)
     } else {
         baseModifier
             .shadow(
                 elevation = 25.dp,
-                spotColor = Color(0x40E2E2E2),
-                ambientColor = Color(0x40E2E2E2)
+                spotColor = ShadowColor,
+                ambientColor = ShadowColor
             )
-            .background(color = Color(0xFFFFFFFF), shape = RoundedCornerShape(24.dp))
+            .background(color = NotSelectedTabColor, shape = RoundedCornerShape(24.dp))
     }
 
     Box(
@@ -214,9 +216,8 @@ fun ProjectBlock(
     title: String,
     date: String,
     navController: NavController,
-    modifier: Modifier = Modifier,
     gradientBrush: Brush = Brush.linearGradient(
-        colors = listOf(lightblue, deepblue),
+        colors = listOf(lightBlue, deepBlue),
         start = Offset(0f, 0f),
         end = Offset(300f, 600f)
     ),
@@ -224,7 +225,7 @@ fun ProjectBlock(
 ){
     Card(
         modifier = Modifier
-            .size(176.dp)
+            .size(168.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(brush = gradientBrush)
             .clickable {
@@ -273,7 +274,7 @@ fun RightBottomCircleButton(navController: NavController) {
                 )
                 .size(56.dp)
                 .background(
-                    color = deepblue,
+                    color = deepBlue,
                     shape = RoundedCornerShape(32.dp)
                 )
                 .clickable {

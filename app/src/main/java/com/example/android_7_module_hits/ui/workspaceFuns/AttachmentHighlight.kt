@@ -1,4 +1,4 @@
-package com.example.android_7_module_hits.ui.WorkspaceFuns
+package com.example.android_7_module_hits.ui.workspaceFuns
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

@@ -53,14 +53,14 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.android_7_module_hits.ui.WorkspaceFuns.BlockView
+import com.example.android_7_module_hits.ui.workspaceFuns.BlockView
 import com.example.android_7_module_hits.blocks.BlockType
 import com.example.android_7_module_hits.interpreter.InterpreterLauncher
 import com.example.android_7_module_hits.interpreter.InterpreterLogger
 import com.example.android_7_module_hits.navigation.Screen
-import com.example.android_7_module_hits.ui.WorkspaceFuns.AttachmentHighlight
-import com.example.android_7_module_hits.ui.WorkspaceFuns.ConsoleMenu
-import com.example.android_7_module_hits.ui.WorkspaceFuns.InfiniteCanvas
+import com.example.android_7_module_hits.ui.workspaceFuns.AttachmentHighlight
+import com.example.android_7_module_hits.ui.workspaceFuns.ConsoleMenu
+import com.example.android_7_module_hits.ui.workspaceFuns.InfiniteCanvas
 import com.example.android_7_module_hits.ui.notifications.InfoNotification
 import com.example.android_7_module_hits.viewModel.BlockViewModel
 import com.example.android_7_module_hits.viewModel.logAllBlocks
@@ -128,7 +128,11 @@ fun MainScreen(
                             }
                         },
                         actions = {
-                            IconButton(onClick ={navController.navigate(route = Screen.Library.route)}
+                            IconButton(onClick ={navController.navigate(route = Screen.Library.route){
+                                popUpTo(Screen.Library.route){
+                                    inclusive = true
+                                }
+                            } }
                                 ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -240,11 +244,27 @@ fun DraggableBlock(
                     onDragEnd = {
                         val attachableParent = viewModel.findAttachableParent(block, offset)
                         if (attachableParent != null) {
-                            onAttach?.invoke(attachableParent, block)
-                            offset = Offset(
-                                attachableParent.position.x,
-                                attachableParent.position.y + 150f
-                            )
+                            if (attachableParent.type == BlockType.ELSE_IF){
+                                onAttach?.invoke(attachableParent, block)
+                                offset = Offset(
+                                    attachableParent.position.x,
+                                    attachableParent.position.y + 230f
+                                )
+                            }
+                            else if (attachableParent.type == BlockType.DECLARE){
+                                onAttach?.invoke(attachableParent, block)
+                                offset = Offset(
+                                    attachableParent.position.x,
+                                    attachableParent.position.y + 285f
+                                )
+                            }
+                            else {
+                                onAttach?.invoke(attachableParent, block)
+                                offset = Offset(
+                                    attachableParent.position.x,
+                                    attachableParent.position.y + 150f
+                                )
+                            }
                         }
                         if (block.type == BlockType.END ||
                             block.type == BlockType.ELSE_IF ||
@@ -368,4 +388,3 @@ fun BottomCircleButtons(
         }
     }
 }
-
