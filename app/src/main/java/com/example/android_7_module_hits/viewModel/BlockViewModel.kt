@@ -22,31 +22,38 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository = BlockRepository(application)
 
-    fun loadBlocks() {
+    fun loadBlocks(fileName: String) {
         viewModelScope.launch {
-            repository.loadBlocks()?.let { loadedBlocks ->
+            repository.loadBlocks(fileName)?.let { loadedBlocks ->
                 _blocks.value = loadedBlocks
             }
         }
     }
 
-    fun saveBlocks() {
+    fun saveBlocks(fileName: String) {
         viewModelScope.launch {
-            repository.saveBlocks(_blocks.value)
+            repository.saveBlocks(_blocks.value, fileName)
         }
     }
 
-    fun setInitialBlocks(blocks: List<Block>) {
+    fun deleteSaveFile(fileName: String, onComplete: (() -> Unit)? = null) {
         viewModelScope.launch {
-            _blocks.value = blocks
+            repository.deleteSaveFile(fileName)
+            onComplete?.invoke()
         }
     }
+
 
     fun addBlock(block: Block) {
         viewModelScope.launch {
             _blocks.value = _blocks.value + block
         }
     }
+
+    fun clearBlocks() {
+        _blocks.value = emptyList()
+    }
+
 
     fun updateBlockPosition(blockId: String, newPosition: Offset) {
         val updated = _blocks.value.map { block ->

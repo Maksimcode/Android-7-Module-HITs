@@ -9,14 +9,18 @@ import kotlinx.serialization.builtins.ListSerializer
 
 class BlockRepository(private val context: Context) {
 
-    private val fileName = "blocks_state.json"
-
     private val json = Json {
         classDiscriminator = "kind"
         prettyPrint = true
         ignoreUnknownKeys = true }
 
-    suspend fun saveBlocks(blocks: List<Block>) {
+    suspend fun deleteSaveFile(fileName: String) {
+        withContext(Dispatchers.IO) {
+            context.deleteFile(fileName)
+        }
+    }
+
+    suspend fun saveBlocks(blocks: List<Block>, fileName: String) {
         withContext(Dispatchers.IO) {
             val blockStates = blocks.map { it.toBlockState() }
             val jsonData = json.encodeToString(ListSerializer(BlockState.serializer()), blockStates)
@@ -26,7 +30,7 @@ class BlockRepository(private val context: Context) {
         }
     }
 
-    suspend fun loadBlocks(): List<Block>? {
+    suspend fun loadBlocks(fileName: String): List<Block>? {
         return withContext(Dispatchers.IO) {
             try {
                 context.openFileInput(fileName).bufferedReader().use { reader ->
