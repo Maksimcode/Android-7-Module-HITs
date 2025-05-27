@@ -33,6 +33,8 @@ import androidx.compose.ui.window.Dialog
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
 import com.example.android_7_module_hits.blocks.DataType
+import com.example.android_7_module_hits.ui.theme.BlockInputBackgroundColor
+import com.example.android_7_module_hits.ui.theme.BlockInputTextColor
 import com.example.android_7_module_hits.ui.theme.DeclareColor
 
 @Composable
@@ -176,11 +178,11 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(4.dp))
-                                        .background(Color.White)
+                                        .background(color = BlockInputBackgroundColor)
                                         .clickable { isEditingName = true }
                                         .padding(horizontal = 4.dp, vertical = 2.dp)
                                 ) {
-                                    Text(text = editedName, color = Color.Gray)
+                                    Text(text = editedName, color = BlockInputTextColor)
                                 }
                             }
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -190,11 +192,11 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(4.dp))
-                                        .background(Color.White)
+                                        .background(color = BlockInputBackgroundColor)
                                         .clickable { isEditingType = true }
                                         .padding(horizontal = 4.dp, vertical = 2.dp)
                                 ) {
-                                    Text(text = displayText(editedType), color = Color.Gray)
+                                    Text(text = displayText(editedType), color = BlockInputTextColor)
                                 }
                                 Spacer(modifier = Modifier.width(5.dp))
                                 Text(text = ":", color = Color.Black)
@@ -202,11 +204,11 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Box(
                                     modifier = Modifier
-                                        .background(Color.LightGray)
+                                        .background(color = BlockInputBackgroundColor)
                                         .clickable { isEditingLength = true }
                                         .padding(horizontal = 4.dp, vertical = 2.dp)
                                 ) {
-                                    Text(text = editedLength, color = Color.Blue)
+                                    Text(text = editedLength, color = BlockInputTextColor)
                                 }
                             }
                         }
@@ -220,11 +222,11 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
-                                    .background(Color.White)
+                                    .background(color = BlockInputBackgroundColor)
                                     .clickable { isEditingName = true }
                                     .padding(horizontal = 4.dp, vertical = 2.dp)
                             ) {
-                                Text(text = editedName, color = Color.Gray)
+                                Text(text = editedName, color = BlockInputTextColor)
                             }
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -234,11 +236,11 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
-                                    .background(Color.LightGray)
+                                    .background(color = BlockInputBackgroundColor)
                                     .clickable { isEditingType = true }
                                     .padding(horizontal = 4.dp, vertical = 2.dp)
                             ) {
-                                Text(text = displayText(editedType), color = Color.Gray)
+                                Text(text = displayText(editedType), color = BlockInputTextColor)
                             }
                         }
                     }

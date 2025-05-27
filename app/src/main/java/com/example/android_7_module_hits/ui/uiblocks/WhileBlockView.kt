@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
+import com.example.android_7_module_hits.ui.theme.BlockInputBackgroundColor
+import com.example.android_7_module_hits.ui.theme.BlockInputTextColor
 import com.example.android_7_module_hits.ui.theme.CycleColor
 
 @Composable
@@ -97,11 +99,11 @@ fun WhileBlockView(content: BlockContent.While, block: Block){
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
-                            .background(Color.White)
+                            .background(color = BlockInputBackgroundColor)
                             .clickable { isEditingExpression = true }
                             .padding(horizontal = 4.dp, vertical = 2.dp)
                     ) {
-                        Text(text = editedExpression, color = Color.Gray)
+                        Text(text = editedExpression, color = BlockInputTextColor)
                     }
 
                     Text(text = " )", color = Color.Black)

@@ -1,6 +1,8 @@
 package com.example.android_7_module_hits.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Gray
+import androidx.compose.ui.graphics.Color.Companion.White
 
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
@@ -25,6 +27,10 @@ val AssignmentColor = Color(0xFF4EDA8C)
 val DeclareColor = Color(0xFF4081FF)
 val ConditionColor = Color(0xFFFDC55F)
 val CycleColor = Color(0xFFFF7D5B)
+
+// Block Input Colors
+val BlockInputBackgroundColor = White
+val BlockInputTextColor = Gray
 
 // Button colors
 val FolderButtonMain = Color(0xFF456CE8)
