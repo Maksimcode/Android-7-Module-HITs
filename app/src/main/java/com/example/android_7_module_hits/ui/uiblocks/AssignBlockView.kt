@@ -31,6 +31,8 @@ import androidx.compose.ui.window.Dialog
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
 import com.example.android_7_module_hits.ui.theme.AssignmentColor
+import com.example.android_7_module_hits.ui.theme.BlockInputBackgroundColor
+import com.example.android_7_module_hits.ui.theme.BlockInputTextColor
 
 
 @Composable
@@ -138,22 +140,22 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
-                            .background(Color.White)
+                            .background(color = BlockInputBackgroundColor)
                             .clickable { isEditingName = true }
                             .padding(horizontal = 4.dp, vertical = 2.dp)
                     ) {
-                        Text(text = editedName, color = Color.Gray)
+                        Text(text = editedName, color = BlockInputTextColor)
                     }
                     Text(text = " to ", color = Color.Black)
 
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
-                            .background(Color.White)
+                            .background(color = BlockInputBackgroundColor)
                             .clickable { isEditingValue = true }
                             .padding(horizontal = 4.dp, vertical = 2.dp)
                     ) {
-                        Text(text = editedValue, color = Color.Gray)
+                        Text(text = editedValue, color = BlockInputTextColor)
                     }
                 }
             }
