@@ -166,7 +166,7 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
 
 fun logAllBlocks(blocks : List<Block>){
     blocks.forEach {
-        println("ID: ${it.id}, root: ${it.rootBlock?.id}, end: ${it.EndBlock?.id}")
+        println("ID: ${it.id}, parent: ${it.parent?.id}, child: ${it.child?.id}, root: ${it.rootBlock?.id}, end: ${it.EndBlock?.id}")
     }
 }
 
