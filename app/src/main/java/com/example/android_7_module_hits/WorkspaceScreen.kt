@@ -364,14 +364,12 @@ fun BottomCircleButtons(
                                 2 -> {}
                                 3 -> {
                                     logAllBlocks(allBlocks)
-                                    runInterpreter(allBlocks)
-                                    onConsoleClick()
-                                    /*InterpreterLauncher.launchInterpreter(
+                                    InterpreterLauncher.launchInterpreter(
                                         lifecycleScope = scope,
                                         blocks = allBlocks
                                     ) {
                                         onConsoleClick()
-                                    }*/
+                                    }
                                 }
                             }
                         },
