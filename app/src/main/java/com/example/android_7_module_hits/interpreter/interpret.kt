@@ -36,19 +36,13 @@ fun interpret(block: Block, state: InterpreterState) {
                     try{
                         interpret(current, state)
                     } catch (e : Exception) {
-                        InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
+                        InterpreterLogger.logError("Ошибка в блоке ${current.type}: ${e.message}")
                     }
                 }
                 current = current.child
             }
 
 
-            current?.child?.let {
-                try{
-                    interpret(it, state)
-                } catch (e : Exception) {
-                    InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
-                } }
             return
         }
 
@@ -97,19 +91,11 @@ fun interpret(block: Block, state: InterpreterState) {
                 try{
                     interpret(current, state)
                 } catch (e : Exception) {
-                    InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
+                    InterpreterLogger.logError("Ошибка в блоке ${current.type}: ${e.message}")
                 }
                 current = current.child
             }
 
-
-            current?.child?.let {
-                try{
-                    interpret(it, state)
-                } catch (e : Exception) {
-                    InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
-                }
-            }
             return
         }
 
@@ -155,19 +141,11 @@ fun interpret(block: Block, state: InterpreterState) {
                 try{
                     interpret(current, state)
                 } catch (e : Exception) {
-                    InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
+                    InterpreterLogger.logError("Ошибка в блоке ${current.type}: ${e.message}")
                 }
                 current = current.child
             }
 
-
-            current?.child?.let {
-                try{
-                    interpret(it, state)
-                } catch (e : Exception) {
-                    InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
-                }
-            }
             return
         }
 
@@ -198,13 +176,6 @@ fun interpret(block: Block, state: InterpreterState) {
             }
 
 
-            current?.child?.let {
-                try{
-                    interpret(it, state)
-                } catch (e : Exception) {
-                    InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
-                }
-            }
             return
         }
 

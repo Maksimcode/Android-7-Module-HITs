@@ -107,17 +107,20 @@ class InterpreterState {
 
         val type = oldValue.type
         val newValue = content.value
-        val resolvedValue = resolveValue(newValue)
+        var resolvedValue: Any? = null
+        try {
+            resolvedValue = resolveValue(newValue)
+        } catch (e: Exception){ }
 
         val result: Any? = when(type) {
             DataType.INTEGER -> {
-                if (resolvedValue is Int) resolvedValue else throw IllegalArgumentException("Ожидается целое число")
+                if (resolvedValue is Int) resolvedValue else evaluateExpression(newValue)
             }
             DataType.STRING -> {
-                if (resolvedValue is String) resolvedValue else throw IllegalArgumentException("Ожидается строка")
+                if (resolvedValue is String) resolvedValue else evaluateStringExpression(newValue)
             }
             DataType.BOOLEAN -> {
-                if (resolvedValue is Boolean) resolvedValue else throw IllegalArgumentException("Ожидается boolean")
+                if (resolvedValue is Boolean) resolvedValue else evaluateLogicalExpression(newValue)
             }
             in listOf(DataType.ARR_INT, DataType.ARR_STR, DataType.ARR_BOOL) -> {
                 if (isIndexAccess) {
@@ -126,22 +129,19 @@ class InterpreterState {
 
                     when (type) {
                         DataType.ARR_INT -> {
-                            // resolvedValue должно быть Int
-                            val intValue = if (resolvedValue is Int) resolvedValue else 0
+                            val intValue = if (resolvedValue is Int) resolvedValue else evaluateExpression(newValue)
                             val mutableArray = arrayValue.toMutableList() as MutableList<Int>
                             mutableArray[index] = intValue
                             mutableArray
                         }
                         DataType.ARR_STR -> {
-                            // resolvedValue должно быть String
-                            val strValue = if (resolvedValue is String) resolvedValue else ""
+                            val strValue = if (resolvedValue is String) resolvedValue else evaluateStringExpression(newValue)
                             val mutableArray = arrayValue.toMutableList() as MutableList<String>
                             mutableArray[index] = strValue
                             mutableArray
                         }
                         DataType.ARR_BOOL -> {
-                            // resolvedValue должно быть Boolean
-                            val boolValue = if (resolvedValue is Boolean) resolvedValue else false
+                            val boolValue = if (resolvedValue is Boolean) resolvedValue else parseBooleanExpression(newValue)
                             val mutableArray = arrayValue.toMutableList() as MutableList<Boolean>
                             mutableArray[index] = boolValue
                             mutableArray
@@ -154,7 +154,6 @@ class InterpreterState {
                             val arrLen = oldValue.arrayLength.toInt()
                             val res = mutableListOf<Int>()
                             for (i in 0 until arrLen) {
-                                // Здесь newValue — это вся строка в фигурных скобках {1,2,3}
                                 val element = splitArrayElements(newValue).getOrNull(i) ?: "0"
                                 res.add(evaluateExpression(element))
                             }
@@ -198,7 +197,11 @@ class InterpreterState {
 
     fun setCondition(expr: String): Boolean {
         val trimmedExpr = expr.trim()
-        return parseBooleanExpression(trimmedExpr)
+        var resolvedValue: Any? = null
+        try {
+            resolvedValue = resolveValue(trimmedExpr)
+        } catch (e: Exception){ }
+        return if (resolvedValue is Boolean) resolvedValue else parseBooleanExpression(trimmedExpr)
     }
 
 
