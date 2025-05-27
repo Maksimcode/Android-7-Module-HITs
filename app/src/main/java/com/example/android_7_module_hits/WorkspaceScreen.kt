@@ -55,6 +55,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.android_7_module_hits.ui.workspaceFuns.BlockView
 import com.example.android_7_module_hits.blocks.BlockType
+import com.example.android_7_module_hits.interpreter.InterpreterLauncher
 import com.example.android_7_module_hits.interpreter.InterpreterLogger
 import com.example.android_7_module_hits.navigation.Screen
 import com.example.android_7_module_hits.ui.workspaceFuns.AttachmentHighlight
@@ -312,20 +313,20 @@ fun BottomCircleButtons(
     onConsoleClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+
     val buttonColors = listOf(
         FolderButtonMain,
         StopButtonSub,
         SettingsButtonMain,
         RunButtonMain
     )
-
     val iconList: List<ImageVector> = listOf(
         Icons.Filled.Folder,
         Icons.Filled.CheckBoxOutlineBlank,
         Icons.Filled.BugReport,
         Icons.Filled.PlayArrow
     )
-
     val iconTints = listOf(
         FolderButtonSub,
         StopButtonMain,
@@ -333,9 +334,7 @@ fun BottomCircleButtons(
         RunButtonSub
     )
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-    ) {
+    Box(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -360,15 +359,17 @@ fun BottomCircleButtons(
                         )
                         .clickable {
                             when (index) {
-                                0 -> {
-                                    onSaveClick()
-                                }
+                                0 -> onSaveClick()
                                 1 -> {}
                                 2 -> {}
                                 3 -> {
                                     logAllBlocks(allBlocks)
-                                    runInterpreter(blocks = allBlocks)
-                                    onConsoleClick()
+                                    InterpreterLauncher.launchInterpreter(
+                                        lifecycleScope = scope,
+                                        blocks = allBlocks
+                                    ) {
+                                        onConsoleClick()
+                                    }
                                 }
                             }
                         },
