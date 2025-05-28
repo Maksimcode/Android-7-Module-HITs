@@ -6,6 +6,8 @@ import com.example.android_7_module_hits.blocks.BlockType
 import com.example.android_7_module_hits.blocks.ConditionBlock
 import com.example.android_7_module_hits.blocks.DataType
 import com.example.android_7_module_hits.blocks.ElseIfBlock
+import com.example.android_7_module_hits.blocks.FunsBlock
+import com.example.android_7_module_hits.blocks.FunsType
 
 fun interpret(block: Block, state: InterpreterState) {
     var currentBlock = block
@@ -234,6 +236,19 @@ fun interpret(block: Block, state: InterpreterState) {
             }
 
             return
+        }
+
+        is BlockContent.Functions -> {
+
+            when(content.func){
+                FunsType.PRINT -> state.printValue(content.comParam)
+                FunsType.SWAP -> {
+                    state.swapping(content.firstSw, content.secondSw)
+                    println("вызван swap")
+                }
+                else -> println("pupu")
+            }
+
         }
 
         is BlockContent.End -> {

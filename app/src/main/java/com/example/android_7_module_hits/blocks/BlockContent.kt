@@ -33,6 +33,13 @@ sealed class BlockContent{
         var construct: String
     ) : BlockContent()
 
+    data class Functions(
+        var func: FunsType,
+        var comParam: String,
+        var firstSw: String = "a",
+        var secondSw: String = "b"
+    ) : BlockContent()
+
     class End() : BlockContent()
 
     class Else() : BlockContent()

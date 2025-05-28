@@ -44,7 +44,7 @@ fun ForBlockView(content: BlockContent.For, block: Block){
     var editedVariable by remember(content.variable ?: "i") { mutableStateOf(content.variable ?: "i") }
     var editedStartValue by remember(content.initValue ?: "0") { mutableStateOf(content.initValue ?: "0") }
     var editedExpression by remember(content.expression ?: "false") { mutableStateOf(content.expression ?: "false") }
-    var editedUpdating by remember(content.construct ?: "i + 1") { mutableStateOf(content.construct ?: "i + 1") }
+    var editedUpdating by remember(content.construct ?: "${editedVariable} + 1") { mutableStateOf(content.construct ?: "i + 1") }
 
     Card(
         modifier = Modifier

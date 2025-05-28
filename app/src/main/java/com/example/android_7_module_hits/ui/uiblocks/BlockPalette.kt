@@ -25,6 +25,8 @@ import com.example.android_7_module_hits.blocks.ElseBlock
 import com.example.android_7_module_hits.blocks.ElseIfBlock
 import com.example.android_7_module_hits.blocks.EndBlock
 import com.example.android_7_module_hits.blocks.ForBlock
+import com.example.android_7_module_hits.blocks.FunsBlock
+import com.example.android_7_module_hits.blocks.FunsType
 import com.example.android_7_module_hits.blocks.WhileBlock
 
 @Composable
@@ -64,6 +66,11 @@ fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) 
                             startValue = "0",
                             logicalExpression = "false",
                             update = "i + 1"
+                        )
+                    BlockType.FUNCTIONS ->
+                        FunsBlock(
+                            function = FunsType.PRINT,
+                            uniParam = "Variable"
                         )
                     else -> throw IllegalArgumentException("Unknown block type")
                 }
