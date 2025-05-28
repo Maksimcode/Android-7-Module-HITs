@@ -46,7 +46,7 @@ fun FunsBlockView(content: BlockContent.Functions, block: Block){
     var isEditingSecondSwap by remember { mutableStateOf(false) }
 
     var editedFun by remember(content.func ?: FunsType.PRINT) { mutableStateOf(content.func ?: FunsType.PRINT) }
-    var editedComParam by remember(content.comParam ?: "") { mutableStateOf(content.comParam ?: "") }
+    var editedComParam by remember(content.comParam ?: "Variable") { mutableStateOf(content.comParam ?: "Variable") }
     var editedFirstSwap by remember(content.firstSw ?: "a") { mutableStateOf(content.firstSw ?: "a") }
     var editedSecondSwap by remember(content.secondSw ?: "b") { mutableStateOf(content.secondSw ?: "b") }
 
@@ -85,7 +85,7 @@ fun FunsBlockView(content: BlockContent.Functions, block: Block){
                             ) {
                                 TextButton(
                                     onClick = {
-                                        editedComParam = content.comParam ?: " "
+                                        editedComParam = content.comParam ?: "Variable"
                                         isEditingComParam = false
                                     }
                                 ) {

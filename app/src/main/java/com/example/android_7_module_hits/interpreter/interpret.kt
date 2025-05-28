@@ -239,13 +239,16 @@ fun interpret(block: Block, state: InterpreterState) {
         }
 
         is BlockContent.Functions -> {
-            if (currentBlock is FunsBlock){
-                when(currentBlock.function){
-                    FunsType.PRINT -> state.printValue(content.comParam)
-                    FunsType.SWAP -> state.swapping(content.firstSw, content.secondSw)
-                    else -> println("pupu")
+
+            when(content.func){
+                FunsType.PRINT -> state.printValue(content.comParam)
+                FunsType.SWAP -> {
+                    state.swapping(content.firstSw, content.secondSw)
+                    println("вызван swap")
                 }
+                else -> println("pupu")
             }
+
         }
 
         is BlockContent.End -> {

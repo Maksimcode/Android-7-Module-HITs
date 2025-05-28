@@ -229,9 +229,6 @@ class InterpreterState {
             var2.value
         }
 
-        val tempVar = "__temp_swap_var__"
-
-        assignValue(BlockContent.Assignment(name = tempVar, value = value1.toString()))
 
         assignValue(
             BlockContent.Assignment(
@@ -243,18 +240,17 @@ class InterpreterState {
         assignValue(
             BlockContent.Assignment(
                 name = secondSwap,
-                value = tempVar
+                value = value1.toString()
             )
         )
 
-        scopes.last().remove(tempVar)
     }
 
 
     fun printValue(variable: String) {
         try {
             val value = resolveValue(variable)
-            InterpreterLogger.errors.add("🖨️ $(variable = $value")
+            InterpreterLogger.errors.add("🖨️ $variable = $value")
         } catch (e: Exception) {
             InterpreterLogger.logError("Ошибка при печати '$variable': ${e.message}")
         }
