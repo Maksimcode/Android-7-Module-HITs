@@ -4,5 +4,6 @@ enum class BlockType {
     DECLARE, ASSIGN,
     CONDITION, ELSE_IF, ELSE,
     WHILE, FOR,
+    FUNCTIONS,
     END
 }
