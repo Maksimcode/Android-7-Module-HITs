@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -93,6 +94,7 @@ fun MainContent(
                     TabButton(
                         selected = selectedTabIndex == index,
                         text = title,
+                        modifier = Modifier.weight(1f),
                         onClick = { selectedTabIndex = index }
                     )
                 }
@@ -127,11 +129,14 @@ fun MainContent(
                                                 viewModel.deleteSaveFile(ensureJsonExtension(project.fileName)) {
                                                     saveProjects = getSaveProjects(context)
                                                 }
-                                            }
+                                            },
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .aspectRatio(1f)
                                         )
                                     }
                                     if (rowProjects.size < 2) {
-                                        Spacer(modifier = Modifier.size(168.dp))
+                                        Spacer(modifier = Modifier.weight(1f))
                                     }
                                 }
                             }
@@ -139,7 +144,7 @@ fun MainContent(
                     }
                 }
                 1 -> {
-                    GreetProjectBlocks(navController)
+                    EmptyStateContent()
                 }
             }
         }
@@ -168,8 +173,8 @@ fun EmptyStateContent() {
         Text(
             text = "It's empty now :(",
             style = TextStyle(
-                fontSize = 24.sp,
-                fontWeight = FontWeight(600),
+                fontSize = 20.sp,
+                fontWeight = FontWeight(400),
                 color = MainTextColor
             )
         )
@@ -180,33 +185,24 @@ fun EmptyStateContent() {
 fun TabButton(
     selected: Boolean,
     text: String,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    val baseModifier = Modifier
-        .width(168.dp)
-        .height(52.dp)
-        .background(color = SelectedTabColor, shape = RoundedCornerShape(24.dp))
 
-    val modifier = if (selected) {
-        Modifier
-            .shadow(
-                elevation = 25.dp,
-                spotColor = ShadowColor,
-                ambientColor = ShadowColor
-            )
-            .then(baseModifier)
-    } else {
-        baseModifier
-            .shadow(
-                elevation = 25.dp,
-                spotColor = ShadowColor,
-                ambientColor = ShadowColor
-            )
-            .background(color = NotSelectedTabColor, shape = RoundedCornerShape(24.dp))
-    }
+    val backgroundColor = if (selected) SelectedTabColor else NotSelectedTabColor
+
+    val baseModifier = modifier
+        .height(52.dp)
+        .background(color = backgroundColor, shape = RoundedCornerShape(24.dp))
+        .shadow(
+            elevation = 25.dp,
+            spotColor = ShadowColor,
+            ambientColor = ShadowColor,
+            shape = RoundedCornerShape(24.dp)
+        )
 
     Box(
-        modifier = modifier
+        modifier = baseModifier
             .clip(RoundedCornerShape(24.dp))
             .clickable { onClick() },
         contentAlignment = Alignment.Center
@@ -224,12 +220,12 @@ fun TabButton(
 
     }
 }
-
 @Composable
 fun ProjectSaveBlock(
     saveProject: SaveProject,
     navController: NavController,
     onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
     gradientBrush: Brush = Brush.linearGradient(
         colors = listOf(lightBlue, deepBlue),
         start = Offset(0f, 0f),
@@ -237,14 +233,22 @@ fun ProjectSaveBlock(
     ),
     contentColor: Color = Color.White
 ) {
+    var showDeleteIcon by remember { mutableStateOf(false) }
+
     Card(
-        modifier = Modifier
-            .size(168.dp)
+        modifier = modifier
             .clip(RoundedCornerShape(20.dp))
             .background(brush = gradientBrush)
-            .clickable {
-                navController.navigate("${Screen.Workspace.route}/${ensureJsonExtension(saveProject.fileName)}")
-            },
+            .combinedClickable(
+                onClick = {
+                    if (showDeleteIcon) {
+                        showDeleteIcon = false
+                    } else {
+                        navController.navigate("${Screen.Workspace.route}/${ensureJsonExtension(saveProject.fileName)}")
+                    }
+                },
+                onLongClick = { showDeleteIcon = true }
+            ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -274,18 +278,22 @@ fun ProjectSaveBlock(
                     color = contentColor,
                     fontSize = 20.sp,
                     fontWeight = FontWeight(300)
-
                 )
             }
-            IconButton(
-                onClick = onDelete,
-                modifier = Modifier.align(Alignment.BottomEnd)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete Save",
-                    tint = Color.White
-                )
+            if (showDeleteIcon) {
+                IconButton(
+                    onClick = {
+                        onDelete()
+                        showDeleteIcon = false
+                    },
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete Save",
+                        tint = Color.White
+                    )
+                }
             }
         }
     }
@@ -312,74 +320,6 @@ fun Header() {
         )
     }
 }
-
-
-@Composable
-fun GreetProjectBlocks(navController: NavController){
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        items((1..5).toList()) { index ->
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(18.dp)
-            ) {
-                ProjectBlock("Unknown", "May 1,\n2025", navController)
-                ProjectBlock("Unknown", "May 1,\n2025", navController)
-            }
-        }
-    }
-}
-
-@Composable
-fun ProjectBlock(
-    title: String,
-    date: String,
-    navController: NavController,
-    gradientBrush: Brush = Brush.linearGradient(
-        colors = listOf(lightBlue, deepBlue),
-        start = Offset(0f, 0f),
-        end = Offset(300f, 600f)
-    ),
-    contentColor: Color = Color.White,
-){
-    Card(
-        modifier = Modifier
-            .size(168.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(brush = gradientBrush)
-            .clickable {
-                navController.navigate(route = Screen.Workspace.route)
-            },
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(brush = gradientBrush)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(
-                text = title,
-                color = contentColor,
-                fontSize = 28.sp,
-                fontWeight = FontWeight(600),
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = date,
-                color = contentColor,
-                fontSize = 20.sp,
-                fontWeight = FontWeight(300)
-            )
-        }
-    }
-}
-
 @Composable
 fun RightBottomCircleButton(onClick: () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {

@@ -11,7 +11,7 @@ fun getSaveProjects(context: Context): List<SaveProject> {
         .map { fileName ->
             val file = context.getFileStreamPath(fileName)
             val lastModified = file.lastModified()
-            val formattedDate = SimpleDateFormat("MMM d,\n yyyy", Locale.getDefault())
+            val formattedDate = SimpleDateFormat("MMM d,\nyyyy", Locale.getDefault())
                 .format(Date(lastModified))
             val displayName = fileName.removeSuffix(".json")
             SaveProject(displayName, formattedDate)

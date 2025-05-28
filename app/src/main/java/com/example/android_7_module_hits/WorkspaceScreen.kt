@@ -44,6 +44,8 @@ import kotlin.math.roundToInt
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.AlertDialog
@@ -345,7 +347,7 @@ fun DraggableBlock(
 
         if (showDeleteIcon.value) {
             Icon(
-                imageVector = Icons.Filled.DeleteOutline,
+                imageVector = Icons.Filled.Close,
                 contentDescription = "Delete Block",
                 tint = Color.Red,
                 modifier = Modifier
