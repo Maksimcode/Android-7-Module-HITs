@@ -33,22 +33,24 @@ import androidx.compose.ui.window.Dialog
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
 import com.example.android_7_module_hits.blocks.DataType
+import com.example.android_7_module_hits.blocks.FunsType
 import com.example.android_7_module_hits.ui.theme.BlockInputBackgroundColor
 import com.example.android_7_module_hits.ui.theme.BlockInputTextColor
 import com.example.android_7_module_hits.ui.theme.DeclareColor
 
 @Composable
-fun DeclareBlockView(content: BlockContent.Declare, block: Block){
-    var isEditingName by remember { mutableStateOf(false) }
-    var isEditingType by remember { mutableStateOf(false) }
-    var isEditingLength by remember { mutableStateOf(false) }
+fun FunsBlockView(content: BlockContent.Functions, block: Block){
+    var isEditingFun by remember { mutableStateOf(false) }
+    var isEditingComParam by remember { mutableStateOf(false) }
+    var isEditingFirstSwap by remember { mutableStateOf(false) }
+    var isEditingSecondSwap by remember { mutableStateOf(false) }
 
-    var editedName by remember(content.name ?: "Variable") { mutableStateOf(content.name ?: "Variable") }
-    var editedType by remember(content.type ?: DataType.INTEGER) { mutableStateOf(content.type ?: DataType.INTEGER) }
-    var editedLength by remember(content.length ?: "0") { mutableStateOf(content.length ?: "0") }
+    var editedFun by remember(content.func ?: FunsType.PRINT) { mutableStateOf(content.func ?: FunsType.PRINT) }
+    var editedComParam by remember(content.comParam ?: "") { mutableStateOf(content.comParam ?: "") }
+    var editedFirstSwap by remember(content.firstSw ?: "a") { mutableStateOf(content.firstSw ?: "a") }
+    var editedSecondSwap by remember(content.secondSw ?: "b") { mutableStateOf(content.secondSw ?: "b") }
 
-    val options = listOf(DataType.INTEGER, DataType.STRING, DataType.BOOLEAN,
-                         DataType.ARR_INT, DataType.ARR_STR, DataType.ARR_BOOL)
+    val options = listOf(FunsType.PRINT, FunsType.SWAP)
 
 
     Card(
@@ -59,8 +61,8 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
         colors = CardDefaults.cardColors(containerColor = DeclareColor)
     ) {
         Column(modifier = Modifier.padding(8.dp)) {
-            if (isEditingName) {
-                Dialog(onDismissRequest = { isEditingName = false }) {
+            if (isEditingComParam) {
+                Dialog(onDismissRequest = { isEditingComParam = false }) {
                     Card(
                         modifier = Modifier
                             .width(300.dp)
@@ -71,9 +73,9 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                             Text(text = "Variable name:")
                             Spacer(modifier = Modifier.height(8.dp))
                             TextField(
-                                value = editedName,
+                                value = editedComParam,
                                 onValueChange = { newText ->
-                                    editedName = newText
+                                    editedComParam = newText
                                 },
                             )
                             Spacer(modifier = Modifier.height(16.dp))
@@ -83,16 +85,16 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                             ) {
                                 TextButton(
                                     onClick = {
-                                        editedName = content.name ?: "Variable"
-                                        isEditingName = false
+                                        editedComParam = content.comParam ?: " "
+                                        isEditingComParam = false
                                     }
                                 ) {
                                     Text("Cancel")
                                 }
                                 TextButton(
                                     onClick = {
-                                        content.name = editedName
-                                        isEditingName = false
+                                        content.comParam = editedComParam
+                                        isEditingComParam = false
                                     }
                                 ) {
                                     Text("Save")
@@ -101,19 +103,19 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                         }
                     }
                 }
-            } else if(isEditingType){
+            } else if(isEditingFun){
                 DropdownMenu(
-                    expanded = isEditingType,
-                    onDismissRequest = { isEditingType = false }) {
-                    options.forEach { type ->
+                    expanded = isEditingFun,
+                    onDismissRequest = { isEditingFun = false }) {
+                    options.forEach { func ->
                         DropdownMenuItem(
                             text = {
-                                Text(text = displayTextType(type))
+                                Text(text = displayTextFuns(func))
                             },
                             onClick = {
-                                editedType = type
-                                content.type = editedType
-                                isEditingType = false
+                                editedFun = func
+                                content.func = editedFun
+                                isEditingFun = false
                             }
                         )
 
@@ -121,11 +123,9 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                 }
 
             } else {
-                if(editedType == DataType.ARR_BOOL ||
-                    editedType == DataType.ARR_STR ||
-                    editedType == DataType.ARR_INT){
-                    if (isEditingLength) {
-                        Dialog(onDismissRequest = { isEditingLength = false }) {
+                if(editedFun == FunsType.SWAP){
+                    if (isEditingFirstSwap) {
+                        Dialog(onDismissRequest = { isEditingFirstSwap = false }) {
                             Card(
                                 modifier = Modifier
                                     .width(300.dp)
@@ -136,9 +136,9 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                                     Text(text = "Array Length:")
                                     Spacer(modifier = Modifier.height(8.dp))
                                     TextField(
-                                        value = editedLength,
+                                        value = editedFirstSwap,
                                         onValueChange = { newText ->
-                                            editedLength = newText
+                                            editedFirstSwap = newText
                                         },
                                         modifier = Modifier
                                             .height(60.dp)
@@ -150,8 +150,8 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                                     ) {
                                         TextButton(
                                             onClick = {
-                                                editedLength = content.name ?: "0"
-                                                isEditingLength = false
+                                                editedFirstSwap = content.firstSw ?: "0"
+                                                isEditingFirstSwap = false
                                             }
                                         ) {
                                             Text("Cancel")
@@ -159,8 +159,8 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
 
                                         TextButton(
                                             onClick = {
-                                                content.length = editedLength
-                                                isEditingLength = false
+                                                content.firstSw = editedFirstSwap
+                                                isEditingFirstSwap = false
                                             }
                                         ) {
                                             Text("Save")
@@ -169,34 +169,79 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                                 }
                             }
                         }
+                    } else if (isEditingSecondSwap){
+                            Dialog(onDismissRequest = { isEditingSecondSwap = false }) {
+                                Card(
+                                    modifier = Modifier
+                                        .width(300.dp)
+                                        .padding(16.dp),
+                                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+                                ) {
+                                    Column(modifier = Modifier.padding(16.dp)) {
+                                        Text(text = "Array Length:")
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        TextField(
+                                            value = editedSecondSwap,
+                                            onValueChange = { newText ->
+                                                editedSecondSwap = newText
+                                            },
+                                            modifier = Modifier
+                                                .height(60.dp)
+                                        )
+
+                                        Row(
+                                            horizontalArrangement = Arrangement.End,
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            TextButton(
+                                                onClick = {
+                                                    editedSecondSwap = content.secondSw ?: "0"
+                                                    isEditingSecondSwap = false
+                                                }
+                                            ) {
+                                                Text("Cancel")
+                                            }
+
+                                            TextButton(
+                                                onClick = {
+                                                    content.secondSw = editedSecondSwap
+                                                    isEditingSecondSwap = false
+                                                }
+                                            ) {
+                                                Text("Save")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                     }
                     else{
                         Column (modifier = Modifier.height(80.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(text = "create", color = Color.Black)
+                                Text(text = "fun", color = Color.Black)
                                 Spacer(modifier = Modifier.width(5.dp))
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(4.dp))
                                         .background(color = BlockInputBackgroundColor)
-                                        .clickable { isEditingName = true }
+                                        .clickable { isEditingFun = true }
                                         .padding(horizontal = 4.dp, vertical = 2.dp)
                                 ) {
-                                    Text(text = editedName, color = BlockInputTextColor)
+                                    Text(text = displayTextFuns(editedFun), color = BlockInputTextColor)
                                 }
                             }
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Spacer(modifier = Modifier.width(5.dp))
-                                Text(text = "as", color = Color.Black)
+                                Text(text = " ", color = Color.Black)
                                 Spacer(modifier = Modifier.width(5.dp))
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(4.dp))
                                         .background(color = BlockInputBackgroundColor)
-                                        .clickable { isEditingType = true }
+                                        .clickable { isEditingFirstSwap = true }
                                         .padding(horizontal = 4.dp, vertical = 2.dp)
                                 ) {
-                                    Text(text = displayTextType(editedType), color = BlockInputTextColor)
+                                    Text(text = editedFirstSwap, color = BlockInputTextColor)
                                 }
                                 Spacer(modifier = Modifier.width(5.dp))
                                 Text(text = ":", color = Color.Black)
@@ -205,10 +250,10 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                                 Box(
                                     modifier = Modifier
                                         .background(color = BlockInputBackgroundColor)
-                                        .clickable { isEditingLength = true }
+                                        .clickable { isEditingSecondSwap = true }
                                         .padding(horizontal = 4.dp, vertical = 2.dp)
                                 ) {
-                                    Text(text = editedLength, color = BlockInputTextColor)
+                                    Text(text = editedSecondSwap, color = BlockInputTextColor)
                                 }
                             }
                         }
@@ -223,24 +268,24 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
                                     .background(color = BlockInputBackgroundColor)
-                                    .clickable { isEditingName = true }
+                                    .clickable { isEditingFun = true }
                                     .padding(horizontal = 4.dp, vertical = 2.dp)
                             ) {
-                                Text(text = editedName, color = BlockInputTextColor)
+                                Text(text = displayTextFuns(editedFun), color = BlockInputTextColor)
                             }
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Spacer(modifier = Modifier.width(5.dp))
-                            Text(text = "as", color = Color.Black)
+                            Text(text = " ", color = Color.Black)
                             Spacer(modifier = Modifier.width(5.dp))
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))
                                     .background(color = BlockInputBackgroundColor)
-                                    .clickable { isEditingType = true }
+                                    .clickable { isEditingComParam = true }
                                     .padding(horizontal = 4.dp, vertical = 2.dp)
                             ) {
-                                Text(text = displayTextType(editedType), color = BlockInputTextColor)
+                                Text(text = editedComParam, color = BlockInputTextColor)
                             }
                         }
                     }
@@ -250,14 +295,10 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
     }
 }
 
-fun displayTextType(selectedType: DataType): String{
-    return when(selectedType){
-        DataType.INTEGER -> "integer"
-        DataType.STRING -> "text"
-        DataType.BOOLEAN -> "boolean"
-        DataType.ARR_INT -> "array (integer)"
-        DataType.ARR_STR -> "array (text)"
-        DataType.ARR_BOOL -> "array (boolean)"
+fun displayTextFuns(selectedFun: FunsType): String{
+    return when(selectedFun){
+        FunsType.PRINT -> "print value of "
+        FunsType.SWAP -> "swap"
         else -> "pupu"
     }
 }
