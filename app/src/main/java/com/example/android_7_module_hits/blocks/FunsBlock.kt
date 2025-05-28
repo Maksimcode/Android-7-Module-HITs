@@ -8,6 +8,7 @@ class FunsBlock (
 ): BaseBlock(
     type = BlockType.FUNCTIONS,
     content = BlockContent.Functions(
+        func = function,
         comParam = uniParam,
         firstSw = firstSwap,
         secondSw = secondSwap
