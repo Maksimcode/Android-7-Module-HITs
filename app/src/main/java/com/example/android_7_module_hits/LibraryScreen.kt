@@ -256,8 +256,13 @@ fun ProjectSaveBlock(
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.Start
             ) {
+                val displayName = if (saveProject.fileName.length > 10) {
+                    saveProject.fileName.take(10) + "..."
+                } else {
+                    saveProject.fileName
+                }
                 Text(
-                    text = saveProject.fileName,
+                    text = displayName,
                     color = contentColor,
                     fontSize = 28.sp,
                     fontWeight = FontWeight(600),

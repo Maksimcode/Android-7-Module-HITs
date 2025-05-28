@@ -97,7 +97,7 @@ fun MainScreen(
 
     LaunchedEffect(key1 = fileName) {
         if (fileName != "Enter project name" && fileName.isNotBlank()) {
-            projectName = fileName
+            projectName = fileName.removeSuffix(".json")
             viewModel.loadBlocks(fileName)
         } else {
             viewModel.clearBlocks()
