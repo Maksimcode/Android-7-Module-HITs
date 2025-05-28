@@ -2,7 +2,9 @@ package com.example.android_7_module_hits.interpreter
 
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
+import com.example.android_7_module_hits.blocks.BlockType
 import com.example.android_7_module_hits.blocks.ConditionBlock
+import com.example.android_7_module_hits.blocks.DataType
 import com.example.android_7_module_hits.blocks.ElseIfBlock
 
 fun interpret(block: Block, state: InterpreterState) {
@@ -31,7 +33,7 @@ fun interpret(block: Block, state: InterpreterState) {
             var current: Block? = currentBlock.child
             var insideIfBody = conditionResult
 
-            while (current != null && current.content !is BlockContent.End) {
+            while (current != null && current != currentBlock.EndBlock) {
                 if (insideIfBody) {
                     try{
                         interpret(current, state)
@@ -87,7 +89,7 @@ fun interpret(block: Block, state: InterpreterState) {
             var insideElseIfBody = conditionResult && !anyPrevTrue
             if (insideElseIfBody) state.enterScope()
 
-            while (current != null && current.content !is BlockContent.End && insideElseIfBody) {
+            while (current != null && current != currentBlock.EndBlock && insideElseIfBody) {
                 try{
                     interpret(current, state)
                 } catch (e : Exception) {
@@ -137,7 +139,7 @@ fun interpret(block: Block, state: InterpreterState) {
             var insideElseBody = !anyPrevTrue
             if (insideElseBody) state.enterScope()
 
-            while (current != null && current.content !is BlockContent.End && insideElseBody) {
+            while (current != null && current != currentBlock.EndBlock && insideElseBody) {
                 try{
                     interpret(current, state)
                 } catch (e : Exception) {
@@ -167,6 +169,7 @@ fun interpret(block: Block, state: InterpreterState) {
                     interpret(current, state)
                 } catch (e : Exception) {
                     InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
+                    break
                 }
                 current = current.child
                 insideWhileBody = state.setCondition(logicalExpression)
@@ -175,6 +178,60 @@ fun interpret(block: Block, state: InterpreterState) {
                 }
             }
 
+
+            return
+        }
+
+        is BlockContent.For -> {
+            val counter = content.variable
+            val startValue = content.initValue
+            val logicalExpression = content.expression
+            val update = content.construct
+
+            if (!currentBlock.hasEndBlock()){
+                throw IllegalStateException("Отсутствие привязанного блока End")
+            }
+
+            state.declareVariable(
+                BlockContent.Declare(
+                    type = DataType.INTEGER,
+                    name = counter)
+            )
+
+            state.assignValue(
+                BlockContent.Assignment(
+                    name = counter,
+                    value = startValue
+                )
+            )
+
+            val conditionResult = state.setCondition(logicalExpression)
+
+            var current: Block? = currentBlock.child
+            var insideForBody = conditionResult
+            if (insideForBody) state.enterScope()
+
+            while (insideForBody && current != null) {
+                try{
+                    interpret(current, state)
+                } catch (e : Exception) {
+                    InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
+                    break
+                }
+
+                state.assignValue(
+                    BlockContent.Assignment(
+                        name = counter,
+                        value = update
+                    )
+                )
+
+                current = current.child
+                insideForBody = state.setCondition(logicalExpression)
+                if (current == currentBlock.EndBlock && insideForBody){
+                    current = currentBlock.child
+                }
+            }
 
             return
         }

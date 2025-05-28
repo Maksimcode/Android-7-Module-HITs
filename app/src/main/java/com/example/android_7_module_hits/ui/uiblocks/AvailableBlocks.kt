@@ -8,7 +8,8 @@ val availableBlocks = listOf(
     BlockTemplate("Additional condition", BlockType.ELSE_IF),
     BlockTemplate("Else", BlockType.ELSE),
     BlockTemplate("While", BlockType.WHILE),
-    BlockTemplate("End", BlockType.END)
+    BlockTemplate("End", BlockType.END),
+    BlockTemplate("For", BlockType.FOR)
 )
 
 data class BlockTemplate(val title: String, val type: BlockType)
