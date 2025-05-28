@@ -309,9 +309,9 @@ class InterpreterState {
 
     private fun evaluateExpressionIfPossible(token: String): Any {
         return try {
-            evaluateExpression(token)
-        } catch (e: Exception) {
             resolveValue(token)
+        } catch (e: Exception) {
+            evaluateExpression(token)
         }
     }
 

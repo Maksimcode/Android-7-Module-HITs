@@ -13,6 +13,7 @@ import com.example.android_7_module_hits.blocks.EndBlock
 import com.example.android_7_module_hits.saving.BlockRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.math.sqrt
 
@@ -167,6 +168,30 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
                     }
                 }
             }
+        }
+    }
+
+    fun updateBlockAndChildrenPosition(blockId: String, newPosition: Offset) {
+        _blocks.update { currentBlocks ->
+            currentBlocks.map { block ->
+                if (block.id == blockId) {
+                    val dx = newPosition.x - block.position.x
+                    val dy = newPosition.y - block.position.y
+
+                    block.position = newPosition
+                    updateChildrenPositions(block.child, dx, dy)
+
+                    block
+                } else block
+            }
+        }
+    }
+
+    private fun updateChildrenPositions(child: Block?, dx: Float, dy: Float) {
+        var currentChild = child
+        while (currentChild != null) {
+            currentChild.position = Offset(currentChild.position.x + dx, currentChild.position.y + dy)
+            currentChild = currentChild.child
         }
     }
 }

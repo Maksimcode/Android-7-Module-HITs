@@ -178,7 +178,7 @@ fun MainScreen(
                                     DraggableBlock(
                                         block = block,
                                         viewModel = viewModel,
-                                        onPositionChange = { id, pos ->
+                                        onPositionChange = {id, pos ->
                                             viewModel.updateBlockPosition(id, pos)
                                         },
                                         onDelete = {
@@ -328,6 +328,7 @@ fun DraggableBlock(
                         }
 
                         onPositionChange(block.id, offset)
+
                     },
                     onDragCancel = {
                         onPositionChange(block.id, offset)
