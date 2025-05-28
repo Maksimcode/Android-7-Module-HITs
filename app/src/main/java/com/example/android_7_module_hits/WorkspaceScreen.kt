@@ -46,10 +46,13 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.CheckBoxOutlineBlank
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -58,6 +61,7 @@ import com.example.android_7_module_hits.blocks.BlockType
 import com.example.android_7_module_hits.interpreter.InterpreterLauncher
 import com.example.android_7_module_hits.interpreter.InterpreterLogger
 import com.example.android_7_module_hits.navigation.Screen
+import com.example.android_7_module_hits.saving.utils.ensureJsonExtension
 import com.example.android_7_module_hits.ui.workspaceFuns.AttachmentHighlight
 import com.example.android_7_module_hits.ui.workspaceFuns.ConsoleMenu
 import com.example.android_7_module_hits.ui.workspaceFuns.InfiniteCanvas
@@ -74,7 +78,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    navController: NavController
+    navController: NavController,
+    fileName: String
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -85,12 +90,21 @@ fun MainScreen(
 
     var isConsoleOpen by remember { mutableStateOf(false) }
 
+    var projectName by remember { mutableStateOf("Enter project name") }
+    var showNameDialog by remember { mutableStateOf(false) }
+
     val viewModel: BlockViewModel = viewModel()
     val blocks by viewModel.blocks.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.loadBlocks()
+    LaunchedEffect(key1 = fileName) {
+        if (fileName != "Enter project name" && fileName.isNotBlank()) {
+            projectName = fileName
+            viewModel.loadBlocks(fileName)
+        } else {
+            viewModel.clearBlocks()
+        }
     }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -118,7 +132,14 @@ fun MainScreen(
             Scaffold(
                 topBar = {
                     CenterAlignedTopAppBar(
-                        title = { Text(text = "Enter project name") },
+                        title = {
+                            Text(
+                                text = projectName,
+                                modifier = Modifier.clickable{
+                                    showNameDialog = true
+                                }
+                            )
+                                },
                         navigationIcon = {
                             IconButton(onClick = {scope.launch { drawerState.open() } }) {
                                 Icon(
@@ -132,7 +153,8 @@ fun MainScreen(
                                 popUpTo(Screen.Library.route){
                                     inclusive = true
                                 }
-                            } }
+                            }
+                            }
                                 ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -179,7 +201,7 @@ fun MainScreen(
                                     isConsoleOpen = true
                                 },
                                 onSaveClick = {
-                                    viewModel.saveBlocks()
+                                    viewModel.saveBlocks(ensureJsonExtension(projectName))
                                     showNotification(
                                         scope,
                                         { currentNotification = it },
@@ -211,6 +233,37 @@ fun MainScreen(
                         }
                     }
                 }
+            }
+
+            if (showNameDialog) {
+                var tempName by remember { mutableStateOf(if (projectName == "Enter project name") "" else projectName) }
+                AlertDialog(
+                    onDismissRequest = { showNameDialog = false },
+                    text = {
+                        OutlinedTextField(
+                            value = tempName,
+                            onValueChange = { tempName = it },
+                            label = { Text("Project name") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                projectName = if (tempName.isNotBlank()) tempName else "Enter project name"
+                                showNameDialog = false
+                            }
+                        ) {
+                            Text("OK")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showNameDialog = false }) {
+                            Text("Cancel")
+                        }
+                    }
+                )
             }
         }
     )
