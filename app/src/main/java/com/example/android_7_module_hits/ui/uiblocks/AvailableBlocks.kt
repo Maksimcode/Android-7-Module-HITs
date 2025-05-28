@@ -9,7 +9,8 @@ val availableBlocks = listOf(
     BlockTemplate("Else", BlockType.ELSE),
     BlockTemplate("While", BlockType.WHILE),
     BlockTemplate("End", BlockType.END),
-    BlockTemplate("For", BlockType.FOR)
+    BlockTemplate("For", BlockType.FOR),
+    BlockTemplate("Functions", BlockType.FUNCTIONS)
 )
 
 data class BlockTemplate(val title: String, val type: BlockType)

@@ -11,6 +11,7 @@ import com.example.android_7_module_hits.ui.uiblocks.ElseBlockView
 import com.example.android_7_module_hits.ui.uiblocks.ElseIfBlockView
 import com.example.android_7_module_hits.ui.uiblocks.EndBlockView
 import com.example.android_7_module_hits.ui.uiblocks.ForBlockView
+import com.example.android_7_module_hits.ui.uiblocks.FunsBlockView
 import com.example.android_7_module_hits.ui.uiblocks.WhileBlockView
 
 @Composable
@@ -39,6 +40,9 @@ fun BlockView(block: Block) {
         }
         is BlockContent.For -> {
             ForBlockView(content, block)
+        }
+        is BlockContent.Functions -> {
+            FunsBlockView(content, block)
         }
         else -> {
             Text("Unknown block type")
