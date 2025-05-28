@@ -194,6 +194,73 @@ class InterpreterState {
         }
     }
 
+    fun swapping(firstSwap: String, secondSwap: String) {
+        val access1 = parseArrayAccess(firstSwap)
+        val varName1 = access1?.arrayName ?: firstSwap
+        val indexExpr1 = access1?.indexExpr
+
+        val access2 = parseArrayAccess(secondSwap)
+        val varName2 = access2?.arrayName ?: secondSwap
+        val indexExpr2 = access2?.indexExpr
+
+        val var1 = findVariable(varName1) ?: throw IllegalArgumentException("Переменная $varName1 не найдена")
+        val var2 = findVariable(varName2) ?: throw IllegalArgumentException("Переменная $varName2 не найдена")
+
+        if (var1.type != var2.type) {
+            throw IllegalArgumentException("Невозможно поменять местами разные типы: " +
+                    "$varName1 - ${var1.type}, $varName2 - ${var2.type}")
+        }
+
+        val value1 = if (access1 != null) {
+            val index1 = evaluateExpression(indexExpr1!!)
+            val array = var1.value as? List<*> ?: throw IllegalArgumentException("$varName1 не является массивом")
+            if (index1 < 0 || index1 >= array.size) throw IndexOutOfBoundsException("Индекс вне диапазона: $index1")
+            resolveValue("${varName1}[$indexExpr1]")
+        } else {
+            var1.value
+        }
+
+        val value2 = if (access2 != null) {
+            val index2 = evaluateExpression(indexExpr2!!)
+            val array = var2.value as? List<*> ?: throw IllegalArgumentException("$varName2 не является массивом")
+            if (index2 < 0 || index2 >= array.size) throw IndexOutOfBoundsException("Индекс вне диапазона: $index2")
+            resolveValue("${varName2}[$indexExpr2]")
+        } else {
+            var2.value
+        }
+
+        val tempVar = "__temp_swap_var__"
+
+        assignValue(BlockContent.Assignment(name = tempVar, value = value1.toString()))
+
+        assignValue(
+            BlockContent.Assignment(
+                name = firstSwap,
+                value = value2.toString()
+            )
+        )
+
+        assignValue(
+            BlockContent.Assignment(
+                name = secondSwap,
+                value = tempVar
+            )
+        )
+
+        scopes.last().remove(tempVar)
+    }
+
+
+    fun printValue(variable: String) {
+        try {
+            val value = resolveValue(variable)
+            InterpreterLogger.errors.add("🖨️ $(variable = $value")
+        } catch (e: Exception) {
+            InterpreterLogger.logError("Ошибка при печати '$variable': ${e.message}")
+        }
+    }
+
+
 
     fun setCondition(expr: String): Boolean {
         val trimmedExpr = expr.trim()
