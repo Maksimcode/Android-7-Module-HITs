@@ -26,6 +26,12 @@ sealed class BlockContent{
         var expression: String
     ) : BlockContent()
 
+    data class For(
+        var variable: String,
+        val expression: String,
+        val construct: String
+    ) : BlockContent()
+
     class End() : BlockContent()
 
     class Else() : BlockContent()
