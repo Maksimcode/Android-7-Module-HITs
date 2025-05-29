@@ -9,5 +9,9 @@ data class BlockState(
     val type: BlockType,
     val content: BlockContentState,
     val positionX: Float,
-    val positionY: Float
+    val positionY: Float,
+    val parentId: String? = null,
+    val childId: String? = null,
+    val rootBlockId: String? = null,
+    val endBlockId: String? = null
 )

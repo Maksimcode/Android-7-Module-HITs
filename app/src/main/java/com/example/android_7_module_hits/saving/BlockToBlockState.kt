@@ -24,6 +24,18 @@ fun Block.toBlockState(): BlockState {
         is BlockContent.While -> BlockContentState.While(
             expression = (this.content as BlockContent.While).expression
         )
+        is BlockContent.For -> BlockContentState.For(
+            variable = (this.content as BlockContent.For).variable,
+            initValue = (this.content as BlockContent.For).initValue,
+            expression = (this.content as BlockContent.For).expression,
+            construct = (this.content as BlockContent.For).construct
+        )
+        is BlockContent.Functions -> BlockContentState.Functions(
+            func = (this.content as BlockContent.Functions).func,
+            comParam = (this.content as BlockContent.Functions).comParam,
+            firstSw = (this.content as BlockContent.Functions).firstSw,
+            secondSw = (this.content as BlockContent.Functions).secondSw
+        )
         is BlockContent.End -> BlockContentState.End
         is BlockContent.Else -> BlockContentState.Else
         else -> throw IllegalArgumentException("Unknown content type")
@@ -34,6 +46,10 @@ fun Block.toBlockState(): BlockState {
         type = type,
         content = contentState,
         positionX = position.x,
-        positionY = position.y
+        positionY = position.y,
+        parentId = this.parent?.id,
+        childId = this.child?.id,
+        rootBlockId = this.rootBlock?.id,
+        endBlockId = this.EndBlock?.id
     )
 }
