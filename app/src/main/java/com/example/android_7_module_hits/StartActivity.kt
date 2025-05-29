@@ -9,7 +9,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.android_7_module_hits.navigation.SetupNavGraph
 import com.example.android_7_module_hits.ui.theme.Android7ModuleHITsTheme
-import com.google.accompanist.insets.ProvideWindowInsets
 
 class StartActivity : ComponentActivity() {
 
