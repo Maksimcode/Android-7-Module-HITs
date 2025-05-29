@@ -163,7 +163,7 @@ fun MainScreen(
                                         block = block,
                                         viewModel = viewModel,
                                         onPositionChange = {id, pos ->
-                                            viewModel.updateBlockPosition(id, pos)
+                                            viewModel.updateBlockAndChildrenPosition(id, pos)
                                         },
                                         onDelete = { newBlockId ->
                                             viewModel.deleteBlock(newBlockId)
@@ -327,7 +327,7 @@ fun DraggableBlock(
         Column {
             BlockView(block)
             if (block.child == null){
-                AddButton(parent = block,
+                AddButton(
                     onBlockSelected = { newBlock ->
                         viewModel.addBlock(newBlock)
                         block.child = newBlock
@@ -347,14 +347,6 @@ fun DraggableBlock(
                     )
                 }
             }
-            if (offset != block.position) {
-                val attachableParent = viewModel.findAttachableParent(block, offset)
-                if (attachableParent != null) {
-                    Log.d("highlight", "type parent - ${attachableParent.type}, child - ${block.type}")
-                    AttachmentHighlight(attachableParent.position)
-                }
-            }
-
         }
 
         if (showDeleteIcon.value) {
@@ -376,7 +368,6 @@ fun DraggableBlock(
 
 @Composable
 fun AddButton(
-    parent: Block,
     onBlockSelected: (Block) -> Unit
 ) {
     var showBlockPalette by remember { mutableStateOf(false) }
