@@ -35,16 +35,30 @@ import com.example.android_7_module_hits.ui.theme.BlockInputTextColor
 import com.example.android_7_module_hits.ui.theme.CycleColor
 
 @Composable
-fun ForBlockView(content: BlockContent.For, block: Block){
+fun ForBlockView(content: BlockContent.For, block: Block) {
     var isEditingVariable by remember { mutableStateOf(false) }
     var isEditingStartValue by remember { mutableStateOf(false) }
     var isEditingExpression by remember { mutableStateOf(false) }
     var isEditingUpdating by remember { mutableStateOf(false) }
 
-    var editedVariable by remember(content.variable ?: "i") { mutableStateOf(content.variable ?: "i") }
-    var editedStartValue by remember(content.initValue ?: "0") { mutableStateOf(content.initValue ?: "0") }
-    var editedExpression by remember(content.expression ?: "false") { mutableStateOf(content.expression ?: "false") }
-    var editedUpdating by remember(content.construct ?: "${editedVariable} + 1") { mutableStateOf(content.construct ?: "i + 1") }
+    var editedVariable by remember(content.variable ?: "i") {
+        mutableStateOf(
+            content.variable ?: "i"
+        )
+    }
+    var editedStartValue by remember(content.initValue ?: "0") {
+        mutableStateOf(
+            content.initValue ?: "0"
+        )
+    }
+    var editedExpression by remember(
+        content.expression ?: "false"
+    ) { mutableStateOf(content.expression ?: "false") }
+    var editedUpdating by remember(content.construct ?: "${editedVariable} + 1") {
+        mutableStateOf(
+            content.construct ?: "i + 1"
+        )
+    }
 
     Card(
         modifier = Modifier
@@ -52,9 +66,9 @@ fun ForBlockView(content: BlockContent.For, block: Block){
             .padding(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = CycleColor)
-    ){
-        Column(modifier = Modifier.padding(8.dp)){
-            if (isEditingVariable){
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            if (isEditingVariable) {
                 Dialog(onDismissRequest = { isEditingVariable = false }) {
                     Card(
                         modifier = Modifier
@@ -63,7 +77,7 @@ fun ForBlockView(content: BlockContent.For, block: Block){
                         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text(text = "начальное значение:")
+                            Text(text = "Counter name:")
                             Spacer(modifier = Modifier.height(6.dp))
                             TextField(
                                 value = editedVariable,
@@ -106,7 +120,7 @@ fun ForBlockView(content: BlockContent.For, block: Block){
                         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text(text = "начальное значение:")
+                            Text(text = "Counter value:")
                             Spacer(modifier = Modifier.height(6.dp))
                             TextField(
                                 value = editedStartValue,
@@ -183,7 +197,7 @@ fun ForBlockView(content: BlockContent.For, block: Block){
                         }
                     }
                 }
-            } else if (isEditingUpdating){
+            } else if (isEditingUpdating) {
                 Dialog(onDismissRequest = { isEditingUpdating = false }) {
                     Card(
                         modifier = Modifier
@@ -207,7 +221,7 @@ fun ForBlockView(content: BlockContent.For, block: Block){
                             ) {
                                 TextButton(
                                     onClick = {
-                                        editedUpdating = content.expression ?: "${editedVariable}+1"
+                                        editedUpdating = content.construct ?: "${editedVariable}+1"
                                         isEditingUpdating = false
                                     }
                                 ) {
@@ -226,53 +240,65 @@ fun ForBlockView(content: BlockContent.For, block: Block){
                         }
                     }
                 }
-            } else{
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text="for ( ")
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(color = BlockInputBackgroundColor)
-                            .clickable { isEditingVariable = true }
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                    ) {
-                        Text(text = editedVariable, color = BlockInputTextColor)
+            } else {
+                Column (modifier = Modifier.height(190.dp)){
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "for counter")
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(color = BlockInputBackgroundColor)
+                                .clickable { isEditingVariable = true }
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                        ) {
+                            Text(text = editedVariable, color = BlockInputTextColor)
+                        }
                     }
-
-                    Text(text="= ")
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(color = BlockInputBackgroundColor)
-                            .clickable { isEditingStartValue = true }
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                    ) {
-                        Text(text = editedStartValue, color = BlockInputTextColor)
+                    Row(verticalAlignment = Alignment.CenterVertically){
+                        Text(text = "to start with:")
                     }
-
-                    Text(text=" ; ")
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(color = BlockInputBackgroundColor)
-                            .clickable { isEditingExpression = true }
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                    ) {
-                        Text(text = editedExpression, color = BlockInputTextColor)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "${editedVariable} = ")
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(color = BlockInputBackgroundColor)
+                                .clickable { isEditingStartValue = true }
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                        ) {
+                            Text(text = editedStartValue, color = BlockInputTextColor)
+                        }
                     }
-
-                    Text(text=" ; ${editedVariable} = ")
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(color = BlockInputBackgroundColor)
-                            .clickable { isEditingUpdating = true }
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
-                    ) {
-                        Text(text = editedUpdating, color = BlockInputTextColor)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "while expression is true:")
                     }
-
-                    Text(text = " )", color = Color.Black)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(color = BlockInputBackgroundColor)
+                                .clickable { isEditingExpression = true }
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                        ) {
+                            Text(text = editedExpression, color = BlockInputTextColor)
+                        }
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "step changes:")
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "${editedVariable} = ")
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(color = BlockInputBackgroundColor)
+                                .clickable { isEditingUpdating = true }
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                        ) {
+                            Text(text = editedUpdating, color = BlockInputTextColor)
+                        }
+                    }
                 }
             }
         }

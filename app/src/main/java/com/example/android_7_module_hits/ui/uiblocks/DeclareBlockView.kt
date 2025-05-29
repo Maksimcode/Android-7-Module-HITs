@@ -186,7 +186,6 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                                 }
                             }
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Spacer(modifier = Modifier.width(5.dp))
                                 Text(text = "as", color = Color.Black)
                                 Spacer(modifier = Modifier.width(5.dp))
                                 Box(
@@ -199,11 +198,13 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                                     Text(text = displayTextType(editedType), color = BlockInputTextColor)
                                 }
                                 Spacer(modifier = Modifier.width(5.dp))
-                                Text(text = ":", color = Color.Black)
                             }
                             Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(text = "length:", color = Color.Black)
+                                Spacer(modifier = Modifier.width(5.dp))
                                 Box(
                                     modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
                                         .background(color = BlockInputBackgroundColor)
                                         .clickable { isEditingLength = true }
                                         .padding(horizontal = 4.dp, vertical = 2.dp)
@@ -230,7 +231,6 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                             }
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Spacer(modifier = Modifier.width(5.dp))
                             Text(text = "as", color = Color.Black)
                             Spacer(modifier = Modifier.width(5.dp))
                             Box(
