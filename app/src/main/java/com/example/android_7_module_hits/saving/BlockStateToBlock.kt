@@ -8,6 +8,8 @@ import com.example.android_7_module_hits.blocks.DeclarationBlock
 import com.example.android_7_module_hits.blocks.ElseBlock
 import com.example.android_7_module_hits.blocks.ElseIfBlock
 import com.example.android_7_module_hits.blocks.EndBlock
+import com.example.android_7_module_hits.blocks.ForBlock
+import com.example.android_7_module_hits.blocks.FunsBlock
 import com.example.android_7_module_hits.blocks.WhileBlock
 
 fun BlockState.toBlock(): Block {
@@ -65,11 +67,35 @@ fun BlockState.toBlock(): Block {
             }
         }
 
+        BlockType.FOR -> {
+            val contentState = content as BlockContentState.For
+            ForBlock(
+                counter = contentState.variable,
+                startValue = contentState.initValue,
+                logicalExpression = contentState.expression,
+                update = contentState.construct
+            ).apply {
+                this.position = position
+            }
+        }
+
+        BlockType.FUNCTIONS -> {
+            val contentState = content as BlockContentState.Functions
+            FunsBlock(
+                function = contentState.func,
+                uniParam = contentState.comParam,
+                firstSwap = contentState.firstSw,
+                secondSwap = contentState.secondSw,
+            ).apply {
+                this.position = position
+            }
+        }
+
         BlockType.END -> {
             EndBlock().apply {
                 this.position = position
             }
         }
-        else -> throw IllegalArgumentException("Неизвестный тип блока: $type")
+        else -> throw IllegalArgumentException("Unknown block type: $type")
     }
 }
