@@ -60,6 +60,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.android_7_module_hits.blocks.BlockHasBody
 import com.example.android_7_module_hits.ui.workspaceFuns.BlockView
 import com.example.android_7_module_hits.blocks.BlockType
 import com.example.android_7_module_hits.interpreter.InterpreterLauncher
@@ -157,7 +158,8 @@ fun MainScreen(
                             .padding(innerPadding)
                     ) {
                         InfiniteCanvas {
-                            blocks.filter { it.parent == null }.forEach { block ->
+                            val rootBlocks = blocks.filter { viewModel.isRootBlock(it) }
+                            rootBlocks.forEach { block ->
                                 key(block.id) {
                                     DraggableBlock(
                                         block = block,
@@ -259,6 +261,7 @@ fun MainScreen(
 fun ShowPalette(viewModel: BlockViewModel,
                 scope: CoroutineScope,
                 drawerState: DrawerState){
+
     val configuration = LocalConfiguration.current
     val drawerWidth = configuration.screenWidthDp.dp * 0.6f
 
@@ -326,15 +329,44 @@ fun DraggableBlock(
     ) {
         Column {
             BlockView(block)
-            if (block.child == null){
+
+
+            if (block is BlockHasBody && block.body.isEmpty()) {
+                AddButton(
+                    onBlockSelected = { newBlock ->
+                        viewModel.addBlock(newBlock)
+                        if (!block.body.isEmpty()) {
+                            block.body.last().child = newBlock
+                            onAttach?.invoke(block.body.last(), newBlock)
+                        }
+                        block.body.add(newBlock)
+                        onPositionChange(newBlock.id, Offset(offset.x + 100f, offset.y))
+                    }
+                )
+            }
+
+            if (block is BlockHasBody && !block.body.isEmpty()) {
+                key(block.body[0].id) {
+                    DraggableBlock(
+                        block.body[0],
+                        viewModel,
+                        onPositionChange,
+                        onDelete,
+                        onAttach,
+                        isDetached = false
+                    )
+                }
+            }
+            if (block.child == null) {
                 AddButton(
                     onBlockSelected = { newBlock ->
                         viewModel.addBlock(newBlock)
                         block.child = newBlock
                         onAttach?.invoke(block, newBlock)
-
-                })
+                    }
+                )
             }
+
             if (block.child != null) {
                 key(block.child!!.id) {
                     DraggableBlock(
@@ -347,6 +379,7 @@ fun DraggableBlock(
                     )
                 }
             }
+
         }
 
         if (showDeleteIcon.value) {
