@@ -49,6 +49,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -58,6 +60,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.android_7_module_hits.blocks.BlockHasBody
 import com.example.android_7_module_hits.ui.workspaceFuns.BlockView
 import com.example.android_7_module_hits.blocks.BlockType
 import com.example.android_7_module_hits.interpreter.InterpreterLauncher
@@ -74,6 +77,7 @@ import com.example.android_7_module_hits.ui.notifications.UiNotification
 import com.example.android_7_module_hits.ui.notifications.NotificationHost
 import com.example.android_7_module_hits.ui.notifications.showNotification
 import com.example.android_7_module_hits.ui.uiblocks.BlockPalette
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
@@ -85,8 +89,7 @@ fun MainScreen(
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val configuration = LocalConfiguration.current
-    val drawerWidth = configuration.screenWidthDp.dp * 0.6f
+
 
     var currentNotification by remember { mutableStateOf<UiNotification?>(null) }
 
@@ -110,25 +113,7 @@ fun MainScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet(
-                modifier = Modifier.width(drawerWidth)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Text(
-                        text = "Block creation",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    BlockPalette { newBlock ->
-                        viewModel.addBlock(newBlock)
-                        scope.launch { drawerState.close() }
-                    }
-                }
-            }
+            ShowPalette(viewModel, scope, drawerState)
         },
         content = {
             Scaffold(
@@ -173,16 +158,17 @@ fun MainScreen(
                             .padding(innerPadding)
                     ) {
                         InfiniteCanvas {
-                            blocks.forEach { block ->
+                            val rootBlocks = blocks.filter { viewModel.isRootBlock(it) }
+                            rootBlocks.forEach { block ->
                                 key(block.id) {
                                     DraggableBlock(
                                         block = block,
                                         viewModel = viewModel,
                                         onPositionChange = {id, pos ->
-                                            viewModel.updateBlockPosition(id, pos)
+                                            viewModel.updateBlockAndChildrenPosition(id, pos)
                                         },
-                                        onDelete = {
-                                            viewModel.deleteBlock(block.id)
+                                        onDelete = { newBlockId ->
+                                            viewModel.deleteBlock(newBlockId)
                                         },
                                         onAttach = { parent, child ->
                                             viewModel.attachChild(parent, child)
@@ -272,12 +258,42 @@ fun MainScreen(
 }
 
 @Composable
+fun ShowPalette(viewModel: BlockViewModel,
+                scope: CoroutineScope,
+                drawerState: DrawerState){
+
+    val configuration = LocalConfiguration.current
+    val drawerWidth = configuration.screenWidthDp.dp * 0.6f
+
+    ModalDrawerSheet(
+        modifier = Modifier.width(drawerWidth)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = "Block creation",
+                style = MaterialTheme.typography.titleMedium
+            )
+            BlockPalette { newBlock ->
+                viewModel.addBlock(newBlock)
+                scope.launch { drawerState.close() }
+            }
+        }
+    }
+}
+
+@Composable
 fun DraggableBlock(
     block: Block,
     viewModel: BlockViewModel,
     onPositionChange: (String, Offset) -> Unit,
     onDelete: (String) -> Unit,
-    onAttach: ((Block, Block) -> Unit)? = null
+    onAttach: ((Block, Block) -> Unit)? = null,
+    isDetached: Boolean = true
 ) {
     var offset by remember { mutableStateOf(block.position) }
     val showDeleteIcon = remember { mutableStateOf(false) }
@@ -289,62 +305,81 @@ fun DraggableBlock(
                 onClick = { showDeleteIcon.value = false },
                 onLongClick = { showDeleteIcon.value = true }
             )
-            .pointerInput(Unit) {
-                detectDragGestures(
-                    onDrag = { change, dragAmount ->
-                        change.consume()
-                        showDeleteIcon.value = false
-                        offset += dragAmount
-                    },
-                    onDragEnd = {
-                        val attachableParent = viewModel.findAttachableParent(block, offset)
-                        if (attachableParent != null) {
-                            if (attachableParent.type == BlockType.ELSE_IF){
-                                onAttach?.invoke(attachableParent, block)
-                                offset = Offset(
-                                    attachableParent.position.x,
-                                    attachableParent.position.y + 230f
-                                )
+            .let { modifier ->
+                if (isDetached) {
+                    modifier.pointerInput(Unit) {
+                        detectDragGestures(
+                            onDrag = { change, dragAmount ->
+                                change.consume()
+                                showDeleteIcon.value = false
+                                offset += dragAmount
+                            },
+                            onDragEnd = {
+                                onPositionChange(block.id, offset)
+                            },
+                            onDragCancel = {
+                                onPositionChange(block.id, offset)
                             }
-                            else if (attachableParent.type == BlockType.DECLARE){
-                                onAttach?.invoke(attachableParent, block)
-                                offset = Offset(
-                                    attachableParent.position.x,
-                                    attachableParent.position.y + 285f
-                                )
-                            }
-                            else {
-                                onAttach?.invoke(attachableParent, block)
-                                offset = Offset(
-                                    attachableParent.position.x,
-                                    attachableParent.position.y + 150f
-                                )
-                            }
-                        }
-                        if (block.type == BlockType.END ||
-                            block.type == BlockType.ELSE_IF ||
-                            block.type == BlockType.ELSE){
-                            block.parent?.let {viewModel.attachHasBodyBlock(block, it)}
-                        }
-
-                        onPositionChange(block.id, offset)
-
-                    },
-                    onDragCancel = {
-                        onPositionChange(block.id, offset)
+                        )
                     }
-                )
+                } else {
+                    modifier
+                }
             }
     ) {
         Column {
             BlockView(block)
-            if (offset != block.position) {
-                val attachableParent = viewModel.findAttachableParent(block, offset)
-                if (attachableParent != null) {
-                    Log.d("highlight", "type parent - ${attachableParent.type}, child - ${block.type}")
-                    AttachmentHighlight(attachableParent.position)
+
+
+            if (block is BlockHasBody && block.body.isEmpty()) {
+                AddButton(
+                    onBlockSelected = { newBlock ->
+                        viewModel.addBlock(newBlock)
+                        if (!block.body.isEmpty()) {
+                            block.body.last().child = newBlock
+                            onAttach?.invoke(block.body.last(), newBlock)
+                        }
+                        block.body.add(newBlock)
+                        onPositionChange(newBlock.id, Offset(offset.x + 100f, offset.y))
+                    }
+                )
+            }
+
+            if (block is BlockHasBody && !block.body.isEmpty()) {
+                key(block.body[0].id) {
+                    DraggableBlock(
+                        block.body[0],
+                        viewModel,
+                        onPositionChange,
+                        onDelete,
+                        onAttach,
+                        isDetached = false
+                    )
                 }
             }
+            if (block.child == null) {
+                AddButton(
+                    onBlockSelected = { newBlock ->
+                        viewModel.addBlock(newBlock)
+                        block.child = newBlock
+                        onAttach?.invoke(block, newBlock)
+                    }
+                )
+            }
+
+            if (block.child != null) {
+                key(block.child!!.id) {
+                    DraggableBlock(
+                        block.child!!,
+                        viewModel,
+                        onPositionChange,
+                        onDelete,
+                        onAttach,
+                        isDetached = false
+                    )
+                }
+            }
+
         }
 
         if (showDeleteIcon.value) {
@@ -356,12 +391,73 @@ fun DraggableBlock(
                     .align(Alignment.TopEnd)
                     .size(24.dp)
                     .clickable {
+                        println("id для удаления - ${block.id}")
                         onDelete(block.id)
                     }
             )
         }
     }
 }
+
+@Composable
+fun AddButton(
+    onBlockSelected: (Block) -> Unit
+) {
+    var showBlockPalette by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .size(56.dp)
+            .background(
+                color = FolderButtonMain,
+                shape = RoundedCornerShape(32.dp)
+            )
+            .shadow(elevation = 4.dp)
+            .clickable {
+                showBlockPalette = true
+            }
+            .padding(12.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Menu,
+            contentDescription = "Add Block",
+            tint = FolderButtonSub,
+            modifier = Modifier.size(32.dp)
+        )
+    }
+
+    if (showBlockPalette) {
+        ModalDrawerSheet {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "Выберите блок",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                BlockPalette { selectedBlock ->
+                    onBlockSelected(selectedBlock)
+                    showBlockPalette = false
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                TextButton(
+                    onClick = { showBlockPalette = false },
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text("Отмена")
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 fun BottomCircleButtons(
