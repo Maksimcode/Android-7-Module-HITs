@@ -83,8 +83,7 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
 
         targetBlock.parent = null
         targetBlock.child = null
-        targetBlock.EndBlock = null
-        targetBlock.rootBlock = null
+
 
         _blocks.value = _blocks.value.filterNot { it.id == blockId }
     }
@@ -157,29 +156,38 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun attachHasBodyBlock(currentBlock: Block, parentBlock: Block){
-        when (currentBlock) {
-            is EndBlock ->{
-                if (parentBlock is BlockHasBody && parentBlock.EndBlock == null){
-                    parentBlock.EndBlock = currentBlock
-                    currentBlock.rootBlock = parentBlock
-                }
-                else{
-                    parentBlock.parent?.let { attachHasBodyBlock(currentBlock ,it) }
-                }
-            }
-            is ElseBlock, is ElseIfBlock -> {
-                if (parentBlock is EndBlock) {
-                    if (parentBlock.rootBlock is ConditionBlock ||
-                        parentBlock.rootBlock is ElseIfBlock
-                    ) {
-                        currentBlock.rootBlock = parentBlock
-                        parentBlock.EndBlock = currentBlock
-                    }
-                }
-            }
+    fun isRootBlock(block: Block): Boolean {
+        return when {
+            block.parent != null -> false
+            blocks.value.any { it.child == block } -> false
+            blocks.value.any { (it as? BlockHasBody)?.body?.contains(block) == true } -> false
+            else -> true
         }
     }
+
+//    fun attachHasBodyBlock(currentBlock: Block, parentBlock: Block){
+//        when (currentBlock) {
+//            is EndBlock ->{
+//                if (parentBlock is BlockHasBody && parentBlock.EndBlock == null){
+//                    parentBlock.EndBlock = currentBlock
+//                    currentBlock.rootBlock = parentBlock
+//                }
+//                else{
+//                    parentBlock.parent?.let { attachHasBodyBlock(currentBlock ,it) }
+//                }
+//            }
+//            is ElseBlock, is ElseIfBlock -> {
+//                if (parentBlock is EndBlock) {
+//                    if (parentBlock.rootBlock is ConditionBlock ||
+//                        parentBlock.rootBlock is ElseIfBlock
+//                    ) {
+//                        currentBlock.rootBlock = parentBlock
+//                        parentBlock.EndBlock = currentBlock
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     fun updateBlockAndChildrenPosition(blockId: String, newPosition: Offset) {
         _blocks.update { currentBlocks ->
@@ -208,7 +216,7 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
 
 fun logAllBlocks(blocks : List<Block>){
     blocks.forEach {
-        println("ID: ${it.id}, parent: ${it.parent?.id}, child: ${it.child?.id}, root: ${it.rootBlock?.id}, end: ${it.EndBlock?.id}")
+        println("ID: ${it.id}, type: ${it.type}, parent: ${it.parent?.id}, child: ${it.child?.id}")
     }
 }
 
