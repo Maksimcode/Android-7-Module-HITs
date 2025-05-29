@@ -46,6 +46,10 @@ fun Block.toBlockState(): BlockState {
         type = type,
         content = contentState,
         positionX = position.x,
-        positionY = position.y
+        positionY = position.y,
+        parentId = this.parent?.id,
+        childId = this.child?.id,
+        rootBlockId = this.rootBlock?.id,
+        endBlockId = this.EndBlock?.id
     )
 }
