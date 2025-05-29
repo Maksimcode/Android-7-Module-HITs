@@ -25,23 +25,22 @@ fun interpret(block: Block, state: InterpreterState) {
         is BlockContent.Condition -> {
             val logicalExpression = content.expression
 
-            state.enterScope()
-
             val conditionResult = state.setCondition(logicalExpression)
 
             var insideIfBody = conditionResult
 
-            (currentBlock as BlockHasBody).body.forEach { current ->
-                if (insideIfBody) {
-                    try{
+            if (insideIfBody) {
+                state.enterScope()
+                (currentBlock as BlockHasBody).body.forEach { current ->
+                    try {
                         interpret(current, state)
-                    } catch (e : Exception) {
+                    } catch (e: Exception) {
                         InterpreterLogger.logError("Ошибка в блоке ${current.type}: ${e.message}")
                     }
                 }
+                state.exitScope()
             }
 
-            state.exitScope()
             return
         }
 
@@ -75,17 +74,19 @@ fun interpret(block: Block, state: InterpreterState) {
             }
 
             var insideElseIfBody = conditionResult && !anyPrevTrue
-            state.enterScope()
 
-            (currentBlock as BlockHasBody).body.forEach { current ->
-                try{
-                    interpret(current, state)
-                } catch (e : Exception) {
-                    InterpreterLogger.logError("Ошибка в блоке ${current.type}: ${e.message}")
+            if (insideElseIfBody) {
+                state.enterScope()
+                (currentBlock as BlockHasBody).body.forEach { current ->
+                    try {
+                        interpret(current, state)
+                    } catch (e: Exception) {
+                        InterpreterLogger.logError("Ошибка в блоке ${current.type}: ${e.message}")
+                    }
                 }
+                state.exitScope()
             }
 
-            state.exitScope()
             return
         }
 
@@ -117,16 +118,19 @@ fun interpret(block: Block, state: InterpreterState) {
             }
 
             var insideElseBody = !anyPrevTrue
-            state.enterScope()
 
-            (currentBlock as BlockHasBody).body.forEach { current ->
-                try{
-                    interpret(current, state)
-                } catch (e : Exception) {
-                    InterpreterLogger.logError("Ошибка в блоке ${current.type}: ${e.message}")
+
+            if (insideElseBody){
+                state.enterScope()
+                (currentBlock as BlockHasBody).body.forEach { current ->
+                    try {
+                        interpret(current, state)
+                    } catch (e: Exception) {
+                        InterpreterLogger.logError("Ошибка в блоке ${current.type}: ${e.message}")
+                    }
                 }
+                state.exitScope()
             }
-
             state.exitScope()
             return
         }
@@ -140,6 +144,7 @@ fun interpret(block: Block, state: InterpreterState) {
             state.enterScope()
 
             while (insideWhileBody) {
+                state.enterScope()
                 (currentBlock as BlockHasBody).body.forEach { current ->
                     try{
                         interpret(current, state)
@@ -148,10 +153,10 @@ fun interpret(block: Block, state: InterpreterState) {
                     }
                 }
 
+                state.exitScope()
                 insideWhileBody = state.setCondition(logicalExpression)
             }
 
-            state.exitScope()
             return
         }
 
@@ -177,28 +182,34 @@ fun interpret(block: Block, state: InterpreterState) {
 
             val conditionResult = state.setCondition(logicalExpression)
 
-            var current: Block? = currentBlock.child
             var insideForBody = conditionResult
-            state.enterScope()
 
             while (insideForBody) {
-                (currentBlock as BlockHasBody).body.forEach { current ->
-                    try{
-                        interpret(current, state)
-                    } catch (e : Exception) {
-                        InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
+                state.enterScope()
+                insideForBody = state.setCondition(logicalExpression)
+                if (insideForBody) {
+                    (currentBlock as BlockHasBody).body.forEach { current ->
+                        try {
+                            interpret(current, state)
+                        } catch (e: Exception) {
+                            InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
+                        }
                     }
                 }
 
-                state.assignValue(
-                    BlockContent.Assignment(
-                        name = counter,
-                        value = update
-                    )
-                )
                 insideForBody = state.setCondition(logicalExpression)
+                if (insideForBody) {
+                    state.assignValue(
+                        BlockContent.Assignment(
+                            name = counter,
+                            value = update
+                        )
+                    )
+                }
+
+                state.exitScope()
+
             }
-            state.exitScope()
 
             return
         }
