@@ -2,6 +2,7 @@ package com.example.android_7_module_hits.viewModel
 
 import android.app.Application
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android_7_module_hits.blocks.Block
@@ -73,7 +74,9 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
             }
             return ids
         }
-        val nestedIds = if (targetBlock is BlockHasBody) collectNestedIds(targetBlock) else emptySet()
+
+        val nestedIds =
+            if (targetBlock is BlockHasBody) collectNestedIds(targetBlock) else emptySet()
 
         targetBlock.parent = null
         targetBlock.child = null
@@ -91,7 +94,7 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         val childBlock = _blocks.value.firstOrNull { it.id == child.id } ?: return
 
         childBlock.parent?.let { oldParent ->
-            detachChild(oldParent, childBlock)
+            detachChild(oldParent, null)
         }
 
         if (asNested) {
@@ -121,14 +124,26 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun detachChild(parent: Block, child: Block) {
-        if (parent.child?.id == child.id) {
-            parent.child = null
+    private fun detachChild(oldParent: Block?, newChild: Block?) {
+        viewModelScope.launch {
+            _blocks.value = _blocks.value.map { block ->
+                when {
+                    block == oldParent -> {
+                        val updated = block
+                        updated.child = newChild
+                        updated
+                    }
+
+                    block == newChild -> {
+                        val updated = block
+                        updated.parent = oldParent
+                        updated
+                    }
+
+                    else -> block
+                }
+            }
         }
-        if (parent is BlockHasBody) {
-            parent.nestedChildren.removeAll { it.id == child.id }
-        }
-        child.parent = null
     }
 
     fun updateBlockAndDescendantsPosition(blockId: String, newPosition: Offset) {
@@ -153,12 +168,12 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         }
         if (block is BlockHasBody) {
             block.nestedChildren.forEach { nestedChild ->
-                nestedChild.position = Offset(nestedChild.position.x + dx, nestedChild.position.y + dy)
+                nestedChild.position =
+                    Offset(nestedChild.position.x + dx, nestedChild.position.y + dy)
                 updateDescendantsPosition(nestedChild, dx, dy)
             }
         }
     }
-
 
 
     fun findAttachableParent(
@@ -166,10 +181,17 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         dropPosition: Offset,
         asNested: Boolean
     ): Block? {
+        draggedBlock.parent?.let { oldParent ->
+            detachChild(oldParent, null)
+        }
+
         return _blocks.value.firstOrNull { candidate ->
             if (candidate.id == draggedBlock.id) return@firstOrNull false
 
-            val distance = distanceBetween(candidate.position, dropPosition)
+            val distance = distanceBetween(
+                Offset(candidate.position.x + 50f, candidate.position.y + 50f),
+                dropPosition
+            )
             if (distance >= 200f) return@firstOrNull false
 
             if (asNested) {
@@ -194,10 +216,12 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
                         block.child = newChild
                         block
                     }
+
                     block == newChild -> {
                         block.parent = oldParent
                         block
                     }
+
                     else -> block
                 }
             }
@@ -220,7 +244,8 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
     }
 }
 
-fun logAllBlocks(blocks : List<Block>){
+
+fun logAllBlocks(blocks: List<Block>) {
     blocks.forEach {
         println("ID: ${it.id}, parent: ${it.parent?.id}, child: ${it.child?.id}")
     }

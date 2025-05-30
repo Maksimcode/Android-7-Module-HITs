@@ -282,9 +282,9 @@ fun DraggableBlock(
                         attachableParent?.let { parent ->
                             onAttach?.invoke(parent, block, asNested)
                             offset = if (asNested) {
-                                Offset(parent.position.x + 200f, parent.position.y + 180f)
+                                Offset(parent.position.x + 70.dp.toPx(), parent.position.y + 50.dp.toPx())
                             } else {
-                                Offset(parent.position.x, parent.position.y + 150f)
+                                Offset(parent.position.x, parent.position.y + 50.dp.toPx())
                             }
                         }
                         onPositionChange(block.id, offset)
