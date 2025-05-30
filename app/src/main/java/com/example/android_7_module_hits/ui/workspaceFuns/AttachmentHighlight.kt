@@ -13,11 +13,11 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 @Composable
-fun AttachmentHighlight(position: Offset) {
+fun AttachmentHighlight(position: Offset, color: Color) {
     Box(
         modifier = Modifier
-            .background(Color.Green.copy(alpha = 0.3f))
+            .background(color.copy(alpha = 0.3f))
             .size(width = 200.dp, height = 16.dp)
-            .offset { IntOffset(position.x.roundToInt(), position.y.roundToInt())}
+            .offset { IntOffset(position.x.roundToInt(), position.y.roundToInt()) }
     )
 }

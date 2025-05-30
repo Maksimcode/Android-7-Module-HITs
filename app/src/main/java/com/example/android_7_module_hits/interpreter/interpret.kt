@@ -13,7 +13,14 @@ fun interpret(block: Block, state: InterpreterState) {
 
     when (val content = currentBlock.content) {
         is BlockContent.Declare -> {
-            state.declareVariable(BlockContent.Declare(content.type, content.name, content.value, content.length))
+            state.declareVariable(
+                BlockContent.Declare(
+                    content.type,
+                    content.name,
+                    content.value,
+                    content.length
+                )
+            )
         }
 
         is BlockContent.Assignment -> {
@@ -46,18 +53,18 @@ fun interpret(block: Block, state: InterpreterState) {
             var conditionResult: Boolean = state.setCondition(logicalExpression)
             var temp = currentBlock.parent
             var anyPrevTrue = false
-            while(temp != null && (temp is ConditionBlock || temp is ElseIfBlock)){
+            while (temp != null && (temp is ConditionBlock || temp is ElseIfBlock)) {
                 when (temp) {
                     is ConditionBlock, is ElseIfBlock -> {
                         val tempContent = temp.content
-                        if (tempContent is BlockContent.Condition){
+                        if (tempContent is BlockContent.Condition) {
                             val result = state.setCondition(tempContent.expression)
                             if (result) {
                                 anyPrevTrue = true
                                 break
                             }
                         }
-                        if (tempContent is BlockContent.ElseIf){
+                        if (tempContent is BlockContent.ElseIf) {
                             val result = state.setCondition(tempContent.expression)
                             if (result) {
                                 anyPrevTrue = true
@@ -88,18 +95,18 @@ fun interpret(block: Block, state: InterpreterState) {
         is BlockContent.Else -> {
             var temp = currentBlock.parent
             var anyPrevTrue = false
-            while(temp != null && (temp is ConditionBlock || temp is ElseIfBlock)){
+            while (temp != null && (temp is ConditionBlock || temp is ElseIfBlock)) {
                 when (temp) {
                     is ConditionBlock, is ElseIfBlock -> {
                         val tempContent = temp.content
-                        if (tempContent is BlockContent.Condition){
+                        if (tempContent is BlockContent.Condition) {
                             val result = state.setCondition(tempContent.expression)
                             if (result) {
                                 anyPrevTrue = true
                                 break
                             }
                         }
-                        if (tempContent is BlockContent.ElseIf){
+                        if (tempContent is BlockContent.ElseIf) {
                             val result = state.setCondition(tempContent.expression)
                             if (result) {
                                 anyPrevTrue = true
@@ -113,7 +120,7 @@ fun interpret(block: Block, state: InterpreterState) {
 
             var insideElseBody = !anyPrevTrue
 
-            if (insideElseBody){
+            if (insideElseBody) {
                 state.enterScope()
                 (currentBlock as BlockHasBody).nestedChildren.forEach { current ->
                     try {
@@ -139,9 +146,9 @@ fun interpret(block: Block, state: InterpreterState) {
             while (insideWhileBody) {
                 state.enterScope()
                 (currentBlock as BlockHasBody).nestedChildren.forEach { current ->
-                    try{
+                    try {
                         interpret(current, state)
-                    } catch (e : Exception) {
+                    } catch (e: Exception) {
                         InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
                     }
                 }
@@ -161,7 +168,8 @@ fun interpret(block: Block, state: InterpreterState) {
             state.declareVariable(
                 BlockContent.Declare(
                     type = DataType.INTEGER,
-                    name = counter)
+                    name = counter
+                )
             )
 
             state.assignValue(
@@ -205,27 +213,30 @@ fun interpret(block: Block, state: InterpreterState) {
 
         is BlockContent.Functions -> {
 
-            when(content.func){
+            when (content.func) {
                 FunsType.PRINT -> state.printValue(content.comParam)
                 FunsType.SWAP -> {
                     state.swapping(content.firstSw, content.secondSw)
                     println("вызван swap")
                 }
+
                 else -> println("pupu")
             }
         }
+
         is BlockContent.End -> {
             state.exitScope()
         }
+
         else -> {
             println("пока хз")
         }
     }
 
     currentBlock.child?.let {
-        try{
+        try {
             interpret(it, state)
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
         }
     }

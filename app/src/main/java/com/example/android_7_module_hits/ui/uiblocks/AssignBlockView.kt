@@ -36,11 +36,15 @@ import com.example.android_7_module_hits.ui.theme.BlockInputTextColor
 
 
 @Composable
-fun AssignBlockView(content: BlockContent.Assignment, block: Block){
+fun AssignBlockView(content: BlockContent.Assignment, block: Block) {
     var isEditingName by remember { mutableStateOf(false) }
     var isEditingValue by remember { mutableStateOf(false) }
-    var editedName by remember(content.name ?: "Variable") { mutableStateOf(content.name ?: "Variable") }
-    var editedValue by remember ( content.value ?: "0" ) { mutableStateOf(content.value ?: "0") }
+    var editedName by remember(content.name ?: "Variable") {
+        mutableStateOf(
+            content.name ?: "Variable"
+        )
+    }
+    var editedValue by remember(content.value ?: "0") { mutableStateOf(content.value ?: "0") }
 
     Card(
         modifier = Modifier
@@ -48,8 +52,8 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
             .padding(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = AssignmentColor)
-    ){
-        Column(modifier = Modifier.padding(8.dp)){
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
             if (isEditingName) {
                 Dialog(onDismissRequest = { isEditingName = false }) {
                     Card(
@@ -134,7 +138,7 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block){
                         }
                     }
                 }
-            } else{
+            } else {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(text = "set ", color = Color.Black)
                     Box(

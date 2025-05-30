@@ -17,7 +17,7 @@ import com.example.android_7_module_hits.blocks.BlockContent
 import com.example.android_7_module_hits.ui.theme.DeclareColor
 
 @Composable
-fun EndBlockView(content: BlockContent.End, block: Block){
+fun EndBlockView(content: BlockContent.End, block: Block) {
 
     Card(
         modifier = Modifier
@@ -25,8 +25,8 @@ fun EndBlockView(content: BlockContent.End, block: Block){
             .padding(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = DeclareColor)
-    ){
-        Column(modifier = Modifier.padding(8.dp)){
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "end block", color = Color.Black)
             }

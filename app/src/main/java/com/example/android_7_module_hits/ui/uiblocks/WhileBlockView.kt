@@ -35,22 +35,23 @@ import com.example.android_7_module_hits.ui.theme.BlockInputTextColor
 import com.example.android_7_module_hits.ui.theme.CycleColor
 
 @Composable
-fun WhileBlockView(content: BlockContent.While, block: Block){
+fun WhileBlockView(content: BlockContent.While, block: Block) {
     var isEditingExpression by remember { mutableStateOf(false) }
 
-    var editedExpression by remember(content.expression ?: "false") { mutableStateOf(content.expression ?: "false") }
+    var editedExpression by remember(
+        content.expression ?: "false"
+    ) { mutableStateOf(content.expression ?: "false") }
 
 
     Card(
         modifier = Modifier
-            .width(210.dp)
+            .width(280.dp)
             .padding(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = CycleColor)
-    ){
-        Column(modifier = Modifier.padding(8.dp)){
-            if (isEditingExpression)
-            {
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            if (isEditingExpression) {
                 Dialog(onDismissRequest = { isEditingExpression = false }) {
                     Card(
                         modifier = Modifier
@@ -93,9 +94,10 @@ fun WhileBlockView(content: BlockContent.While, block: Block){
                         }
                     }
                 }
-            } else{
+            } else {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text="repeat while ( ")
+                    Text(text = "repeat while")
+                    Spacer(modifier = Modifier.width(5.dp))
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
@@ -105,8 +107,6 @@ fun WhileBlockView(content: BlockContent.While, block: Block){
                     ) {
                         Text(text = editedExpression, color = BlockInputTextColor)
                     }
-
-                    Text(text = " )", color = Color.Black)
                 }
             }
         }

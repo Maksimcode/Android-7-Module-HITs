@@ -33,7 +33,7 @@ import com.example.android_7_module_hits.ui.theme.SettingsButtonMain
 import com.example.android_7_module_hits.ui.theme.SettingsButtonSub
 import com.example.android_7_module_hits.ui.theme.StopButtonMain
 import com.example.android_7_module_hits.ui.theme.StopButtonSub
-import com.example.android_7_module_hits.viewModel.logAllBlocks
+import com.example.android_7_module_hits.utils.logAllBlocks
 
 @Composable
 fun BottomCircleButtons(

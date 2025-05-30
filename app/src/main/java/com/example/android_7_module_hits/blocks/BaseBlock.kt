@@ -19,7 +19,7 @@ abstract class BaseBlock(
     override fun canAttachTo(other: Block): Boolean {
         if (child != null) {
             return false
-        }else{
+        } else {
             return true
         }
     }

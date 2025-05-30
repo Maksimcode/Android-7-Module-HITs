@@ -9,7 +9,7 @@ class AssignmentBlock(
         name = variableName,
         value = initialValue
     )
-){
+) {
     override fun canAcceptNestedChildren(): Boolean {
         return false
     }
