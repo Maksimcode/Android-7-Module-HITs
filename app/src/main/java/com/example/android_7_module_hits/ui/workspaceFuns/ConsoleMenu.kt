@@ -8,7 +8,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import com.example.android_7_module_hits.ui.theme.WorkspaceFunctionsDimens.modalBottomSheetHeight
+import com.example.android_7_module_hits.ui.theme.WorkspaceFunctionsDimens.modalBottomSheetPadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -18,13 +19,13 @@ fun ConsoleMenu(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        dragHandle = { /* Если консольный вывод не будет влезать, эта штука поможет сделать нам "ручку" для расщирения окна */ }
+        dragHandle = {}
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp)
-                .padding(16.dp)
+                .height(modalBottomSheetHeight)
+                .padding(modalBottomSheetPadding)
         ) {
             content()
         }

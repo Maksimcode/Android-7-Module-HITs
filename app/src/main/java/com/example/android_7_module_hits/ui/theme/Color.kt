@@ -62,3 +62,9 @@ val WarningNotificationTextColor = Color(0xFFF49E00)
 val WarningNotificationBackgroundColor = Color(0xFFFFF7EA)
 val ErrorNotificationTextColor = Color(0xFFE43700)
 val ErrorNotificationBackgroundColor = Color(0xFFFFECE6)
+
+// InfiniteCanvas
+val InfiniteCanvasBackgroundColor = White
+
+// BottomCircleButtons
+val buttonCircleButtonsShadow = Color(0x0D101828)
