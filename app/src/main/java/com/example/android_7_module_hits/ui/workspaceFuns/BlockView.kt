@@ -11,7 +11,6 @@ import com.example.android_7_module_hits.ui.uiblocks.ConditionBlockView
 import com.example.android_7_module_hits.ui.uiblocks.DeclareBlockView
 import com.example.android_7_module_hits.ui.uiblocks.ElseBlockView
 import com.example.android_7_module_hits.ui.uiblocks.ElseIfBlockView
-import com.example.android_7_module_hits.ui.uiblocks.EndBlockView
 import com.example.android_7_module_hits.ui.uiblocks.ForBlockView
 import com.example.android_7_module_hits.ui.uiblocks.FunsBlockView
 import com.example.android_7_module_hits.ui.uiblocks.WhileBlockView
@@ -39,9 +38,9 @@ fun BlockView(block: Block) {
             ElseBlockView(content, block)
         }
 
-        is BlockContent.End -> {
-            EndBlockView(content, block)
-        }
+        // is BlockContent.End -> {
+        //     EndBlockView(content, block)
+        // }
 
         is BlockContent.While -> {
             WhileBlockView(content, block)

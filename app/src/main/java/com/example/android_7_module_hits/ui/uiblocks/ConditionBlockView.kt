@@ -26,8 +26,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.android_7_module_hits.R
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
 import com.example.android_7_module_hits.ui.theme.BlockInputBackgroundColor
@@ -78,7 +80,7 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block) {
                                         isEditingExpression = false
                                     }
                                 ) {
-                                    Text("Cancel")
+                                    Text(stringResource(id = R.string.cancel))
                                 }
 
                                 TextButton(
@@ -87,7 +89,7 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block) {
                                         isEditingExpression = false
                                     }
                                 ) {
-                                    Text("Save")
+                                    Text(stringResource(id = R.string.ok))
                                 }
                             }
                         }

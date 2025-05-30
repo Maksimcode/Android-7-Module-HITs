@@ -1,8 +1,21 @@
 package com.example.android_7_module_hits.ui.theme
 
-import androidx.compose.foundation.layout.size
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
+
+object AssignBlockDimens {
+    val cardWidth = 210.dp
+    val cardPadding = 4.dp
+    val cardContentPadding = 8.dp
+    val cardElevation = 6.dp
+    val dialogCardWidth = 300.dp
+    val dialogPadding = 16.dp
+    val spacerSmall = 6.dp
+    val spacerLarge = 16.dp
+    val boxCornerRadius = 4.dp
+    val boxPaddingHorizontal = 4.dp
+    val boxPaddingVertical = 2.dp
+}
 
 object NotificationsDimens {
     val horizontalMargin = 8.dp

@@ -28,8 +28,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.android_7_module_hits.R
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
 import com.example.android_7_module_hits.blocks.DataType
@@ -97,7 +99,7 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block) {
                                         isEditingName = false
                                     }
                                 ) {
-                                    Text("Cancel")
+                                    Text(stringResource(id = R.string.cancel))
                                 }
                                 TextButton(
                                     onClick = {
@@ -105,7 +107,7 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block) {
                                         isEditingName = false
                                     }
                                 ) {
-                                    Text("Save")
+                                    Text(stringResource(id = R.string.ok))
                                 }
                             }
                         }
@@ -165,7 +167,7 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block) {
                                                 isEditingLength = false
                                             }
                                         ) {
-                                            Text("Cancel")
+                                            Text(stringResource(id = R.string.cancel))
                                         }
 
                                         TextButton(
@@ -174,7 +176,7 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block) {
                                                 isEditingLength = false
                                             }
                                         ) {
-                                            Text("Save")
+                                            Text(stringResource(id = R.string.ok))
                                         }
                                     }
                                 }

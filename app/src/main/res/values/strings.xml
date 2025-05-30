@@ -47,4 +47,11 @@
     <string name="interpreter_running">>> Interpreter is running…</string>
     <string name="no_errors">No errors</string>
 
+
+    <string name="variable_name_label">Variable name:</string>
+    <string name="variable_value_label">Variable value:</string>
+    <string name="set_keyword">set</string>
+    <string name="to_keyword">to</string>
+    <string name="default_variable">Variable</string>
+    <string name="default_value">0</string>
 </resources>

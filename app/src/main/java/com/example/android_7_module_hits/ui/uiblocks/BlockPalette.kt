@@ -1,6 +1,5 @@
 package com.example.android_7_module_hits.ui.uiblocks
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.android_7_module_hits.blocks.AssignmentBlock
 import com.example.android_7_module_hits.blocks.Block
@@ -23,7 +21,6 @@ import com.example.android_7_module_hits.blocks.DataType
 import com.example.android_7_module_hits.blocks.DeclarationBlock
 import com.example.android_7_module_hits.blocks.ElseBlock
 import com.example.android_7_module_hits.blocks.ElseIfBlock
-import com.example.android_7_module_hits.blocks.EndBlock
 import com.example.android_7_module_hits.blocks.ForBlock
 import com.example.android_7_module_hits.blocks.FunsBlock
 import com.example.android_7_module_hits.blocks.FunsType
@@ -61,8 +58,8 @@ fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) 
                     BlockType.ELSE ->
                         ElseBlock()
 
-                    BlockType.END ->
-                        EndBlock()
+                    // BlockType.END ->
+                    //     EndBlock()
 
                     BlockType.WHILE ->
                         WhileBlock(logicalExpression = "false")
