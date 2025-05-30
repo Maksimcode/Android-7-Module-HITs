@@ -1,4 +1,3 @@
-
 package com.example.android_7_module_hits
 
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,7 +36,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.android_7_module_hits.blocks.BlockHasBody
+import com.example.android_7_module_hits.blocks.ConditionBlock
+import com.example.android_7_module_hits.blocks.DeclarationBlock
+import com.example.android_7_module_hits.blocks.ForBlock
+import com.example.android_7_module_hits.blocks.FunsBlock
 import com.example.android_7_module_hits.ui.workspaceFuns.BlockView
 import com.example.android_7_module_hits.interpreter.InterpreterLogger
 import com.example.android_7_module_hits.navigation.Screen
@@ -113,13 +118,13 @@ fun MainScreen(
                         title = {
                             Text(
                                 text = projectName,
-                                modifier = Modifier.clickable{
+                                modifier = Modifier.clickable {
                                     showNameDialog = true
                                 }
                             )
-                                },
+                        },
                         navigationIcon = {
-                            IconButton(onClick = {scope.launch { drawerState.open() } }) {
+                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
                                 Icon(
                                     imageVector = Icons.Filled.Menu,
                                     contentDescription = "Menu"
@@ -127,13 +132,14 @@ fun MainScreen(
                             }
                         },
                         actions = {
-                            IconButton(onClick ={navController.navigate(route = Screen.Library.route){
-                                popUpTo(Screen.Library.route){
-                                    inclusive = true
+                            IconButton(onClick = {
+                                navController.navigate(route = Screen.Library.route) {
+                                    popUpTo(Screen.Library.route) {
+                                        inclusive = true
+                                    }
                                 }
                             }
-                            }
-                                ) {
+                            ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                     contentDescription = "Back"
@@ -154,7 +160,7 @@ fun MainScreen(
                                     DraggableBlock(
                                         block = block,
                                         viewModel = viewModel,
-                                        onPositionChange = {id, pos ->
+                                        onPositionChange = { id, pos ->
                                             viewModel.updateBlockAndDescendantsPosition(id, pos)
                                         },
                                         onDelete = { id -> viewModel.deleteBlock(id) },
@@ -227,7 +233,8 @@ fun MainScreen(
                     confirmButton = {
                         TextButton(
                             onClick = {
-                                projectName = if (tempName.isNotBlank()) tempName else "Enter project name"
+                                projectName =
+                                    if (tempName.isNotBlank()) tempName else "Enter project name"
                                 showNameDialog = false
                             }
                         ) {
@@ -271,22 +278,39 @@ fun DraggableBlock(
                         offset += dragAmount
                     },
                     onDragEnd = {
-                        val potentialParent = viewModel.findAttachableParent(block, offset, asNested = false)
+                        val potentialParent =
+                            viewModel.findAttachableParent(block, offset, asNested = false)
                         val asNested = if (potentialParent != null) {
                             val threshold = 100f
                             (offset.x - potentialParent.position.x) >= threshold
                         } else false
 
-                        val attachableParent = viewModel.findAttachableParent(block, offset, asNested)
+                        val attachableParent =
+                            viewModel.findAttachableParent(block, offset, asNested)
 
-                        attachableParent?.let { parent ->
-                            onAttach?.invoke(parent, block, asNested)
-                            offset = if (asNested) {
-                                Offset(parent.position.x + 70.dp.toPx(), parent.position.y + 50.dp.toPx())
-                            } else {
-                                Offset(parent.position.x, parent.position.y + 50.dp.toPx())
+                        if (attachableParent is BlockHasBody) {
+                            if (asNested) {
+                                onAttach?.invoke(attachableParent, block, true)
+                                offset = Offset(
+                                    attachableParent.position.x + 70.dp.toPx(),
+                                    attachableParent.position.y + weightBlock(attachableParent).toPx()
+                                )
                             }
+                            else{
+                                onAttach?.invoke(attachableParent, block, true)
+                                offset = Offset(
+                                    attachableParent.position.x,
+                                    attachableParent.position.y + countOfDistance(attachableParent.nestedChildren).toPx() + weightBlock(attachableParent).toPx()
+                                )
+                            }
+                        } else if (attachableParent != null) {
+                            onAttach?.invoke(attachableParent, block, false)
+                            offset = Offset(
+                                attachableParent.position.x,
+                                attachableParent.position.y + weightBlock(attachableParent).toPx()
+                            )
                         }
+
                         onPositionChange(block.id, offset)
                     },
                     onDragCancel = {
@@ -296,13 +320,14 @@ fun DraggableBlock(
             }
     ) {
         Column {
-            BlockView(block)
             if (offset != block.position) {
-                val potentialParent = viewModel.findAttachableParent(block, offset, asNested = false)
+                val potentialParent =
+                    viewModel.findAttachableParent(block, offset, asNested = false)
                 potentialParent?.let { parent ->
                     AttachmentHighlight(parent.position)
                 }
             }
+            BlockView(block)
         }
 
         if (showDeleteIcon.value) {
@@ -318,5 +343,20 @@ fun DraggableBlock(
                     }
             )
         }
+    }
+}
+
+fun countOfDistance(body: MutableList<Block>): Dp {
+    var count = 0.dp
+    body.forEach { block ->
+        count += weightBlock(block)
+    }
+    return count
+}
+
+fun weightBlock(block: Block): Dp {
+    return when (block) {
+        is DeclarationBlock, is FunsBlock, is ForBlock -> 100.dp
+        else -> 50.dp
     }
 }

@@ -241,7 +241,7 @@ fun ForBlockView(content: BlockContent.For, block: Block) {
                     }
                 }
             } else {
-                Column (){
+                Column() {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = "for ")
                         Spacer(modifier = Modifier.width(5.dp))
