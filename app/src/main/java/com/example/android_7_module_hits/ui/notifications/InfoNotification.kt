@@ -11,45 +11,49 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.material.icons.outlined.Info
+import androidx.compose.ui.res.stringResource
+import com.example.android_7_module_hits.R
 import com.example.android_7_module_hits.ui.theme.InfoNotificationBackgroundColor
 import com.example.android_7_module_hits.ui.theme.InfoNotificationTextColor
 import com.example.android_7_module_hits.ui.theme.NotificationTextStyle
 import com.example.android_7_module_hits.ui.theme.NotificationTitleStyle
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.example.android_7_module_hits.ui.theme.NotificationsDimens.cardCornerRadius
+import com.example.android_7_module_hits.ui.theme.NotificationsDimens.cardHeight
+import com.example.android_7_module_hits.ui.theme.NotificationsDimens.cardPadding
+import com.example.android_7_module_hits.ui.theme.NotificationsDimens.horizontalMargin
+import com.example.android_7_module_hits.ui.theme.NotificationsDimens.iconButtonSize
+import com.example.android_7_module_hits.ui.theme.NotificationsDimens.iconSpacing
+import com.example.android_7_module_hits.ui.theme.NotificationsDimens.titleBottomSpacerHeight
 
 data class InfoNotification(
-    override val message: String = "Project is saved",
     val onDismiss: () -> Unit = {}
 ) : UiNotification() {
     override val backgroundColor: Color = InfoNotificationBackgroundColor
     override val textColor: Color = InfoNotificationTextColor
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Render() {
         Card(
             modifier = Modifier
-                .width(384.dp)
-                .height(104.dp),
-            shape = RoundedCornerShape(20.dp),
+                .fillMaxWidth()
+                .padding(horizontal = horizontalMargin)
+                .height(cardHeight),
+            shape = RoundedCornerShape(cardCornerRadius),
             colors = CardDefaults.cardColors(containerColor = backgroundColor)
         ) {
             Column(
                 modifier = Modifier
-                    .padding(start = 20.dp, top = 20.dp, end = 20.dp, bottom = 20.dp)
+                    .padding(cardPadding)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -57,12 +61,12 @@ data class InfoNotification(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Info,
-                        contentDescription = "Info Icon",
+                        contentDescription = stringResource(id = R.string.info_icon_description),
                         tint = textColor
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(iconSpacing))
                     Text(
-                        text = "Info",
+                        text = stringResource(id = R.string.info_title),
                         style = NotificationTitleStyle,
                         color = textColor
                     )
@@ -70,19 +74,19 @@ data class InfoNotification(
                     IconButton(
                         onClick = { onDismiss() },
                         modifier = Modifier
-                            .size(28.dp)
+                            .size(iconButtonSize)
                             .align(Alignment.CenterVertically)
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Close,
-                            contentDescription = "Dismiss Notification",
+                            contentDescription = stringResource(id = R.string.notification_dismiss_icon),
                             tint = textColor
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(titleBottomSpacerHeight))
                 Text(
-                    text = message,
+                    text = stringResource(id = R.string.info_text),
                     style = NotificationTextStyle,
                     color = textColor
                 )
@@ -90,12 +94,3 @@ data class InfoNotification(
         }
     }
 }
-
-@Preview(showBackground = false)
-@Composable
-fun InfoNotificationPreview() {
-    MaterialTheme {
-        InfoNotification(onDismiss = {}).Render()
-    }
-}
-

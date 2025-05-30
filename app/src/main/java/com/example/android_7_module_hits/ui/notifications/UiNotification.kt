@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 sealed class UiNotification {
-    abstract val message: String
     abstract val backgroundColor: Color
     abstract val textColor: Color
 
