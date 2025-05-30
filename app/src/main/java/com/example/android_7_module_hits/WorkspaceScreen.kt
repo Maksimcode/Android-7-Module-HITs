@@ -42,8 +42,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.android_7_module_hits.blocks.BlockHasBody
 import com.example.android_7_module_hits.blocks.ConditionBlock
 import com.example.android_7_module_hits.blocks.DeclarationBlock
+import com.example.android_7_module_hits.blocks.ElseBlock
+import com.example.android_7_module_hits.blocks.ElseIfBlock
 import com.example.android_7_module_hits.blocks.ForBlock
 import com.example.android_7_module_hits.blocks.FunsBlock
+import com.example.android_7_module_hits.blocks.WhileBlock
 import com.example.android_7_module_hits.ui.workspaceFuns.BlockView
 import com.example.android_7_module_hits.interpreter.InterpreterLogger
 import com.example.android_7_module_hits.navigation.Screen
@@ -56,6 +59,9 @@ import com.example.android_7_module_hits.viewModel.BlockViewModel
 import com.example.android_7_module_hits.ui.notifications.UiNotification
 import com.example.android_7_module_hits.ui.notifications.NotificationHost
 import com.example.android_7_module_hits.ui.notifications.showNotification
+import com.example.android_7_module_hits.ui.theme.AssignmentColor
+import com.example.android_7_module_hits.ui.theme.ConditionColor
+import com.example.android_7_module_hits.ui.theme.CycleColor
 import com.example.android_7_module_hits.ui.uiblocks.BlockPalette
 import com.example.android_7_module_hits.ui.workspaceFuns.BottomCircleButtons
 import com.example.android_7_module_hits.utils.weightBlock
@@ -66,8 +72,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    navController: NavController,
-    fileName: String
+    navController: NavController, fileName: String
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -91,168 +96,139 @@ fun MainScreen(
         }
     }
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet(
-                modifier = Modifier.width(drawerWidth)
+    ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
+        ModalDrawerSheet(
+            modifier = Modifier.width(drawerWidth)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Text(
-                        text = "Block creation",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    BlockPalette { newBlock ->
-                        viewModel.addBlock(newBlock)
-                        scope.launch { drawerState.close() }
-                    }
-                }
-            }
-        },
-        content = {
-            Scaffold(
-                topBar = {
-                    CenterAlignedTopAppBar(
-                        title = {
-                            Text(
-                                text = projectName,
-                                modifier = Modifier.clickable {
-                                    showNameDialog = true
-                                }
-                            )
-                        },
-                        navigationIcon = {
-                            IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                                Icon(
-                                    imageVector = Icons.Filled.Menu,
-                                    contentDescription = "Menu"
-                                )
-                            }
-                        },
-                        actions = {
-                            IconButton(onClick = {
-                                navController.navigate(route = Screen.Library.route) {
-                                    popUpTo(Screen.Library.route) {
-                                        inclusive = true
-                                    }
-                                }
-                            }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = "Back"
-                                )
-                            }
-                        }
-                    )
-                },
-                content = { innerPadding ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
-                    ) {
-                        InfiniteCanvas {
-                            blocks.forEach { block ->
-                                key(block.id) {
-                                    DraggableBlock(
-                                        block = block,
-                                        viewModel = viewModel,
-                                        onPositionChange = { id, pos ->
-                                            viewModel.updateBlockAndDescendantsPosition(id, pos)
-                                        },
-                                        onDelete = { id -> viewModel.deleteBlock(id) },
-                                        onAttach = { parent, child, asNested ->
-                                            viewModel.attachBlock(parent, child, asNested)
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.BottomCenter)
-                                .padding(bottom = 0.dp)
-                        ) {
-                            BottomCircleButtons(
-                                allBlocks = blocks,
-                                onConsoleClick = {
-                                    isConsoleOpen = true
-                                },
-                                onSaveClick = {
-                                    viewModel.saveBlocks(ensureJsonExtension(projectName))
-                                    showNotification(
-                                        scope,
-                                        { currentNotification = it },
-                                        InfoNotification(onDismiss = { currentNotification = null })
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
-            )
-
-            NotificationHost(notification = currentNotification)
-
-            if (isConsoleOpen) {
-                ConsoleMenu(
-                    onDismissRequest = { isConsoleOpen = false }
-                ) {
-                    // Сюда будем добавлять консольный вывод
-                    Column {
-                        Text(text = "Console Output:")
-                        Text(text = ">> Interpreter is running...")
-                        if (InterpreterLogger.errors.isEmpty()) {
-                            Text(text = "Ошибок нет")
-                        } else {
-                            for (error in InterpreterLogger.errors) {
-                                Text(text = error)
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (showNameDialog) {
-                var tempName by remember { mutableStateOf(if (projectName == "Enter project name") "" else projectName) }
-                AlertDialog(
-                    onDismissRequest = { showNameDialog = false },
-                    text = {
-                        OutlinedTextField(
-                            value = tempName,
-                            onValueChange = { tempName = it },
-                            label = { Text("Project name") },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                projectName =
-                                    if (tempName.isNotBlank()) tempName else "Enter project name"
-                                showNameDialog = false
-                            }
-                        ) {
-                            Text("OK")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showNameDialog = false }) {
-                            Text("Cancel")
-                        }
-                    }
+                Text(
+                    text = "Block creation", style = MaterialTheme.typography.titleMedium
                 )
+                BlockPalette { newBlock ->
+                    viewModel.addBlock(newBlock)
+                    scope.launch { drawerState.close() }
+                }
             }
         }
-    )
+    }, content = {
+        Scaffold(topBar = {
+            CenterAlignedTopAppBar(title = {
+                Text(
+                    text = projectName, modifier = Modifier.clickable {
+                        showNameDialog = true
+                    })
+            }, navigationIcon = {
+                IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                    Icon(
+                        imageVector = Icons.Filled.Menu, contentDescription = "Menu"
+                    )
+                }
+            }, actions = {
+                IconButton(onClick = {
+                    navController.navigate(route = Screen.Library.route) {
+                        popUpTo(Screen.Library.route) {
+                            inclusive = true
+                        }
+                    }
+                }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                }
+            })
+        }, content = { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                InfiniteCanvas {
+                    blocks.forEach { block ->
+                        key(block.id) {
+                            DraggableBlock(
+                                block = block,
+                                viewModel = viewModel,
+                                onPositionChange = { id, pos ->
+                                    viewModel.updateBlockAndDescendantsPosition(id, pos)
+                                },
+                                onDelete = { id -> viewModel.deleteBlock(id) },
+                                onAttach = { parent, child, asNested ->
+                                    viewModel.attachBlock(parent, child, asNested)
+                                })
+                        }
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 0.dp)
+                ) {
+                    BottomCircleButtons(allBlocks = blocks, onConsoleClick = {
+                        isConsoleOpen = true
+                    }, onSaveClick = {
+                        viewModel.saveBlocks(ensureJsonExtension(projectName))
+                        showNotification(
+                            scope,
+                            { currentNotification = it },
+                            InfoNotification(onDismiss = { currentNotification = null })
+                        )
+                    })
+                }
+            }
+        })
+
+        NotificationHost(notification = currentNotification)
+
+        if (isConsoleOpen) {
+            ConsoleMenu(
+                onDismissRequest = { isConsoleOpen = false }) {
+                // Сюда будем добавлять консольный вывод
+                Column {
+                    Text(text = "Console Output:")
+                    Text(text = ">> Interpreter is running...")
+                    if (InterpreterLogger.errors.isEmpty()) {
+                        Text(text = "Ошибок нет")
+                    } else {
+                        for (error in InterpreterLogger.errors) {
+                            Text(text = error)
+                        }
+                    }
+                }
+            }
+        }
+
+        if (showNameDialog) {
+            var tempName by remember { mutableStateOf(if (projectName == "Enter project name") "" else projectName) }
+            AlertDialog(onDismissRequest = { showNameDialog = false }, text = {
+                OutlinedTextField(
+                    value = tempName,
+                    onValueChange = { tempName = it },
+                    label = { Text("Project name") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }, confirmButton = {
+                TextButton(
+                    onClick = {
+                        projectName = if (tempName.isNotBlank()) tempName else "Enter project name"
+                        showNameDialog = false
+                    }) {
+                    Text("OK")
+                }
+            }, dismissButton = {
+                TextButton(onClick = { showNameDialog = false }) {
+                    Text("Cancel")
+                }
+            })
+        }
+    })
 }
 
 @Composable
@@ -266,81 +242,85 @@ fun DraggableBlock(
     var offset by remember { mutableStateOf(block.position) }
     val showDeleteIcon = remember { mutableStateOf(false) }
 
-    Box(
-        modifier = Modifier
-            .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
-            .combinedClickable(
-                onClick = { showDeleteIcon.value = false },
-                onLongClick = { showDeleteIcon.value = true }
-            )
-            .pointerInput(Unit) {
-                detectDragGestures(
-                    onDrag = { change, dragAmount ->
-                        change.consume()
-                        showDeleteIcon.value = false
-                        offset += dragAmount
-                    },
-                    onDragEnd = {
-                        val potentialParent =
-                            viewModel.findAttachableParent(block, offset, asNested = false)
-                        val asNested = if (potentialParent != null) {
-                            val threshold = 100f
-                            (offset.x - potentialParent.position.x) >= threshold
-                        } else false
+    Box(modifier = Modifier
+        .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
+        .combinedClickable(
+            onClick = { showDeleteIcon.value = false },
+            onLongClick = { showDeleteIcon.value = true })
+        .pointerInput(Unit) {
+            detectDragGestures(onDrag = { change, dragAmount ->
+                change.consume()
+                showDeleteIcon.value = false
+                offset += dragAmount
+            }, onDragEnd = {
+                val potentialParent =
+                    viewModel.findAttachableParent(block, offset, asNested = false)
+                val asNested = if (potentialParent != null) {
+                    val threshold = 100f
+                    (offset.x - potentialParent.position.x) >= threshold
+                } else false
 
-                        val attachableParent =
-                            viewModel.findAttachableParent(block, offset, asNested)
+                val attachableParent = viewModel.findAttachableParent(block, offset, asNested)
 
-                        if (attachableParent is BlockHasBody) {
-                            if (asNested) {
-                                val wasEmpty = attachableParent.nestedChildren.isEmpty()
-                                onAttach?.invoke(attachableParent, block, true)
+                if (attachableParent is BlockHasBody) {
+                    if (asNested) {
+                        val wasEmpty = attachableParent.nestedChildren.isEmpty()
+                        onAttach?.invoke(attachableParent, block, true)
 
-                                offset = if (wasEmpty) {
-                                    // Если был пустой, то позиция относительно родителя
-                                    Offset(
-                                        attachableParent.position.x + 70.dp.toPx(),
-                                        attachableParent.position.y + weightBlock(attachableParent).toPx()
-                                    )
-                                } else {
-                                    // Если не первый, то позиция относительно последнего в теле
-                                    val lastChild = attachableParent.nestedChildren.last()
-                                    Offset(
-                                        lastChild.position.x,
-                                        lastChild.position.y + weightBlock(lastChild).toPx()
-                                    )
-                                }
-                            } else {
-                                onAttach?.invoke(attachableParent, block, false)
-                                offset = Offset(
-                                    attachableParent.position.x,
-                                    attachableParent.position.y + weightBody(attachableParent.nestedChildren).toPx() + weightBlock(
-                                        attachableParent
-                                    ).toPx()
-                                )
-                            }
-                        } else if (attachableParent != null) {
-                            onAttach?.invoke(attachableParent, block, false)
-                            offset = Offset(
-                                attachableParent.position.x,
+                        offset = if (wasEmpty) {
+                            // Если был пустой, то позиция относительно родителя
+                            Offset(
+                                attachableParent.position.x + 70.dp.toPx(),
                                 attachableParent.position.y + weightBlock(attachableParent).toPx()
                             )
+                        } else {
+                            // Если не первый, то позиция относительно последнего в теле
+                            val lastChild = attachableParent.nestedChildren.last()
+                            Offset(
+                                lastChild.position.x,
+                                lastChild.position.y + weightBlock(lastChild).toPx()
+                            )
                         }
-
-                        onPositionChange(block.id, offset)
-                    },
-                    onDragCancel = {
-                        onPositionChange(block.id, offset)
+                    } else {
+                        onAttach?.invoke(attachableParent, block, false)
+                        offset = Offset(
+                            attachableParent.position.x,
+                            attachableParent.position.y + weightBody(attachableParent.nestedChildren).toPx() + weightBlock(
+                                attachableParent
+                            ).toPx()
+                        )
                     }
-                )
-            }
-    ) {
+                } else if (attachableParent != null) {
+                    onAttach?.invoke(attachableParent, block, false)
+                    offset = Offset(
+                        attachableParent.position.x,
+                        attachableParent.position.y + weightBlock(attachableParent).toPx()
+                    )
+                }
+
+                onPositionChange(block.id, offset)
+            }, onDragCancel = {
+                onPositionChange(block.id, offset)
+            })
+        }) {
 
         if (offset != block.position) {
-            val potentialParent =
-                viewModel.findAttachableParent(block, offset, asNested = false)
+            val potentialParent = viewModel.findAttachableParent(block, offset, asNested = false)
+            val asNested = if (potentialParent != null) {
+                val threshold = 150f
+                (offset.x - potentialParent.position.x) >= threshold
+            } else false
             potentialParent?.let { parent ->
-                AttachmentHighlight(parent.position)
+                if (asNested) {
+                    when (potentialParent) {
+                        is WhileBlock, is ForBlock -> AttachmentHighlight(offset, CycleColor)
+                        else -> AttachmentHighlight(offset, ConditionColor)
+                    }
+
+                } else {
+                    AttachmentHighlight(offset, AssignmentColor)
+                }
+
             }
         }
         BlockView(block)
@@ -356,8 +336,7 @@ fun DraggableBlock(
                     .size(24.dp)
                     .clickable {
                         onDelete(block.id)
-                    }
-            )
+                    })
         }
     }
 }
