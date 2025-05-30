@@ -11,14 +11,11 @@ interface Block {
     var parent: Block?
     var child: Block?
 
-    var rootBlock: Block?
-    var EndBlock: Block?
+    val nestedChildren: MutableList<Block>
 
     fun canAttachTo(other: Block): Boolean
 
-    fun hasEndBlock(): Boolean = EndBlock != null
-
-    fun hasRootBlock(): Boolean = rootBlock != null
+    fun canAcceptNestedChildren(): Boolean
 }
 
 

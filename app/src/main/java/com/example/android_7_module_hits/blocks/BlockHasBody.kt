@@ -13,29 +13,18 @@ abstract class BlockHasBody(
     override var parent: Block? = null
     override var child: Block? = null
 
-    override var rootBlock: Block? = null
-    override var EndBlock: Block? = null
+    override val nestedChildren: MutableList<Block> = mutableListOf()
 
     override fun canAttachTo(other: Block): Boolean {
-        if (child != null) {
-            return false
-        } else {
-            return true
-        }
+        return child == null
     }
 
-    fun attachToEnd(block: Block) {
-        if (block.type == BlockType.END) {
-            EndBlock = block;
-        } else {
-            block.child?.let { attachToEnd(it) }
-        }
+    fun canAttachNested(): Boolean {
+        return true
     }
 
-    override fun hasEndBlock(): Boolean {
-        return EndBlock != null
+    override fun canAcceptNestedChildren(): Boolean {
+        return true
     }
-
-
 
 }

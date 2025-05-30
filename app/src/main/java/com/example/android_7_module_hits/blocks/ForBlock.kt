@@ -14,3 +14,8 @@ class ForBlock (
         construct = update
     )
 )
+{
+    override fun canAcceptNestedChildren(): Boolean {
+        return true
+    }
+}

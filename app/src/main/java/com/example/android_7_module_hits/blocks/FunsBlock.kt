@@ -13,4 +13,8 @@ class FunsBlock (
         firstSw = firstSwap,
         secondSw = secondSwap
     )
-)
+){
+    override fun canAcceptNestedChildren(): Boolean {
+        return false
+    }
+}

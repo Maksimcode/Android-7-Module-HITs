@@ -48,8 +48,6 @@ fun Block.toBlockState(): BlockState {
         positionX = position.x,
         positionY = position.y,
         parentId = this.parent?.id,
-        childId = this.child?.id,
-        rootBlockId = this.rootBlock?.id,
-        endBlockId = this.EndBlock?.id
+        childId = this.child?.id
     )
 }
