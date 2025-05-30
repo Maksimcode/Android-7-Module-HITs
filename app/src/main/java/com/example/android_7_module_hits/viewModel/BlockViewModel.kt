@@ -6,9 +6,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockHasBody
+import com.example.android_7_module_hits.blocks.ConditionBlock
 import com.example.android_7_module_hits.blocks.DeclarationBlock
+import com.example.android_7_module_hits.blocks.ElseBlock
+import com.example.android_7_module_hits.blocks.ElseIfBlock
 import com.example.android_7_module_hits.blocks.ForBlock
 import com.example.android_7_module_hits.blocks.FunsBlock
+import com.example.android_7_module_hits.blocks.WhileBlock
 import com.example.android_7_module_hits.saving.BlockRepository
 import com.example.android_7_module_hits.utils.distanceBetween
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -257,20 +261,34 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         return _blocks.value.firstOrNull { candidate ->
             if (candidate.id == draggedBlock.id) return@firstOrNull false
 
-            when (draggedBlock){
-                is DeclarationBlock, is ForBlock, is FunsBlock ->{
+            when (candidate){
+                is DeclarationBlock, is FunsBlock ->{
                     val distance = distanceBetween(
-                        Offset(candidate.position.x + 50f, candidate.position.y + 150f),
+                        Offset(candidate.position.x + 100f, candidate.position.y + 200f),
                         dropPosition
                     )
-                    if (distance >= 200f) return@firstOrNull false
+                    if (distance >= 250f) return@firstOrNull false
+                }
+                is ForBlock-> {
+                    val distance = distanceBetween(
+                        Offset(candidate.position.x + 200f, candidate.position.y + 200f),
+                        dropPosition
+                    )
+                    if (distance >= 250f) return@firstOrNull false
+                }
+                is WhileBlock, is ConditionBlock, is ElseBlock, is ElseIfBlock -> {
+                    val distance = distanceBetween(
+                        Offset(candidate.position.x + 200f, candidate.position.y + 50f),
+                        dropPosition
+                    )
+                    if (distance >= 250f) return@firstOrNull false
                 }
                 else -> {
                     val distance = distanceBetween(
-                        Offset(candidate.position.x + 50f, candidate.position.y + 50f),
+                        Offset(candidate.position.x + 100f, candidate.position.y + 50f),
                         dropPosition
                     )
-                    if (distance >= 200f) return@firstOrNull false
+                    if (distance >= 150f) return@firstOrNull false
                 }
             }
 

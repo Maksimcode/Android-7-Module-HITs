@@ -43,7 +43,7 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block){
 
     Card(
         modifier = Modifier
-            .width(210.dp)
+            .width(280.dp)
             .padding(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = ConditionColor)
