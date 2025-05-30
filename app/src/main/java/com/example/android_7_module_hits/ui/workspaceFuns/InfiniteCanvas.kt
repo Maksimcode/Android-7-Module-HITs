@@ -14,6 +14,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import com.example.android_7_module_hits.ui.theme.InfiniteCanvasBackgroundColor
 
 @Composable
 fun InfiniteCanvas(
@@ -25,7 +26,7 @@ fun InfiniteCanvas(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(InfiniteCanvasBackgroundColor)
             .pointerInput(Unit) {
                 detectTransformGestures(
                     panZoomLock = false,

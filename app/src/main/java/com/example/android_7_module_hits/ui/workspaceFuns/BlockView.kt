@@ -2,6 +2,8 @@ package com.example.android_7_module_hits.ui.workspaceFuns
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.example.android_7_module_hits.R
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
 import com.example.android_7_module_hits.ui.uiblocks.AssignBlockView
@@ -54,7 +56,7 @@ fun BlockView(block: Block) {
         }
 
         else -> {
-            Text("Unknown block type")
+            Text(stringResource(id = R.string.unknown_block_type))
         }
     }
 }

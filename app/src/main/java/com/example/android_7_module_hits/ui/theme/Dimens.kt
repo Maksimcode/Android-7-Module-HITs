@@ -1,5 +1,6 @@
 package com.example.android_7_module_hits.ui.theme
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 
@@ -46,4 +47,30 @@ object LibraryFunctionsDimens {
     // TabButton
     val tabButtonCornerRadius = 24.dp
     val tabButtonCornerHeight = 52.dp
+}
+
+object WorkspaceFunctionsDimens {
+
+    // AttachmentHighlight
+    val AttachmentHighlightWidth = 200.dp
+    val AttachmentHighlightHeight = 16.dp
+
+    // BottomCircleButtons
+    val rowBottomPadding = 16.dp
+    val rowButtonSpacing = 14.dp
+    val buttonShadowElevation = 2.dp
+    val buttonCornerRadius = 32.dp
+    val buttonSize = 56.dp
+    val iconSize = 32.dp
+
+    // ConsoleMenu
+    val modalBottomSheetHeight = 300.dp
+    val modalBottomSheetPadding = 16.dp
+
+
+    // MainScreen
+    val drawerHorizontalPadding = 16.dp
+    val drawerColumnSpacing = 16.dp
+    val bottomBoxPadding = 0.dp
+    const val drawerWidthMultiplier = 0.6f
 }
