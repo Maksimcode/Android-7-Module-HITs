@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">Android-7-Module-HITs</string>
+
+    <string name="header_title">Library</string>
+    <string name="header_subtitle">All projects here!</string>
+
+    <string name="empty_illustration_description">Empty illustration</string>
+    <string name="empty_state_content_text">It\'s empty now :(</string>
+
+    <string name="bottom_circle_button_description">Create new workspace</string>
+
+    <string name="delete_save_block_description">Delete Save</string>
+    <string name="three_points_to_saving">…</string>
+
+    <string name="first_tab_button_text">My projects</string>
+    <string name="second_tab_button_text">Examples</string>
 </resources>
