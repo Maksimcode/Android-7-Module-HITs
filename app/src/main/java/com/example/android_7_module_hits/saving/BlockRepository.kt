@@ -45,6 +45,14 @@ class BlockRepository(private val context: Context) {
                         block?.let {
                             it.parent = state.parentId?.let { id -> blockMap[id] }
                             it.child = state.childId?.let { id -> blockMap[id] }
+                            if (it is com.example.android_7_module_hits.blocks.BlockHasBody) {
+                                state.nestedChildrenIds.forEach { nestedId ->
+                                    blockMap[nestedId]?.let { nestedBlock ->
+                                        it.nestedChildren.add(nestedBlock)
+                                        nestedBlock.parent = it
+                                    }
+                                }
+                            }
                         }
                     }
                     blockMap.values.toList()
