@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockHasBody
+import com.example.android_7_module_hits.blocks.BlockType
 import com.example.android_7_module_hits.blocks.ConditionBlock
 import com.example.android_7_module_hits.blocks.ElseBlock
 import com.example.android_7_module_hits.blocks.ElseIfBlock
@@ -101,7 +102,14 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
 
             val distance = distanceBetween(candidate.position, currentPosition)
 
-            distance < 200f && candidate.canAttachTo(draggedBlock)
+            val maxDistance = when (candidate.type) {
+                BlockType.FOR -> 570f
+                BlockType.DECLARE, BlockType.FUNCTIONS -> 285f
+                BlockType.ELSE_IF -> 230f
+                else -> 145f
+            }
+
+            distance < maxDistance && candidate.canAttachTo(draggedBlock)
         }
     }
 

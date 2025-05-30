@@ -299,25 +299,40 @@ fun DraggableBlock(
                     onDragEnd = {
                         val attachableParent = viewModel.findAttachableParent(block, offset)
                         if (attachableParent != null) {
-                            if (attachableParent.type == BlockType.ELSE_IF){
+                            val offsetX = when {
+                                (attachableParent.type == BlockType.CONDITION ||
+                                attachableParent.type == BlockType.ELSE_IF ||
+                                attachableParent.type == BlockType.ELSE ||
+                                attachableParent.type == BlockType.WHILE ||
+                                attachableParent.type == BlockType.FOR )-> 100f
+                                else -> 0f
+                            }
+                            if (attachableParent.type == BlockType.FOR){
                                 onAttach?.invoke(attachableParent, block)
                                 offset = Offset(
-                                    attachableParent.position.x,
+                                    attachableParent.position.x + offsetX,
+                                    attachableParent.position.y + 570f
+                                )
+                            }
+                            else if (attachableParent.type == BlockType.ELSE_IF){
+                                onAttach?.invoke(attachableParent, block)
+                                offset = Offset(
+                                    attachableParent.position.x + offsetX,
                                     attachableParent.position.y + 230f
                                 )
                             }
-                            else if (attachableParent.type == BlockType.DECLARE){
+                            else if (attachableParent.type == BlockType.DECLARE || attachableParent.type == BlockType.FUNCTIONS){
                                 onAttach?.invoke(attachableParent, block)
                                 offset = Offset(
-                                    attachableParent.position.x,
+                                    attachableParent.position.x + offsetX,
                                     attachableParent.position.y + 285f
                                 )
                             }
                             else {
                                 onAttach?.invoke(attachableParent, block)
                                 offset = Offset(
-                                    attachableParent.position.x,
-                                    attachableParent.position.y + 150f
+                                    attachableParent.position.x + offsetX,
+                                    attachableParent.position.y + 145f
                                 )
                             }
                         }
