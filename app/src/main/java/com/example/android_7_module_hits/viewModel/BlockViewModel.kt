@@ -67,17 +67,26 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun deleteBlock(blockId: String) {
-        val targetBlock = _blocks.value.find{it.id ==blockId}
-        targetBlock?.parent?.child = null
-        targetBlock?.child?.parent = null
-        targetBlock?.parent = null
-        targetBlock?.child = null
-        targetBlock?.EndBlock?.rootBlock = null
-        targetBlock?.rootBlock?.EndBlock = null
-        targetBlock?.EndBlock = null
-        targetBlock?.rootBlock = null
+        val targetBlock = _blocks.value.find { it.id == blockId }
+            ?: return
 
-        _blocks.value = _blocks.value.filter { it.id != blockId }
+        val parent = targetBlock.parent
+        val child = targetBlock.child
+
+        if (parent != null && child != null) {
+            parent.child = child
+            child.parent = parent
+        } else if (parent != null) {
+            parent.child = null
+        } else if (child != null) {
+            child.parent = null
+        }
+
+        targetBlock.parent = null
+        targetBlock.child = null
+
+
+        _blocks.value = _blocks.value.filterNot { it.id == blockId }
     }
 
     fun findAttachableParent(draggedBlock: Block, currentPosition: Offset): Block? {
@@ -155,29 +164,38 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun attachHasBodyBlock(currentBlock: Block, parentBlock: Block){
-        when (currentBlock) {
-            is EndBlock ->{
-                if (parentBlock is BlockHasBody && parentBlock.EndBlock == null){
-                    parentBlock.EndBlock = currentBlock
-                    currentBlock.rootBlock = parentBlock
-                }
-                else{
-                    parentBlock.parent?.let { attachHasBodyBlock(currentBlock ,it) }
-                }
-            }
-            is ElseBlock, is ElseIfBlock -> {
-                if (parentBlock is EndBlock) {
-                    if (parentBlock.rootBlock is ConditionBlock ||
-                        parentBlock.rootBlock is ElseIfBlock
-                    ) {
-                        currentBlock.rootBlock = parentBlock
-                        parentBlock.EndBlock = currentBlock
-                    }
-                }
-            }
+    fun isRootBlock(block: Block): Boolean {
+        return when {
+            block.parent != null -> false
+            blocks.value.any { it.child == block } -> false
+            blocks.value.any { (it as? BlockHasBody)?.body?.contains(block) == true } -> false
+            else -> true
         }
     }
+
+//    fun attachHasBodyBlock(currentBlock: Block, parentBlock: Block){
+//        when (currentBlock) {
+//            is EndBlock ->{
+//                if (parentBlock is BlockHasBody && parentBlock.EndBlock == null){
+//                    parentBlock.EndBlock = currentBlock
+//                    currentBlock.rootBlock = parentBlock
+//                }
+//                else{
+//                    parentBlock.parent?.let { attachHasBodyBlock(currentBlock ,it) }
+//                }
+//            }
+//            is ElseBlock, is ElseIfBlock -> {
+//                if (parentBlock is EndBlock) {
+//                    if (parentBlock.rootBlock is ConditionBlock ||
+//                        parentBlock.rootBlock is ElseIfBlock
+//                    ) {
+//                        currentBlock.rootBlock = parentBlock
+//                        parentBlock.EndBlock = currentBlock
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     fun updateBlockAndChildrenPosition(blockId: String, newPosition: Offset) {
         _blocks.update { currentBlocks ->
@@ -206,7 +224,7 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
 
 fun logAllBlocks(blocks : List<Block>){
     blocks.forEach {
-        println("ID: ${it.id}, parent: ${it.parent?.id}, child: ${it.child?.id}, root: ${it.rootBlock?.id}, end: ${it.EndBlock?.id}")
+        println("ID: ${it.id}, type: ${it.type}, parent: ${it.parent?.id}, child: ${it.child?.id}")
     }
 }
 

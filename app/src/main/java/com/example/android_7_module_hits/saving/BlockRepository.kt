@@ -45,8 +45,6 @@ class BlockRepository(private val context: Context) {
                         block?.let {
                             it.parent = state.parentId?.let { id -> blockMap[id] }
                             it.child = state.childId?.let { id -> blockMap[id] }
-                            it.rootBlock = state.rootBlockId?.let { id -> blockMap[id] }
-                            it.EndBlock = state.endBlockId?.let { id -> blockMap[id] }
                         }
                     }
                     blockMap.values.toList()

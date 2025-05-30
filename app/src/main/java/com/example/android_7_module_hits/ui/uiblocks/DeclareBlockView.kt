@@ -198,9 +198,10 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                                     Text(text = displayTextType(editedType), color = BlockInputTextColor)
                                 }
                                 Spacer(modifier = Modifier.width(5.dp))
-                                Text(text = ":", color = Color.Black)
                             }
                             Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(text = "length:", color = Color.Black)
+                                Spacer(modifier = Modifier.width(5.dp))
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(4.dp))

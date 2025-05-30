@@ -14,9 +14,6 @@ abstract class BaseBlock(
     override var parent: Block? = null
     override var child: Block? = null
 
-    override var rootBlock: Block? = null
-    override var EndBlock: Block? = null
-
     override fun canAttachTo(other: Block): Boolean {
         if (child != null) {
             return false

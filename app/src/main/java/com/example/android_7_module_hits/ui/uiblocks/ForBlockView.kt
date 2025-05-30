@@ -35,16 +35,30 @@ import com.example.android_7_module_hits.ui.theme.BlockInputTextColor
 import com.example.android_7_module_hits.ui.theme.CycleColor
 
 @Composable
-fun ForBlockView(content: BlockContent.For, block: Block){
+fun ForBlockView(content: BlockContent.For, block: Block) {
     var isEditingVariable by remember { mutableStateOf(false) }
     var isEditingStartValue by remember { mutableStateOf(false) }
     var isEditingExpression by remember { mutableStateOf(false) }
     var isEditingUpdating by remember { mutableStateOf(false) }
 
-    var editedVariable by remember(content.variable ?: "i") { mutableStateOf(content.variable ?: "i") }
-    var editedStartValue by remember(content.initValue ?: "0") { mutableStateOf(content.initValue ?: "0") }
-    var editedExpression by remember(content.expression ?: "false") { mutableStateOf(content.expression ?: "false") }
-    var editedUpdating by remember(content.construct ?: "${editedVariable} + 1") { mutableStateOf(content.construct ?: "i + 1") }
+    var editedVariable by remember(content.variable ?: "i") {
+        mutableStateOf(
+            content.variable ?: "i"
+        )
+    }
+    var editedStartValue by remember(content.initValue ?: "0") {
+        mutableStateOf(
+            content.initValue ?: "0"
+        )
+    }
+    var editedExpression by remember(
+        content.expression ?: "false"
+    ) { mutableStateOf(content.expression ?: "false") }
+    var editedUpdating by remember(content.construct ?: "${editedVariable} + 1") {
+        mutableStateOf(
+            content.construct ?: "i + 1"
+        )
+    }
 
     Card(
         modifier = Modifier
@@ -52,9 +66,9 @@ fun ForBlockView(content: BlockContent.For, block: Block){
             .padding(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = CycleColor)
-    ){
-        Column(modifier = Modifier.padding(8.dp)){
-            if (isEditingVariable){
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            if (isEditingVariable) {
                 Dialog(onDismissRequest = { isEditingVariable = false }) {
                     Card(
                         modifier = Modifier
@@ -183,7 +197,7 @@ fun ForBlockView(content: BlockContent.For, block: Block){
                         }
                     }
                 }
-            } else if (isEditingUpdating){
+            } else if (isEditingUpdating) {
                 Dialog(onDismissRequest = { isEditingUpdating = false }) {
                     Card(
                         modifier = Modifier
@@ -241,7 +255,6 @@ fun ForBlockView(content: BlockContent.For, block: Block){
                             Text(text = editedVariable, color = BlockInputTextColor)
                         }
                     }
-
                     Row(verticalAlignment = Alignment.CenterVertically){
                         Text(text = "to start with:")
                     }
@@ -257,7 +270,6 @@ fun ForBlockView(content: BlockContent.For, block: Block){
                             Text(text = editedStartValue, color = BlockInputTextColor)
                         }
                     }
-
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = "while expression is true:")
                     }

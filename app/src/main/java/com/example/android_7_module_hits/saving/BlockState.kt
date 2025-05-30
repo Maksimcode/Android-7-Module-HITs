@@ -11,7 +11,5 @@ data class BlockState(
     val positionX: Float,
     val positionY: Float,
     val parentId: String? = null,
-    val childId: String? = null,
-    val rootBlockId: String? = null,
-    val endBlockId: String? = null
+    val childId: String? = null
 )

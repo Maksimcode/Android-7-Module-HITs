@@ -338,9 +338,7 @@ fun DraggableBlock(
                         }
                         if (block.type == BlockType.END ||
                             block.type == BlockType.ELSE_IF ||
-                            block.type == BlockType.ELSE){
-                            block.parent?.let {viewModel.attachHasBodyBlock(block, it)}
-                        }
+                            block.type == BlockType.ELSE)
 
                         onPositionChange(block.id, offset)
 
