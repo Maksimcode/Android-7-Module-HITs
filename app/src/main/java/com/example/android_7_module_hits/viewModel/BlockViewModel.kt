@@ -2,16 +2,15 @@ package com.example.android_7_module_hits.viewModel
 
 import android.app.Application
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockHasBody
 import com.example.android_7_module_hits.saving.BlockRepository
+import com.example.android_7_module_hits.utils.distanceBetween
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlin.math.sqrt
 
 class BlockViewModel(application: Application) : AndroidViewModel(application) {
     private val _blocks = MutableStateFlow<List<Block>>(emptyList())
@@ -57,13 +56,20 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         val parent = targetBlock.parent
         if (parent != null) {
             if (parent.child?.id == targetBlock.id) {
-                parent.child = targetBlock.child
-                targetBlock.child?.parent = parent
+                parent.child = null
             }
             if (parent is BlockHasBody) {
                 parent.nestedChildren.removeAll { it.id == targetBlock.id }
             }
         }
+
+        val child = targetBlock.child
+        if (child != null) {
+            if (child.parent?.id == targetBlock.id) {
+                child.parent = null
+            }
+        }
+
         fun collectNestedIds(block: Block): Set<String> {
             val ids = mutableSetOf<String>()
             if (block is BlockHasBody) {
@@ -83,6 +89,7 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         if (targetBlock is BlockHasBody) {
             targetBlock.nestedChildren.clear()
         }
+        removeBlockFromAllBodies(targetBlock)
 
         _blocks.value = _blocks.value.filter {
             it.id != targetBlock.id && !nestedIds.contains(it.id)
@@ -94,21 +101,39 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         val childBlock = _blocks.value.firstOrNull { it.id == child.id } ?: return
 
         childBlock.parent?.let { oldParent ->
-            detachChild(oldParent, null)
+            detachChild(oldParent, childBlock)
         }
 
-        if (asNested) {
-            if (parentBlock is BlockHasBody && parentBlock.canAttachNested()) {
-                updateNestedRelations(parentBlock, childBlock)
-            } else {
+        val bodyParent = findBodyParent(parent)
+
+
+        if (asNested || bodyParent != null) {
+            if (parentBlock is BlockHasBody && parentBlock.canAcceptNestedChildren()) {
+                if (parentBlock.nestedChildren.isEmpty()) {
+                    updateNestedRelationsWithoutParent(parentBlock, childBlock)
+                } else {
+                    val lastNested = parentBlock.nestedChildren.last()
+                    childBlock.parent = lastNested
+                    updateNestedRelationsWithParent(parentBlock, childBlock, lastNested)
+                }
+            } else if ( bodyParent is BlockHasBody && bodyParent.canAcceptNestedChildren()) {
+                if (bodyParent.nestedChildren.isEmpty()) {
+                    updateNestedRelationsWithoutParent(bodyParent, childBlock)
+                } else {
+                    val lastNested = bodyParent.nestedChildren.last()
+                    childBlock.parent = lastNested
+                    updateNestedRelationsWithParent(bodyParent, childBlock, lastNested)
+                }
+            } else{
                 println("Родительский блок не поддерживает вложенные прикрепления")
                 return
             }
         } else {
+
             if (parentBlock.child == null) {
                 updateLinearRelations(parentBlock, childBlock)
             } else {
-                println("Родительский блок уже имеет линейного ребёнка")
+                println("Родитель уже имеет дочерний блок")
                 return
             }
         }
@@ -124,25 +149,61 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun detachChild(oldParent: Block?, newChild: Block?) {
+    private fun updateNestedRelationsWithoutParent(parentBlock: BlockHasBody, newNestedChild: Block) {
         viewModelScope.launch {
+            parentBlock.nestedChildren.add(newNestedChild)
+            newNestedChild.parent = null // Нет родителя
             _blocks.value = _blocks.value.map { block ->
-                when {
-                    block == oldParent -> {
-                        val updated = block
-                        updated.child = newChild
-                        updated
-                    }
-
-                    block == newChild -> {
-                        val updated = block
-                        updated.parent = oldParent
-                        updated
-                    }
-
+                when (block.id) {
+                    parentBlock.id -> parentBlock
+                    newNestedChild.id -> newNestedChild
                     else -> block
                 }
             }
+        }
+    }
+
+    private fun updateNestedRelationsWithParent(
+        parentBlock: BlockHasBody,
+        newNestedChild: Block,
+        previousInBody: Block
+    ) {
+        viewModelScope.launch {
+            parentBlock.nestedChildren.add(newNestedChild)
+            newNestedChild.parent = previousInBody
+            previousInBody.child = newNestedChild
+            _blocks.value = _blocks.value.map { block ->
+                when (block.id) {
+                    parentBlock.id -> parentBlock
+                    newNestedChild.id -> newNestedChild
+                    else -> block
+                }
+            }
+        }
+    }
+
+    private fun detachChild(parent: Block?, child: Block?) {
+        viewModelScope.launch {
+            if (parent?.child?.id == child?.id) {
+                parent?.child = null
+            }
+            if (child != null) removeBlockFromAllBodies(child)
+            child?.parent = null
+        }
+    }
+
+    private fun findBodyParent(block: Block): BlockHasBody? {
+        return _blocks.value.filterIsInstance<BlockHasBody>().firstOrNull { body ->
+            body.nestedChildren.any { it.id == block.id }
+        }
+    }
+
+    fun removeBlockFromAllBodies(block: Block) {
+        _blocks.value = _blocks.value.map { current ->
+            if (current is BlockHasBody) {
+                current.nestedChildren.removeAll { it.id == block.id }
+            }
+            current
         }
     }
 
@@ -184,6 +245,7 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         draggedBlock.parent?.let { oldParent ->
             detachChild(oldParent, null)
         }
+        removeBlockFromAllBodies(draggedBlock)
 
         return _blocks.value.firstOrNull { candidate ->
             if (candidate.id == draggedBlock.id) return@firstOrNull false
@@ -200,12 +262,6 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
                 candidate.canAttachTo(draggedBlock)
             }
         }
-    }
-
-    private fun distanceBetween(a: Offset, b: Offset): Float {
-        val dx = a.x - b.x
-        val dy = a.y - b.y
-        return sqrt(dx * dx + dy * dy)
     }
 
     private fun updateLinearRelations(oldParent: Block?, newChild: Block?) {
@@ -228,26 +284,7 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun updateNestedRelations(parentBlock: BlockHasBody, newNestedChild: Block) {
-        viewModelScope.launch {
-            parentBlock.nestedChildren.add(newNestedChild)
-            newNestedChild.parent = parentBlock
-
-            _blocks.value = _blocks.value.map { block ->
-                when (block.id) {
-                    parentBlock.id -> parentBlock
-                    newNestedChild.id -> newNestedChild
-                    else -> block
-                }
-            }
-        }
-    }
 }
 
 
-fun logAllBlocks(blocks: List<Block>) {
-    blocks.forEach {
-        println("ID: ${it.id}, parent: ${it.parent?.id}, child: ${it.child?.id}")
-    }
-}
 

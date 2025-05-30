@@ -57,6 +57,8 @@ import com.example.android_7_module_hits.ui.notifications.NotificationHost
 import com.example.android_7_module_hits.ui.notifications.showNotification
 import com.example.android_7_module_hits.ui.uiblocks.BlockPalette
 import com.example.android_7_module_hits.ui.workspaceFuns.BottomCircleButtons
+import com.example.android_7_module_hits.utils.weightBlock
+import com.example.android_7_module_hits.utils.weightBody
 import kotlinx.coroutines.launch
 
 
@@ -290,17 +292,28 @@ fun DraggableBlock(
 
                         if (attachableParent is BlockHasBody) {
                             if (asNested) {
+                                val wasEmpty = attachableParent.nestedChildren.isEmpty()
                                 onAttach?.invoke(attachableParent, block, true)
-                                offset = Offset(
-                                    attachableParent.position.x + 70.dp.toPx(),
-                                    attachableParent.position.y + weightBlock(attachableParent).toPx()
-                                )
-                            }
-                            else{
-                                onAttach?.invoke(attachableParent, block, true)
+
+                                offset = if (wasEmpty) {
+                                    // Если был пустой, то позиция относительно родителя
+                                    Offset(
+                                        attachableParent.position.x + 70.dp.toPx(),
+                                        attachableParent.position.y + weightBlock(attachableParent).toPx()
+                                    )
+                                } else {
+                                    // Если не первый, то позиция относительно последнего в теле
+                                    val lastChild = attachableParent.nestedChildren.last()
+                                    Offset(
+                                        lastChild.position.x,
+                                        lastChild.position.y + weightBlock(lastChild).toPx()
+                                    )
+                                }
+                            } else {
+                                onAttach?.invoke(attachableParent, block, false)
                                 offset = Offset(
                                     attachableParent.position.x,
-                                    attachableParent.position.y + countOfDistance(attachableParent.nestedChildren).toPx() + weightBlock(attachableParent).toPx()
+                                    attachableParent.position.y + weightBody(attachableParent.nestedChildren).toPx() + weightBlock(attachableParent).toPx()
                                 )
                             }
                         } else if (attachableParent != null) {
@@ -319,16 +332,16 @@ fun DraggableBlock(
                 )
             }
     ) {
-        Column {
-            if (offset != block.position) {
-                val potentialParent =
-                    viewModel.findAttachableParent(block, offset, asNested = false)
-                potentialParent?.let { parent ->
-                    AttachmentHighlight(parent.position)
-                }
+
+        if (offset != block.position) {
+            val potentialParent =
+                viewModel.findAttachableParent(block, offset, asNested = false)
+            potentialParent?.let { parent ->
+                AttachmentHighlight(parent.position)
             }
-            BlockView(block)
         }
+        BlockView(block)
+
 
         if (showDeleteIcon.value) {
             Icon(
@@ -343,20 +356,5 @@ fun DraggableBlock(
                     }
             )
         }
-    }
-}
-
-fun countOfDistance(body: MutableList<Block>): Dp {
-    var count = 0.dp
-    body.forEach { block ->
-        count += weightBlock(block)
-    }
-    return count
-}
-
-fun weightBlock(block: Block): Dp {
-    return when (block) {
-        is DeclarationBlock, is FunsBlock, is ForBlock -> 100.dp
-        else -> 50.dp
     }
 }
