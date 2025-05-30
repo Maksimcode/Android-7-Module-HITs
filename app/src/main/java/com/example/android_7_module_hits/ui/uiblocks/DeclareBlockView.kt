@@ -38,17 +38,27 @@ import com.example.android_7_module_hits.ui.theme.BlockInputTextColor
 import com.example.android_7_module_hits.ui.theme.DeclareColor
 
 @Composable
-fun DeclareBlockView(content: BlockContent.Declare, block: Block){
+fun DeclareBlockView(content: BlockContent.Declare, block: Block) {
     var isEditingName by remember { mutableStateOf(false) }
     var isEditingType by remember { mutableStateOf(false) }
     var isEditingLength by remember { mutableStateOf(false) }
 
-    var editedName by remember(content.name ?: "Variable") { mutableStateOf(content.name ?: "Variable") }
-    var editedType by remember(content.type ?: DataType.INTEGER) { mutableStateOf(content.type ?: DataType.INTEGER) }
+    var editedName by remember(content.name ?: "Variable") {
+        mutableStateOf(
+            content.name ?: "Variable"
+        )
+    }
+    var editedType by remember(content.type ?: DataType.INTEGER) {
+        mutableStateOf(
+            content.type ?: DataType.INTEGER
+        )
+    }
     var editedLength by remember(content.length ?: "0") { mutableStateOf(content.length ?: "0") }
 
-    val options = listOf(DataType.INTEGER, DataType.STRING, DataType.BOOLEAN,
-                         DataType.ARR_INT, DataType.ARR_STR, DataType.ARR_BOOL)
+    val options = listOf(
+        DataType.INTEGER, DataType.STRING, DataType.BOOLEAN,
+        DataType.ARR_INT, DataType.ARR_STR, DataType.ARR_BOOL
+    )
 
 
     Card(
@@ -101,7 +111,7 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                         }
                     }
                 }
-            } else if(isEditingType){
+            } else if (isEditingType) {
                 DropdownMenu(
                     expanded = isEditingType,
                     onDismissRequest = { isEditingType = false }) {
@@ -121,9 +131,10 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                 }
 
             } else {
-                if(editedType == DataType.ARR_BOOL ||
+                if (editedType == DataType.ARR_BOOL ||
                     editedType == DataType.ARR_STR ||
-                    editedType == DataType.ARR_INT){
+                    editedType == DataType.ARR_INT
+                ) {
                     if (isEditingLength) {
                         Dialog(onDismissRequest = { isEditingLength = false }) {
                             Card(
@@ -169,9 +180,8 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                                 }
                             }
                         }
-                    }
-                    else{
-                        Column (modifier = Modifier.height(80.dp)) {
+                    } else {
+                        Column(modifier = Modifier.height(80.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(text = "create", color = Color.Black)
                                 Spacer(modifier = Modifier.width(5.dp))
@@ -186,7 +196,6 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                                 }
                             }
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Spacer(modifier = Modifier.width(5.dp))
                                 Text(text = "as", color = Color.Black)
                                 Spacer(modifier = Modifier.width(5.dp))
                                 Box(
@@ -196,14 +205,19 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                                         .clickable { isEditingType = true }
                                         .padding(horizontal = 4.dp, vertical = 2.dp)
                                 ) {
-                                    Text(text = displayTextType(editedType), color = BlockInputTextColor)
+                                    Text(
+                                        text = displayTextType(editedType),
+                                        color = BlockInputTextColor
+                                    )
                                 }
                                 Spacer(modifier = Modifier.width(5.dp))
-                                Text(text = ":", color = Color.Black)
                             }
                             Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(text = "length:", color = Color.Black)
+                                Spacer(modifier = Modifier.width(5.dp))
                                 Box(
                                     modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
                                         .background(color = BlockInputBackgroundColor)
                                         .clickable { isEditingLength = true }
                                         .padding(horizontal = 4.dp, vertical = 2.dp)
@@ -214,8 +228,8 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                         }
                     }
 
-                }else {
-                    Column (modifier = Modifier.height(80.dp)) {
+                } else {
+                    Column(modifier = Modifier.height(80.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(text = "create", color = Color.Black)
                             Spacer(modifier = Modifier.width(5.dp))
@@ -230,7 +244,6 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                             }
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Spacer(modifier = Modifier.width(5.dp))
                             Text(text = "as", color = Color.Black)
                             Spacer(modifier = Modifier.width(5.dp))
                             Box(
@@ -240,7 +253,10 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
                                     .clickable { isEditingType = true }
                                     .padding(horizontal = 4.dp, vertical = 2.dp)
                             ) {
-                                Text(text = displayTextType(editedType), color = BlockInputTextColor)
+                                Text(
+                                    text = displayTextType(editedType),
+                                    color = BlockInputTextColor
+                                )
                             }
                         }
                     }
@@ -250,8 +266,8 @@ fun DeclareBlockView(content: BlockContent.Declare, block: Block){
     }
 }
 
-fun displayTextType(selectedType: DataType): String{
-    return when(selectedType){
+fun displayTextType(selectedType: DataType): String {
+    return when (selectedType) {
         DataType.INTEGER -> "integer"
         DataType.STRING -> "text"
         DataType.BOOLEAN -> "boolean"

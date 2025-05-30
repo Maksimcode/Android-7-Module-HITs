@@ -35,22 +35,23 @@ import com.example.android_7_module_hits.ui.theme.BlockInputTextColor
 import com.example.android_7_module_hits.ui.theme.ConditionColor
 
 @Composable
-fun ConditionBlockView(content: BlockContent.Condition, block: Block){
+fun ConditionBlockView(content: BlockContent.Condition, block: Block) {
     var isEditingExpression by remember { mutableStateOf(false) }
 
-    var editedExpression by remember(content.expression ?: "true") { mutableStateOf(content.expression ?: "true") }
+    var editedExpression by remember(
+        content.expression ?: "true"
+    ) { mutableStateOf(content.expression ?: "true") }
 
 
     Card(
         modifier = Modifier
-            .width(210.dp)
+            .width(280.dp)
             .padding(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = ConditionColor)
-    ){
-        Column(modifier = Modifier.padding(8.dp)){
-            if (isEditingExpression)
-            {
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            if (isEditingExpression) {
                 Dialog(onDismissRequest = { isEditingExpression = false }) {
                     Card(
                         modifier = Modifier
@@ -92,9 +93,10 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block){
                         }
                     }
                 }
-            } else{
+            } else {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text="if ( ")
+                    Text(text = "if")
+                    Spacer(modifier = Modifier.width(5.dp))
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
@@ -104,8 +106,8 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block){
                     ) {
                         Text(text = editedExpression, color = BlockInputTextColor)
                     }
-
-                    Text(text = " ) is true", color = Color.Black)
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Text(text = "is true", color = Color.Black)
                 }
             }
         }

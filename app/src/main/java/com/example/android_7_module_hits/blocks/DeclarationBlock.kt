@@ -12,7 +12,7 @@ class DeclarationBlock(
         name = variableName,
         length = arrayLength
     )
-){
+) {
     override fun canAcceptNestedChildren(): Boolean {
         return false
     }

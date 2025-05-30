@@ -35,22 +35,23 @@ import com.example.android_7_module_hits.ui.theme.BlockInputTextColor
 import com.example.android_7_module_hits.ui.theme.ConditionColor
 
 @Composable
-fun ElseIfBlockView(content: BlockContent.ElseIf, block: Block){
+fun ElseIfBlockView(content: BlockContent.ElseIf, block: Block) {
     var isEditingExpression by remember { mutableStateOf(false) }
 
-    var editedExpression by remember(content.expression ?: "true") { mutableStateOf(content.expression ?: "true") }
+    var editedExpression by remember(
+        content.expression ?: "true"
+    ) { mutableStateOf(content.expression ?: "true") }
 
 
     Card(
         modifier = Modifier
-            .width(210.dp)
+            .width(280.dp)
             .padding(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = ConditionColor)
-    ){
-        Column(modifier = Modifier.padding(8.dp)){
-            if (isEditingExpression)
-            {
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            if (isEditingExpression) {
                 Dialog(onDismissRequest = { isEditingExpression = false }) {
                     Card(
                         modifier = Modifier
@@ -93,10 +94,11 @@ fun ElseIfBlockView(content: BlockContent.ElseIf, block: Block){
                         }
                     }
                 }
-            } else{
-                Column (modifier = Modifier.height(60.dp)) {
+            } else {
+                Column(modifier = Modifier.height(60.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "otherwise, if ( ")
+                        Text(text = "otherwise, if")
+                        Spacer(modifier = Modifier.width(5.dp))
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(4.dp))
@@ -106,8 +108,6 @@ fun ElseIfBlockView(content: BlockContent.ElseIf, block: Block){
                         ) {
                             Text(text = editedExpression, color = BlockInputTextColor)
                         }
-
-                        Text(text = " )", color = Color.Black)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = "is true", color = Color.Black)

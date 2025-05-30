@@ -6,4 +6,4 @@ data class VariableContent(
     var type: DataType,
     var value: Any,
     var arrayLength: String = "0"
-) {}
+)
