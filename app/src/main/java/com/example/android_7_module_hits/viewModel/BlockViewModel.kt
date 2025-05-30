@@ -6,15 +6,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockHasBody
-import com.example.android_7_module_hits.blocks.BlockType
-import com.example.android_7_module_hits.blocks.ConditionBlock
-import com.example.android_7_module_hits.blocks.ElseBlock
-import com.example.android_7_module_hits.blocks.ElseIfBlock
-import com.example.android_7_module_hits.blocks.EndBlock
 import com.example.android_7_module_hits.saving.BlockRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.math.sqrt
 
@@ -56,60 +50,133 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         _blocks.value = emptyList()
     }
 
-
-    fun updateBlockPosition(blockId: String, newPosition: Offset) {
-        val updated = _blocks.value.map { block ->
-            if (block.id == blockId)
-                block.position = newPosition
-            block
-        }
-        _blocks.value = updated
-    }
-
     fun deleteBlock(blockId: String) {
-        val targetBlock = _blocks.value.find { it.id == blockId }
-            ?: return
+        val targetBlock = _blocks.value.firstOrNull { it.id == blockId } ?: return
 
         val parent = targetBlock.parent
-        val child = targetBlock.child
-
-        if (parent != null && child != null) {
-            parent.child = child
-            child.parent = parent
-        } else if (parent != null) {
-            parent.child = null
-        } else if (child != null) {
-            child.parent = null
+        if (parent != null) {
+            if (parent.child?.id == targetBlock.id) {
+                parent.child = targetBlock.child
+                targetBlock.child?.parent = parent
+            }
+            if (parent is BlockHasBody) {
+                parent.nestedChildren.removeAll { it.id == targetBlock.id }
+            }
         }
+        fun collectNestedIds(block: Block): Set<String> {
+            val ids = mutableSetOf<String>()
+            if (block is BlockHasBody) {
+                block.nestedChildren.forEach { nestedChild ->
+                    ids.add(nestedChild.id)
+                    ids.addAll(collectNestedIds(nestedChild))
+                }
+            }
+            return ids
+        }
+        val nestedIds = if (targetBlock is BlockHasBody) collectNestedIds(targetBlock) else emptySet()
 
         targetBlock.parent = null
         targetBlock.child = null
-
-
-        _blocks.value = _blocks.value.filterNot { it.id == blockId }
-    }
-
-    fun findAttachableParent(draggedBlock: Block, currentPosition: Offset): Block? {
-        val draggedBlock = _blocks.value.find { it == draggedBlock } ?: return null
-        val oldParent = draggedBlock.parent
-
-        oldParent?.let {
-            updateChildAndParentRelations(oldParent, null)
+        if (targetBlock is BlockHasBody) {
+            targetBlock.nestedChildren.clear()
         }
 
+        _blocks.value = _blocks.value.filter {
+            it.id != targetBlock.id && !nestedIds.contains(it.id)
+        }
+    }
+
+    fun attachBlock(parent: Block, child: Block, asNested: Boolean) {
+        val parentBlock = _blocks.value.firstOrNull { it.id == parent.id } ?: return
+        val childBlock = _blocks.value.firstOrNull { it.id == child.id } ?: return
+
+        childBlock.parent?.let { oldParent ->
+            detachChild(oldParent, childBlock)
+        }
+
+        if (asNested) {
+            if (parentBlock is BlockHasBody && parentBlock.canAttachNested()) {
+                updateNestedRelations(parentBlock, childBlock)
+            } else {
+                println("Родительский блок не поддерживает вложенные прикрепления")
+                return
+            }
+        } else {
+            if (parentBlock.child == null) {
+                updateLinearRelations(parentBlock, childBlock)
+            } else {
+                println("Родительский блок уже имеет линейного ребёнка")
+                return
+            }
+        }
+
+        viewModelScope.launch {
+            _blocks.value = _blocks.value.map { block ->
+                when (block.id) {
+                    parentBlock.id -> parentBlock
+                    childBlock.id -> childBlock
+                    else -> block
+                }
+            }
+        }
+    }
+
+    private fun detachChild(parent: Block, child: Block) {
+        if (parent.child?.id == child.id) {
+            parent.child = null
+        }
+        if (parent is BlockHasBody) {
+            parent.nestedChildren.removeAll { it.id == child.id }
+        }
+        child.parent = null
+    }
+
+    fun updateBlockAndDescendantsPosition(blockId: String, newPosition: Offset) {
+        val targetBlock = _blocks.value.find { it.id == blockId } ?: return
+
+        val dx = newPosition.x - targetBlock.position.x
+        val dy = newPosition.y - targetBlock.position.y
+
+        targetBlock.position = newPosition
+
+        updateDescendantsPosition(targetBlock, dx, dy)
+
+        viewModelScope.launch {
+            _blocks.value = _blocks.value.map { it }
+        }
+    }
+
+    private fun updateDescendantsPosition(block: Block, dx: Float, dy: Float) {
+        block.child?.let { linearChild ->
+            linearChild.position = Offset(linearChild.position.x + dx, linearChild.position.y + dy)
+            updateDescendantsPosition(linearChild, dx, dy)
+        }
+        if (block is BlockHasBody) {
+            block.nestedChildren.forEach { nestedChild ->
+                nestedChild.position = Offset(nestedChild.position.x + dx, nestedChild.position.y + dy)
+                updateDescendantsPosition(nestedChild, dx, dy)
+            }
+        }
+    }
+
+
+
+    fun findAttachableParent(
+        draggedBlock: Block,
+        dropPosition: Offset,
+        asNested: Boolean
+    ): Block? {
         return _blocks.value.firstOrNull { candidate ->
             if (candidate.id == draggedBlock.id) return@firstOrNull false
 
-            val distance = distanceBetween(candidate.position, currentPosition)
+            val distance = distanceBetween(candidate.position, dropPosition)
+            if (distance >= 200f) return@firstOrNull false
 
-            val maxDistance = when (candidate.type) {
-                BlockType.FOR -> 570f
-                BlockType.DECLARE, BlockType.FUNCTIONS -> 285f
-                BlockType.ELSE_IF -> 230f
-                else -> 145f
+            if (asNested) {
+                candidate is BlockHasBody && candidate.canAttachNested()
+            } else {
+                candidate.canAttachTo(draggedBlock)
             }
-
-            distance < maxDistance && candidate.canAttachTo(draggedBlock)
         }
     }
 
@@ -119,19 +186,17 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         return sqrt(dx * dx + dy * dy)
     }
 
-    private fun updateChildAndParentRelations(oldParent: Block?, newChild: Block?) {
+    private fun updateLinearRelations(oldParent: Block?, newChild: Block?) {
         viewModelScope.launch {
             _blocks.value = _blocks.value.map { block ->
                 when {
                     block == oldParent -> {
-                        val updated = block
-                        updated.child = newChild
-                        updated
+                        block.child = newChild
+                        block
                     }
                     block == newChild -> {
-                        val updated = block
-                        updated.parent = oldParent
-                        updated
+                        block.parent = oldParent
+                        block
                     }
                     else -> block
                 }
@@ -139,92 +204,25 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun attachChild(parent: Block, child: Block) {
-        val parent = _blocks.value.find { it == parent } ?: return
-        val child = _blocks.value.find { it == child } ?: return
-
-        child.parent?.let { oldParent ->
-            updateChildAndParentRelations(oldParent, null)
-        }
-
+    private fun updateNestedRelations(parentBlock: BlockHasBody, newNestedChild: Block) {
         viewModelScope.launch {
+            parentBlock.nestedChildren.add(newNestedChild)
+            newNestedChild.parent = parentBlock
+
             _blocks.value = _blocks.value.map { block ->
-                if (block.id == parent.id) {
-                    val updated = block
-                    updated.child = child
-                    updated
-                } else if (block.id == child.id) {
-                    val updated = block
-                    updated.parent = parent
-                    updated
-                } else {
-                    block
+                when (block.id) {
+                    parentBlock.id -> parentBlock
+                    newNestedChild.id -> newNestedChild
+                    else -> block
                 }
             }
-        }
-    }
-
-    fun isRootBlock(block: Block): Boolean {
-        return when {
-            block.parent != null -> false
-            blocks.value.any { it.child == block } -> false
-            blocks.value.any { (it as? BlockHasBody)?.body?.contains(block) == true } -> false
-            else -> true
-        }
-    }
-
-//    fun attachHasBodyBlock(currentBlock: Block, parentBlock: Block){
-//        when (currentBlock) {
-//            is EndBlock ->{
-//                if (parentBlock is BlockHasBody && parentBlock.EndBlock == null){
-//                    parentBlock.EndBlock = currentBlock
-//                    currentBlock.rootBlock = parentBlock
-//                }
-//                else{
-//                    parentBlock.parent?.let { attachHasBodyBlock(currentBlock ,it) }
-//                }
-//            }
-//            is ElseBlock, is ElseIfBlock -> {
-//                if (parentBlock is EndBlock) {
-//                    if (parentBlock.rootBlock is ConditionBlock ||
-//                        parentBlock.rootBlock is ElseIfBlock
-//                    ) {
-//                        currentBlock.rootBlock = parentBlock
-//                        parentBlock.EndBlock = currentBlock
-//                    }
-//                }
-//            }
-//        }
-//    }
-
-    fun updateBlockAndChildrenPosition(blockId: String, newPosition: Offset) {
-        _blocks.update { currentBlocks ->
-            currentBlocks.map { block ->
-                if (block.id == blockId) {
-                    val dx = newPosition.x - block.position.x
-                    val dy = newPosition.y - block.position.y
-
-                    block.position = newPosition
-                    updateChildrenPositions(block.child, dx, dy)
-
-                    block
-                } else block
-            }
-        }
-    }
-
-    private fun updateChildrenPositions(child: Block?, dx: Float, dy: Float) {
-        var currentChild = child
-        while (currentChild != null) {
-            currentChild.position = Offset(currentChild.position.x + dx, currentChild.position.y + dy)
-            currentChild = currentChild.child
         }
     }
 }
 
 fun logAllBlocks(blocks : List<Block>){
     blocks.forEach {
-        println("ID: ${it.id}, type: ${it.type}, parent: ${it.parent?.id}, child: ${it.child?.id}")
+        println("ID: ${it.id}, parent: ${it.parent?.id}, child: ${it.child?.id}")
     }
 }
 

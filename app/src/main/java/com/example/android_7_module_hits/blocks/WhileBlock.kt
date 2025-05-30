@@ -4,7 +4,10 @@ class WhileBlock (
     val logicalExpression: String
 ) : BlockHasBody(
     type = BlockType.WHILE,
-    content = BlockContent.While(
-        expression = logicalExpression
-    )
+    content = BlockContent.While(expression = logicalExpression)
 )
+{
+    override fun canAcceptNestedChildren(): Boolean {
+        return true
+    }
+}

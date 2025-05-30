@@ -3,11 +3,9 @@ package com.example.android_7_module_hits.interpreter
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
 import com.example.android_7_module_hits.blocks.BlockHasBody
-import com.example.android_7_module_hits.blocks.BlockType
 import com.example.android_7_module_hits.blocks.ConditionBlock
 import com.example.android_7_module_hits.blocks.DataType
 import com.example.android_7_module_hits.blocks.ElseIfBlock
-import com.example.android_7_module_hits.blocks.FunsBlock
 import com.example.android_7_module_hits.blocks.FunsType
 
 fun interpret(block: Block, state: InterpreterState) {
@@ -31,7 +29,7 @@ fun interpret(block: Block, state: InterpreterState) {
 
             if (insideIfBody) {
                 state.enterScope()
-                (currentBlock as BlockHasBody).body.forEach { current ->
+                (currentBlock as BlockHasBody).nestedChildren.forEach { current ->
                     try {
                         interpret(current, state)
                     } catch (e: Exception) {
@@ -40,13 +38,11 @@ fun interpret(block: Block, state: InterpreterState) {
                 }
                 state.exitScope()
             }
-
             return
         }
 
         is BlockContent.ElseIf -> {
             val logicalExpression = content.expression
-
             var conditionResult: Boolean = state.setCondition(logicalExpression)
             var temp = currentBlock.parent
             var anyPrevTrue = false
@@ -77,7 +73,7 @@ fun interpret(block: Block, state: InterpreterState) {
 
             if (insideElseIfBody) {
                 state.enterScope()
-                (currentBlock as BlockHasBody).body.forEach { current ->
+                (currentBlock as BlockHasBody).nestedChildren.forEach { current ->
                     try {
                         interpret(current, state)
                     } catch (e: Exception) {
@@ -86,12 +82,10 @@ fun interpret(block: Block, state: InterpreterState) {
                 }
                 state.exitScope()
             }
-
             return
         }
 
         is BlockContent.Else -> {
-
             var temp = currentBlock.parent
             var anyPrevTrue = false
             while(temp != null && (temp is ConditionBlock || temp is ElseIfBlock)){
@@ -119,10 +113,9 @@ fun interpret(block: Block, state: InterpreterState) {
 
             var insideElseBody = !anyPrevTrue
 
-
             if (insideElseBody){
                 state.enterScope()
-                (currentBlock as BlockHasBody).body.forEach { current ->
+                (currentBlock as BlockHasBody).nestedChildren.forEach { current ->
                     try {
                         interpret(current, state)
                     } catch (e: Exception) {
@@ -145,15 +138,14 @@ fun interpret(block: Block, state: InterpreterState) {
 
             while (insideWhileBody) {
                 state.enterScope()
-                (currentBlock as BlockHasBody).body.forEach { current ->
+                (currentBlock as BlockHasBody).nestedChildren.forEach { current ->
                     try{
                         interpret(current, state)
                     } catch (e : Exception) {
                         InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
                     }
                 }
-
-                state.exitScope()
+                state.enterScope()
                 insideWhileBody = state.setCondition(logicalExpression)
             }
 
@@ -165,7 +157,6 @@ fun interpret(block: Block, state: InterpreterState) {
             val startValue = content.initValue
             val logicalExpression = content.expression
             val update = content.construct
-
 
             state.declareVariable(
                 BlockContent.Declare(
@@ -188,7 +179,7 @@ fun interpret(block: Block, state: InterpreterState) {
                 state.enterScope()
                 insideForBody = state.setCondition(logicalExpression)
                 if (insideForBody) {
-                    (currentBlock as BlockHasBody).body.forEach { current ->
+                    (currentBlock as BlockHasBody).nestedChildren.forEach { current ->
                         try {
                             interpret(current, state)
                         } catch (e: Exception) {
@@ -208,9 +199,7 @@ fun interpret(block: Block, state: InterpreterState) {
                 }
 
                 state.exitScope()
-
             }
-
             return
         }
 
@@ -224,9 +213,7 @@ fun interpret(block: Block, state: InterpreterState) {
                 }
                 else -> println("pupu")
             }
-
         }
-
         is BlockContent.End -> {
             state.exitScope()
         }

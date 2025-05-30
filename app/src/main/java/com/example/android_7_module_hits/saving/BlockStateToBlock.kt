@@ -66,7 +66,6 @@ fun BlockState.toBlock(): Block {
                 this.position = position
             }
         }
-
         BlockType.FOR -> {
             val contentState = content as BlockContentState.For
             ForBlock(
@@ -90,12 +89,11 @@ fun BlockState.toBlock(): Block {
                 this.position = position
             }
         }
-
         BlockType.END -> {
             EndBlock().apply {
                 this.position = position
             }
         }
-        else -> throw IllegalArgumentException("Unknown block type: $type")
+        else -> throw IllegalArgumentException("Неизвестный тип блока: $type")
     }
 }

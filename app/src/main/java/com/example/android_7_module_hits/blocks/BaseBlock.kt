@@ -14,6 +14,8 @@ abstract class BaseBlock(
     override var parent: Block? = null
     override var child: Block? = null
 
+    override val nestedChildren: MutableList<Block> = mutableListOf()
+
     override fun canAttachTo(other: Block): Boolean {
         if (child != null) {
             return false
