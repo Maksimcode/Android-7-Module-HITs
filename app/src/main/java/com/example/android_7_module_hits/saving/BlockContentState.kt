@@ -1,6 +1,7 @@
 package com.example.android_7_module_hits.saving
 
 import com.example.android_7_module_hits.blocks.DataType
+import com.example.android_7_module_hits.blocks.FunsType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -39,6 +40,24 @@ sealed class BlockContentState {
     @SerialName("while")
     data class While(
         val expression: String
+    ) : BlockContentState()
+
+    @Serializable
+    @SerialName("for")
+    data class For(
+        var variable: String,
+        var initValue: String,
+        var expression: String,
+        var construct: String
+    ) : BlockContentState()
+
+    @Serializable
+    @SerialName("functions")
+    data class Functions(
+        var func: FunsType,
+        var comParam: String,
+        var firstSw: String = "a",
+        var secondSw: String = "b"
     ) : BlockContentState()
 
     @Serializable
