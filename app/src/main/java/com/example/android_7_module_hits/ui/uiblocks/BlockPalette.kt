@@ -48,18 +48,25 @@ fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) 
                 val newBlock = when (template.type) {
                     BlockType.DECLARE ->
                         DeclarationBlock(variableType = DataType.INTEGER, variableName = "Variable")
+
                     BlockType.ASSIGN ->
                         AssignmentBlock(variableName = "Variable", initialValue = "0")
+
                     BlockType.CONDITION ->
                         ConditionBlock(logicalExpression = "true")
+
                     BlockType.ELSE_IF ->
                         ElseIfBlock(logicalExpression = "true")
+
                     BlockType.ELSE ->
                         ElseBlock()
+
                     BlockType.END ->
                         EndBlock()
+
                     BlockType.WHILE ->
                         WhileBlock(logicalExpression = "false")
+
                     BlockType.FOR ->
                         ForBlock(
                             counter = "i",
@@ -67,11 +74,13 @@ fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) 
                             logicalExpression = "i < 10",
                             update = "i + 1"
                         )
+
                     BlockType.FUNCTIONS ->
                         FunsBlock(
                             function = FunsType.PRINT,
                             uniParam = "Variable"
                         )
+
                     else -> throw IllegalArgumentException("Unknown block type")
                 }
                 onBlockSelected(newBlock)

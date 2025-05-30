@@ -262,28 +262,37 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         return _blocks.value.firstOrNull { candidate ->
             if (candidate.id == draggedBlock.id) return@firstOrNull false
 
-            when (candidate){
-                is DeclarationBlock, is FunsBlock ->{
+            when (candidate) {
+                is DeclarationBlock, is FunsBlock -> {
                     val distance = distanceBetween(
                         Offset(candidate.position.x + 100f, candidate.position.y + 200f),
                         dropPosition
                     )
                     if (distance >= 250f) return@firstOrNull false
                 }
-                is ForBlock-> {
+
+                is ForBlock -> {
                     val distance = distanceBetween(
-                        Offset(candidate.position.x + 200f, candidate.position.y + 200f + weightBodyFloat(candidate.nestedChildren)),
+                        Offset(
+                            candidate.position.x + 200f,
+                            candidate.position.y + 200f + weightBodyFloat(candidate.nestedChildren)
+                        ),
                         dropPosition
                     )
                     if (distance >= 250f) return@firstOrNull false
                 }
+
                 is WhileBlock, is ConditionBlock, is ElseBlock, is ElseIfBlock -> {
                     val distance = distanceBetween(
-                        Offset(candidate.position.x + 200f, candidate.position.y + 50f + weightBodyFloat(candidate.nestedChildren)),
+                        Offset(
+                            candidate.position.x + 200f,
+                            candidate.position.y + 50f + weightBodyFloat(candidate.nestedChildren)
+                        ),
                         dropPosition
                     )
                     if (distance >= 250f) return@firstOrNull false
                 }
+
                 else -> {
                     val distance = distanceBetween(
                         Offset(candidate.position.x + 100f, candidate.position.y + 50f),

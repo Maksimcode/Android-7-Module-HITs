@@ -1,6 +1,6 @@
 package com.example.android_7_module_hits.blocks
 
-class ForBlock (
+class ForBlock(
     val counter: String,
     val startValue: String,
     val logicalExpression: String,
@@ -13,8 +13,7 @@ class ForBlock (
         expression = logicalExpression,
         construct = update
     )
-)
-{
+) {
     override fun canAcceptNestedChildren(): Boolean {
         return true
     }

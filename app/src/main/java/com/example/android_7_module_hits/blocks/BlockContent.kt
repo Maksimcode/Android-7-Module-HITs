@@ -1,24 +1,24 @@
 package com.example.android_7_module_hits.blocks
 
-sealed class BlockContent{
+sealed class BlockContent {
 
     data class Declare(
         var type: DataType,
         var name: String,
         val value: String = "0",
         var length: String = "0"
-    ) :BlockContent()
+    ) : BlockContent()
 
     data class Assignment(
         var name: String,
         var value: String
-    ) :BlockContent()
+    ) : BlockContent()
 
     data class Condition(
         var expression: String
-    ) :BlockContent()
+    ) : BlockContent()
 
-    data class ElseIf (
+    data class ElseIf(
         var expression: String
     ) : BlockContent()
 

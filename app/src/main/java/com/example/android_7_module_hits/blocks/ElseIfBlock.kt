@@ -5,8 +5,7 @@ class ElseIfBlock(
 ) : BlockHasBody(
     type = BlockType.ELSE_IF,
     content = BlockContent.ElseIf(expression = logicalExpression)
-)
-{
+) {
     override fun canAcceptNestedChildren(): Boolean {
         return true
     }

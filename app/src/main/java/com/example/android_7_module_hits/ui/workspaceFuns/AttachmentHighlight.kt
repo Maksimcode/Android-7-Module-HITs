@@ -18,6 +18,6 @@ fun AttachmentHighlight(position: Offset) {
         modifier = Modifier
             .background(Color.Green.copy(alpha = 0.3f))
             .size(width = 200.dp, height = 16.dp)
-            .offset { IntOffset(position.x.roundToInt(), position.y.roundToInt())}
+            .offset { IntOffset(position.x.roundToInt(), position.y.roundToInt()) }
     )
 }

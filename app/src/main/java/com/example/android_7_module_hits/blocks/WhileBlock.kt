@@ -1,12 +1,11 @@
 package com.example.android_7_module_hits.blocks
 
-class WhileBlock (
+class WhileBlock(
     val logicalExpression: String
 ) : BlockHasBody(
     type = BlockType.WHILE,
     content = BlockContent.While(expression = logicalExpression)
-)
-{
+) {
     override fun canAcceptNestedChildren(): Boolean {
         return true
     }

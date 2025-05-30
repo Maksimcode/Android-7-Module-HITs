@@ -20,30 +20,39 @@ fun BlockView(block: Block) {
         is BlockContent.Declare -> {
             DeclareBlockView(content, block)
         }
+
         is BlockContent.Assignment -> {
             AssignBlockView(content, block)
         }
+
         is BlockContent.Condition -> {
             ConditionBlockView(content, block)
         }
+
         is BlockContent.ElseIf -> {
             ElseIfBlockView(content, block)
         }
+
         is BlockContent.Else -> {
             ElseBlockView(content, block)
         }
+
         is BlockContent.End -> {
             EndBlockView(content, block)
         }
+
         is BlockContent.While -> {
             WhileBlockView(content, block)
         }
+
         is BlockContent.For -> {
             ForBlockView(content, block)
         }
+
         is BlockContent.Functions -> {
             FunsBlockView(content, block)
         }
+
         else -> {
             Text("Unknown block type")
         }

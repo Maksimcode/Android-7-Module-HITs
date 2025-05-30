@@ -35,10 +35,12 @@ import com.example.android_7_module_hits.ui.theme.BlockInputTextColor
 import com.example.android_7_module_hits.ui.theme.ConditionColor
 
 @Composable
-fun ConditionBlockView(content: BlockContent.Condition, block: Block){
+fun ConditionBlockView(content: BlockContent.Condition, block: Block) {
     var isEditingExpression by remember { mutableStateOf(false) }
 
-    var editedExpression by remember(content.expression ?: "true") { mutableStateOf(content.expression ?: "true") }
+    var editedExpression by remember(
+        content.expression ?: "true"
+    ) { mutableStateOf(content.expression ?: "true") }
 
 
     Card(
@@ -47,10 +49,9 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block){
             .padding(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = ConditionColor)
-    ){
-        Column(modifier = Modifier.padding(8.dp)){
-            if (isEditingExpression)
-            {
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            if (isEditingExpression) {
                 Dialog(onDismissRequest = { isEditingExpression = false }) {
                     Card(
                         modifier = Modifier
@@ -92,9 +93,9 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block){
                         }
                     }
                 }
-            } else{
+            } else {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text="if")
+                    Text(text = "if")
                     Spacer(modifier = Modifier.width(5.dp))
                     Box(
                         modifier = Modifier

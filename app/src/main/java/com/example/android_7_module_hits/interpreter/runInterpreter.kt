@@ -9,9 +9,9 @@ fun runInterpreter(blocks: List<Block>) {
     val rootBlocks = blocks.filter { it.parent == null }
 
     rootBlocks.forEach { block ->
-        try{
+        try {
             interpret(block, state)
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
         }
     }

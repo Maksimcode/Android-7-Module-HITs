@@ -314,7 +314,9 @@ fun DraggableBlock(
                                 onAttach?.invoke(attachableParent, block, false)
                                 offset = Offset(
                                     attachableParent.position.x,
-                                    attachableParent.position.y + weightBody(attachableParent.nestedChildren).toPx() + weightBlock(attachableParent).toPx()
+                                    attachableParent.position.y + weightBody(attachableParent.nestedChildren).toPx() + weightBlock(
+                                        attachableParent
+                                    ).toPx()
                                 )
                             }
                         } else if (attachableParent != null) {
