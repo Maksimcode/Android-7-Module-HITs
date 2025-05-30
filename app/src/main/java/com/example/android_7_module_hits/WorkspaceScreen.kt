@@ -242,67 +242,66 @@ fun DraggableBlock(
     var offset by remember { mutableStateOf(block.position) }
     val showDeleteIcon = remember { mutableStateOf(false) }
 
-    Box(modifier = Modifier
-        .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
-        .combinedClickable(
-            onClick = { showDeleteIcon.value = false },
-            onLongClick = { showDeleteIcon.value = true })
-        .pointerInput(Unit) {
-            detectDragGestures(onDrag = { change, dragAmount ->
-                change.consume()
-                showDeleteIcon.value = false
-                offset += dragAmount
-            }, onDragEnd = {
-                val potentialParent =
-                    viewModel.findAttachableParent(block, offset, asNested = false)
-                val asNested = if (potentialParent != null) {
-                    val threshold = 100f
-                    (offset.x - potentialParent.position.x) >= threshold
-                } else false
+    Box(
+        modifier = Modifier
+            .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
+            .combinedClickable(
+                onClick = { showDeleteIcon.value = false },
+                onLongClick = { showDeleteIcon.value = true })
+            .pointerInput(Unit) {
+                detectDragGestures(onDrag = { change, dragAmount ->
+                    change.consume()
+                    showDeleteIcon.value = false
+                    offset += dragAmount
+                }, onDragEnd = {
+                    val potentialParent =
+                        viewModel.findAttachableParent(block, offset, asNested = false)
+                    val asNested = if (potentialParent != null) {
+                        val threshold = 100f
+                        (offset.x - potentialParent.position.x) >= threshold
+                    } else false
 
-                val attachableParent = viewModel.findAttachableParent(block, offset, asNested)
+                    val attachableParent = viewModel.findAttachableParent(block, offset, asNested)
 
-                if (attachableParent is BlockHasBody) {
-                    if (asNested) {
-                        val wasEmpty = attachableParent.nestedChildren.isEmpty()
-                        onAttach?.invoke(attachableParent, block, true)
+                    if (attachableParent is BlockHasBody) {
+                        if (asNested) {
+                            val wasEmpty = attachableParent.nestedChildren.isEmpty()
+                            onAttach?.invoke(attachableParent, block, true)
 
-                        offset = if (wasEmpty) {
-                            // Если был пустой, то позиция относительно родителя
-                            Offset(
-                                attachableParent.position.x + 70.dp.toPx(),
-                                attachableParent.position.y + weightBlock(attachableParent).toPx()
-                            )
+                            offset = if (wasEmpty) {
+                                Offset(
+                                    attachableParent.position.x + 70.dp.toPx(),
+                                    attachableParent.position.y + weightBlock(attachableParent).toPx()
+                                )
+                            } else {
+                                val lastChild = attachableParent.nestedChildren.last()
+                                Offset(
+                                    lastChild.position.x,
+                                    lastChild.position.y + weightBlock(lastChild).toPx()
+                                )
+                            }
                         } else {
-                            // Если не первый, то позиция относительно последнего в теле
-                            val lastChild = attachableParent.nestedChildren.last()
-                            Offset(
-                                lastChild.position.x,
-                                lastChild.position.y + weightBlock(lastChild).toPx()
+                            onAttach?.invoke(attachableParent, block, false)
+                            offset = Offset(
+                                attachableParent.position.x,
+                                attachableParent.position.y + weightBody(attachableParent.nestedChildren).toPx() + weightBlock(
+                                    attachableParent
+                                ).toPx()
                             )
                         }
-                    } else {
+                    } else if (attachableParent != null) {
                         onAttach?.invoke(attachableParent, block, false)
                         offset = Offset(
                             attachableParent.position.x,
-                            attachableParent.position.y + weightBody(attachableParent.nestedChildren).toPx() + weightBlock(
-                                attachableParent
-                            ).toPx()
+                            attachableParent.position.y + weightBlock(attachableParent).toPx()
                         )
                     }
-                } else if (attachableParent != null) {
-                    onAttach?.invoke(attachableParent, block, false)
-                    offset = Offset(
-                        attachableParent.position.x,
-                        attachableParent.position.y + weightBlock(attachableParent).toPx()
-                    )
-                }
 
-                onPositionChange(block.id, offset)
-            }, onDragCancel = {
-                onPositionChange(block.id, offset)
-            })
-        }) {
+                    onPositionChange(block.id, offset)
+                }, onDragCancel = {
+                    onPositionChange(block.id, offset)
+                })
+            }) {
 
         if (offset != block.position) {
             val potentialParent = viewModel.findAttachableParent(block, offset, asNested = false)
