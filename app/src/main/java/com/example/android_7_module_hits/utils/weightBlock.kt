@@ -13,3 +13,10 @@ fun weightBlock(block: Block): Dp {
         else -> 50.dp
     }
 }
+
+fun weightBlockFloat(block: Block): Float {
+    return when (block) {
+        is DeclarationBlock, is FunsBlock, is ForBlock -> 450f
+        else -> 170f
+    }
+}

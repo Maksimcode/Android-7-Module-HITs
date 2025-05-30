@@ -12,3 +12,11 @@ fun weightBody(body: MutableList<Block>): Dp {
     }
     return count
 }
+
+fun weightBodyFloat(body: MutableList<Block>): Float {
+    var count = 0f
+    body.forEach { block ->
+        count += weightBlockFloat(block)
+    }
+    return count
+}

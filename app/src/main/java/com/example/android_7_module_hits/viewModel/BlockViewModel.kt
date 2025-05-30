@@ -15,6 +15,7 @@ import com.example.android_7_module_hits.blocks.FunsBlock
 import com.example.android_7_module_hits.blocks.WhileBlock
 import com.example.android_7_module_hits.saving.BlockRepository
 import com.example.android_7_module_hits.utils.distanceBetween
+import com.example.android_7_module_hits.utils.weightBodyFloat
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -271,14 +272,14 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 is ForBlock-> {
                     val distance = distanceBetween(
-                        Offset(candidate.position.x + 200f, candidate.position.y + 200f),
+                        Offset(candidate.position.x + 200f, candidate.position.y + 200f + weightBodyFloat(candidate.nestedChildren)),
                         dropPosition
                     )
                     if (distance >= 250f) return@firstOrNull false
                 }
                 is WhileBlock, is ConditionBlock, is ElseBlock, is ElseIfBlock -> {
                     val distance = distanceBetween(
-                        Offset(candidate.position.x + 200f, candidate.position.y + 50f),
+                        Offset(candidate.position.x + 200f, candidate.position.y + 50f + weightBodyFloat(candidate.nestedChildren)),
                         dropPosition
                     )
                     if (distance >= 250f) return@firstOrNull false
