@@ -6,11 +6,15 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockHasBody
+import com.example.android_7_module_hits.blocks.DeclarationBlock
+import com.example.android_7_module_hits.blocks.ForBlock
+import com.example.android_7_module_hits.blocks.FunsBlock
 import com.example.android_7_module_hits.saving.BlockRepository
 import com.example.android_7_module_hits.utils.distanceBetween
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlin.compareTo
 
 class BlockViewModel(application: Application) : AndroidViewModel(application) {
     private val _blocks = MutableStateFlow<List<Block>>(emptyList())
@@ -116,7 +120,7 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
                     childBlock.parent = lastNested
                     updateNestedRelationsWithParent(parentBlock, childBlock, lastNested)
                 }
-            } else if ( bodyParent is BlockHasBody && bodyParent.canAcceptNestedChildren()) {
+            } else if (bodyParent is BlockHasBody && bodyParent.canAcceptNestedChildren()) {
                 if (bodyParent.nestedChildren.isEmpty()) {
                     updateNestedRelationsWithoutParent(bodyParent, childBlock)
                 } else {
@@ -124,7 +128,7 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
                     childBlock.parent = lastNested
                     updateNestedRelationsWithParent(bodyParent, childBlock, lastNested)
                 }
-            } else{
+            } else {
                 println("Родительский блок не поддерживает вложенные прикрепления")
                 return
             }
@@ -149,7 +153,10 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun updateNestedRelationsWithoutParent(parentBlock: BlockHasBody, newNestedChild: Block) {
+    private fun updateNestedRelationsWithoutParent(
+        parentBlock: BlockHasBody,
+        newNestedChild: Block
+    ) {
         viewModelScope.launch {
             parentBlock.nestedChildren.add(newNestedChild)
             newNestedChild.parent = null // Нет родителя
@@ -245,16 +252,28 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
         draggedBlock.parent?.let { oldParent ->
             detachChild(oldParent, null)
         }
-        removeBlockFromAllBodies(draggedBlock)
+        clearAllRelationsOfBlock(draggedBlock)
 
         return _blocks.value.firstOrNull { candidate ->
             if (candidate.id == draggedBlock.id) return@firstOrNull false
 
-            val distance = distanceBetween(
-                Offset(candidate.position.x + 50f, candidate.position.y + 50f),
-                dropPosition
-            )
-            if (distance >= 200f) return@firstOrNull false
+            when (draggedBlock){
+                is DeclarationBlock, is ForBlock, is FunsBlock ->{
+                    val distance = distanceBetween(
+                        Offset(candidate.position.x + 50f, candidate.position.y + 150f),
+                        dropPosition
+                    )
+                    if (distance >= 200f) return@firstOrNull false
+                }
+                else -> {
+                    val distance = distanceBetween(
+                        Offset(candidate.position.x + 50f, candidate.position.y + 50f),
+                        dropPosition
+                    )
+                    if (distance >= 200f) return@firstOrNull false
+                }
+            }
+
 
             if (asNested) {
                 candidate is BlockHasBody && candidate.canAttachNested()
@@ -262,6 +281,23 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
                 candidate.canAttachTo(draggedBlock)
             }
         }
+    }
+
+    private fun clearAllRelationsOfBlock(block: Block) {
+        block.parent?.let { parent ->
+            if (parent.child?.id == block.id) {
+                parent.child = null
+            }
+        }
+
+        removeBlockFromAllBodies(block)
+
+        block.child?.let { child ->
+            child.parent = null
+            block.child = null
+        }
+
+        block.parent = null
     }
 
     private fun updateLinearRelations(oldParent: Block?, newChild: Block?) {
