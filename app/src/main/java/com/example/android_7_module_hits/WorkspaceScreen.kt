@@ -181,7 +181,7 @@ fun MainScreen(
                                     showNotification(
                                         scope,
                                         { currentNotification = it },
-                                        InfoNotification(onDismiss = { currentNotification = null })
+                                        InfoNotification(onDismiss = { currentNotification = null },)
                                     )
                                 }
                             )

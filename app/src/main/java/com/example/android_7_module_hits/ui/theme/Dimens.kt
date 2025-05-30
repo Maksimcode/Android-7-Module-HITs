@@ -3,10 +3,14 @@ package com.example.android_7_module_hits.ui.theme
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 
-object Dimens {
-
-
-
+object NotificationsDimens {
+    val horizontalMargin = 8.dp
+    val cardHeight = 104.dp
+    val cardCornerRadius = 20.dp
+    val cardPadding = 20.dp
+    val iconSpacing = 8.dp
+    val iconButtonSize = 28.dp
+    val titleBottomSpacerHeight = 10.dp
 }
 
 object MainContentDimens {

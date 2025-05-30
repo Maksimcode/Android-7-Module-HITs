@@ -14,4 +14,21 @@
 
     <string name="first_tab_button_text">My projects</string>
     <string name="second_tab_button_text">Examples</string>
+
+
+    <string name="error_text">Something is creating script errors</string>
+    <string name="info_text">Project is saved</string>
+    <string name="successful_text">Successful compilation</string>
+    <string name="warning_text">Something is working wrong</string>
+
+    <string name="error_title">Error</string>
+    <string name="info_title">Info</string>
+    <string name="successful_title">Success</string>
+    <string name="warning_title">Warning</string>
+
+    <string name="error_icon_description">Error Icon</string>
+    <string name="info_icon_description">Info Icon</string>
+    <string name="successful_icon_description">Successful Icon</string>
+    <string name="warning_icon_description">Warning Icon</string>
+    <string name="notification_dismiss_icon">Dismiss Notification</string>
 </resources>
