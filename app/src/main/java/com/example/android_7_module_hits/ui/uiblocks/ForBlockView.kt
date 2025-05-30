@@ -52,8 +52,8 @@ fun ForBlockView(content: BlockContent.For, block: Block) {
         )
     }
     var editedExpression by remember(
-        content.expression ?: "false"
-    ) { mutableStateOf(content.expression ?: "false") }
+        content.expression ?: "i < 10"
+    ) { mutableStateOf(content.expression ?: "i < 10") }
     var editedUpdating by remember(content.construct ?: "${editedVariable} + 1") {
         mutableStateOf(
             content.construct ?: "i + 1"
@@ -62,7 +62,7 @@ fun ForBlockView(content: BlockContent.For, block: Block) {
 
     Card(
         modifier = Modifier
-            .width(300.dp)
+            .width(280.dp)
             .padding(4.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = CycleColor)
@@ -178,7 +178,7 @@ fun ForBlockView(content: BlockContent.For, block: Block) {
                             ) {
                                 TextButton(
                                     onClick = {
-                                        editedExpression = content.expression ?: "true"
+                                        editedExpression = content.expression ?: "i < 10"
                                         isEditingExpression = false
                                     }
                                 ) {
@@ -241,9 +241,9 @@ fun ForBlockView(content: BlockContent.For, block: Block) {
                     }
                 }
             } else {
-                Column (modifier = Modifier.height(190.dp)){
+                Column (){
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "for counter")
+                        Text(text = "for ")
                         Spacer(modifier = Modifier.width(5.dp))
                         Box(
                             modifier = Modifier
@@ -254,12 +254,7 @@ fun ForBlockView(content: BlockContent.For, block: Block) {
                         ) {
                             Text(text = editedVariable, color = BlockInputTextColor)
                         }
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically){
-                        Text(text = "to start with:")
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "${editedVariable} = ")
+                        Text(text = " = ")
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(4.dp))
@@ -270,10 +265,9 @@ fun ForBlockView(content: BlockContent.For, block: Block) {
                             Text(text = editedStartValue, color = BlockInputTextColor)
                         }
                     }
+
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "while expression is true:")
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = "while ")
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(4.dp))
@@ -283,12 +277,11 @@ fun ForBlockView(content: BlockContent.For, block: Block) {
                         ) {
                             Text(text = editedExpression, color = BlockInputTextColor)
                         }
+                        Text(text = " is true")
                     }
+
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "step changes:")
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "${editedVariable} = ")
+                        Text(text = "step: ")
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(4.dp))

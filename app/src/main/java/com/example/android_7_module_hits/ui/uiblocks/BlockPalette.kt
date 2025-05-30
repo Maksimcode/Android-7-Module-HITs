@@ -64,7 +64,7 @@ fun BlockPaletteItem(template: BlockTemplate, onBlockSelected: (Block) -> Unit) 
                         ForBlock(
                             counter = "i",
                             startValue = "0",
-                            logicalExpression = "false",
+                            logicalExpression = "i < 10",
                             update = "i + 1"
                         )
                     BlockType.FUNCTIONS ->
