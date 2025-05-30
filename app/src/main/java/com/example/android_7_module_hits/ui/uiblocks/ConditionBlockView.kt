@@ -94,7 +94,8 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block){
                 }
             } else{
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text="if ( ")
+                    Text(text="if")
+                    Spacer(modifier = Modifier.width(5.dp))
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
@@ -104,8 +105,8 @@ fun ConditionBlockView(content: BlockContent.Condition, block: Block){
                     ) {
                         Text(text = editedExpression, color = BlockInputTextColor)
                     }
-
-                    Text(text = " ) is true", color = Color.Black)
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Text(text = "is true", color = Color.Black)
                 }
             }
         }

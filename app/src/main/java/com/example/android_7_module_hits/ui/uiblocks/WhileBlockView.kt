@@ -95,7 +95,8 @@ fun WhileBlockView(content: BlockContent.While, block: Block){
                 }
             } else{
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text="repeat while ( ")
+                    Text(text="repeat while")
+                    Spacer(modifier = Modifier.width(5.dp))
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
@@ -105,8 +106,6 @@ fun WhileBlockView(content: BlockContent.While, block: Block){
                     ) {
                         Text(text = editedExpression, color = BlockInputTextColor)
                     }
-
-                    Text(text = " )", color = Color.Black)
                 }
             }
         }

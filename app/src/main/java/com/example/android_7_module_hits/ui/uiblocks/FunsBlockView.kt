@@ -133,7 +133,7 @@ fun FunsBlockView(content: BlockContent.Functions, block: Block){
                                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
-                                    Text(text = "Array Length:")
+                                    Text(text = "Variable name:")
                                     Spacer(modifier = Modifier.height(8.dp))
                                     TextField(
                                         value = editedFirstSwap,
@@ -178,7 +178,7 @@ fun FunsBlockView(content: BlockContent.Functions, block: Block){
                                     elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                                 ) {
                                     Column(modifier = Modifier.padding(16.dp)) {
-                                        Text(text = "Array Length:")
+                                        Text(text = "Variable name:")
                                         Spacer(modifier = Modifier.height(8.dp))
                                         TextField(
                                             value = editedSecondSwap,
@@ -218,7 +218,7 @@ fun FunsBlockView(content: BlockContent.Functions, block: Block){
                     else{
                         Column (modifier = Modifier.height(80.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(text = "fun", color = Color.Black)
+                                Text(text = "do", color = Color.Black)
                                 Spacer(modifier = Modifier.width(5.dp))
                                 Box(
                                     modifier = Modifier
@@ -229,10 +229,11 @@ fun FunsBlockView(content: BlockContent.Functions, block: Block){
                                 ) {
                                     Text(text = displayTextFuns(editedFun), color = BlockInputTextColor)
                                 }
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(text = "of 2 Variables", color = Color.Black)
                             }
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Spacer(modifier = Modifier.width(5.dp))
-                                Text(text = " ", color = Color.Black)
+                                Text(text = "Variable 1:", color = Color.Black)
                                 Spacer(modifier = Modifier.width(5.dp))
                                 Box(
                                     modifier = Modifier
@@ -243,12 +244,13 @@ fun FunsBlockView(content: BlockContent.Functions, block: Block){
                                 ) {
                                     Text(text = editedFirstSwap, color = BlockInputTextColor)
                                 }
-                                Spacer(modifier = Modifier.width(5.dp))
-                                Text(text = ":", color = Color.Black)
                             }
                             Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(text = "Variable 2:", color = Color.Black)
+                                Spacer(modifier = Modifier.width(5.dp))
                                 Box(
                                     modifier = Modifier
+                                        .clip(RoundedCornerShape(4.dp))
                                         .background(color = BlockInputBackgroundColor)
                                         .clickable { isEditingSecondSwap = true }
                                         .padding(horizontal = 4.dp, vertical = 2.dp)
@@ -262,7 +264,7 @@ fun FunsBlockView(content: BlockContent.Functions, block: Block){
                 }else {
                     Column (modifier = Modifier.height(80.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = "create", color = Color.Black)
+                            Text(text = "do", color = Color.Black)
                             Spacer(modifier = Modifier.width(5.dp))
                             Box(
                                 modifier = Modifier
@@ -275,9 +277,6 @@ fun FunsBlockView(content: BlockContent.Functions, block: Block){
                             }
                         }
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Spacer(modifier = Modifier.width(5.dp))
-                            Text(text = " ", color = Color.Black)
-                            Spacer(modifier = Modifier.width(5.dp))
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(4.dp))

@@ -96,7 +96,8 @@ fun ElseIfBlockView(content: BlockContent.ElseIf, block: Block){
             } else{
                 Column (modifier = Modifier.height(60.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "otherwise, if ( ")
+                        Text(text = "otherwise, if")
+                        Spacer(modifier = Modifier.width(5.dp))
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(4.dp))
@@ -106,8 +107,6 @@ fun ElseIfBlockView(content: BlockContent.ElseIf, block: Block){
                         ) {
                             Text(text = editedExpression, color = BlockInputTextColor)
                         }
-
-                        Text(text = " )", color = Color.Black)
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(text = "is true", color = Color.Black)

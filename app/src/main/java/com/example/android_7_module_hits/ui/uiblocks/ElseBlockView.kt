@@ -28,7 +28,7 @@ fun ElseBlockView(content: BlockContent.Else, block: Block) {
     ){
         Column(modifier = Modifier.padding(8.dp)){
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "otherwise do ", color = Color.Black)
+                Text(text = "otherwise do", color = Color.Black)
             }
         }
     }
