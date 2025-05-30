@@ -36,7 +36,20 @@ class BlockRepository(private val context: Context) {
                 context.openFileInput(fileName).bufferedReader().use { reader ->
                     val jsonData = reader.readText()
                     val blockStates = json.decodeFromString(ListSerializer(BlockState.serializer()), jsonData)
-                    blockStates.map { it.toBlock() }
+                    val blockMap = blockStates.associate { state ->
+                        val block = state.toBlock()
+                        state.id to block
+                    }
+                    blockStates.forEach { state ->
+                        val block = blockMap[state.id]
+                        block?.let {
+                            it.parent = state.parentId?.let { id -> blockMap[id] }
+                            it.child = state.childId?.let { id -> blockMap[id] }
+                            it.rootBlock = state.rootBlockId?.let { id -> blockMap[id] }
+                            it.EndBlock = state.endBlockId?.let { id -> blockMap[id] }
+                        }
+                    }
+                    blockMap.values.toList()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

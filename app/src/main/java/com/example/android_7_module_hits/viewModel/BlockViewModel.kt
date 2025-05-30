@@ -66,17 +66,27 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun deleteBlock(blockId: String) {
-        val targetBlock = _blocks.value.find{it.id ==blockId}
-        targetBlock?.parent?.child = null
-        targetBlock?.child?.parent = null
-        targetBlock?.parent = null
-        targetBlock?.child = null
-        targetBlock?.EndBlock?.rootBlock = null
-        targetBlock?.rootBlock?.EndBlock = null
-        targetBlock?.EndBlock = null
-        targetBlock?.rootBlock = null
+        val targetBlock = _blocks.value.find { it.id == blockId }
+            ?: return
 
-        _blocks.value = _blocks.value.filter { it.id != blockId }
+        val parent = targetBlock.parent
+        val child = targetBlock.child
+
+        if (parent != null && child != null) {
+            parent.child = child
+            child.parent = parent
+        } else if (parent != null) {
+            parent.child = null
+        } else if (child != null) {
+            child.parent = null
+        }
+
+        targetBlock.parent = null
+        targetBlock.child = null
+        targetBlock.EndBlock = null
+        targetBlock.rootBlock = null
+
+        _blocks.value = _blocks.value.filterNot { it.id == blockId }
     }
 
     fun findAttachableParent(draggedBlock: Block, currentPosition: Offset): Block? {
