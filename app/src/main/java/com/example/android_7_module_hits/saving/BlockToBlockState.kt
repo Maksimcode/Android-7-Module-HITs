@@ -41,6 +41,12 @@ fun Block.toBlockState(): BlockState {
         else -> throw IllegalArgumentException("Unknown content type")
     }
 
+    val nestedIds = if (this is com.example.android_7_module_hits.blocks.BlockHasBody) {
+        this.nestedChildren.map { it.id }
+    } else {
+        emptyList()
+    }
+
     return BlockState(
         id = id,
         type = type,
@@ -48,6 +54,7 @@ fun Block.toBlockState(): BlockState {
         positionX = position.x,
         positionY = position.y,
         parentId = this.parent?.id,
-        childId = this.child?.id
+        childId = this.child?.id,
+        nestedChildrenIds = nestedIds
     )
 }
