@@ -20,9 +20,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.interpreter.InterpreterLauncher
 import com.example.android_7_module_hits.ui.theme.FolderButtonMain
@@ -33,6 +31,13 @@ import com.example.android_7_module_hits.ui.theme.SettingsButtonMain
 import com.example.android_7_module_hits.ui.theme.SettingsButtonSub
 import com.example.android_7_module_hits.ui.theme.StopButtonMain
 import com.example.android_7_module_hits.ui.theme.StopButtonSub
+import com.example.android_7_module_hits.ui.theme.WorkspaceFunctionsDimens.buttonCornerRadius
+import com.example.android_7_module_hits.ui.theme.WorkspaceFunctionsDimens.buttonShadowElevation
+import com.example.android_7_module_hits.ui.theme.WorkspaceFunctionsDimens.buttonSize
+import com.example.android_7_module_hits.ui.theme.WorkspaceFunctionsDimens.iconSize
+import com.example.android_7_module_hits.ui.theme.WorkspaceFunctionsDimens.rowBottomPadding
+import com.example.android_7_module_hits.ui.theme.WorkspaceFunctionsDimens.rowButtonSpacing
+import com.example.android_7_module_hits.ui.theme.buttonCircleButtonsShadow
 import com.example.android_7_module_hits.utils.logAllBlocks
 
 @Composable
@@ -66,24 +71,24 @@ fun BottomCircleButtons(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
+                .padding(bottom = rowBottomPadding)
                 .align(Alignment.BottomCenter),
-            horizontalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterHorizontally),
+            horizontalArrangement = Arrangement.spacedBy(rowButtonSpacing, Alignment.CenterHorizontally),
             verticalAlignment = Alignment.Top,
         ) {
             buttonColors.forEachIndexed { index, color ->
                 Box(
                     modifier = Modifier
                         .shadow(
-                            elevation = 2.dp,
-                            spotColor = Color(0x0D101828),
-                            ambientColor = Color(0x0D101828),
-                            shape = RoundedCornerShape(32.dp)
+                            elevation = buttonShadowElevation,
+                            spotColor = buttonCircleButtonsShadow,
+                            ambientColor = buttonCircleButtonsShadow,
+                            shape = RoundedCornerShape(buttonCornerRadius)
                         )
-                        .size(56.dp)
+                        .size(buttonSize)
                         .background(
                             color = color,
-                            shape = RoundedCornerShape(32.dp)
+                            shape = RoundedCornerShape(buttonCornerRadius)
                         )
                         .clickable {
                             when (index) {
@@ -107,7 +112,7 @@ fun BottomCircleButtons(
                         imageVector = iconList[index],
                         contentDescription = "Icon ${index + 1}",
                         tint = iconTints[index],
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(iconSize)
                     )
                 }
             }

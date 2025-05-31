@@ -16,21 +16,26 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.example.android_7_module_hits.R
 import com.example.android_7_module_hits.ui.theme.NotificationTextStyle
 import com.example.android_7_module_hits.ui.theme.NotificationTitleStyle
+import com.example.android_7_module_hits.ui.theme.NotificationsDimens.cardCornerRadius
+import com.example.android_7_module_hits.ui.theme.NotificationsDimens.cardHeight
+import com.example.android_7_module_hits.ui.theme.NotificationsDimens.cardPadding
+import com.example.android_7_module_hits.ui.theme.NotificationsDimens.horizontalMargin
+import com.example.android_7_module_hits.ui.theme.NotificationsDimens.iconButtonSize
+import com.example.android_7_module_hits.ui.theme.NotificationsDimens.iconSpacing
+import com.example.android_7_module_hits.ui.theme.NotificationsDimens.titleBottomSpacerHeight
 import com.example.android_7_module_hits.ui.theme.WarningNotificationBackgroundColor
 import com.example.android_7_module_hits.ui.theme.WarningNotificationTextColor
 
 data class WarningNotification(
-    override val message: String = "Something is working wrong",
     val onDismiss: () -> Unit = {}
 ) : UiNotification() {
     override val backgroundColor: Color = WarningNotificationBackgroundColor
@@ -40,14 +45,15 @@ data class WarningNotification(
     override fun Render() {
         Card(
             modifier = Modifier
-                .width(384.dp)
-                .height(104.dp),
-            shape = RoundedCornerShape(20.dp),
+                .fillMaxWidth()
+                .padding(horizontal = horizontalMargin)
+                .height(cardHeight),
+            shape = RoundedCornerShape(cardCornerRadius),
             colors = CardDefaults.cardColors(containerColor = backgroundColor)
         ) {
             Column(
                 modifier = Modifier
-                    .padding(start = 20.dp, top = 20.dp, end = 20.dp, bottom = 20.dp)
+                    .padding(cardPadding)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -55,12 +61,12 @@ data class WarningNotification(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.WarningAmber,
-                        contentDescription = "Warning Icon",
+                        contentDescription = stringResource(id = R.string.warning_icon_description),
                         tint = textColor
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(iconSpacing))
                     Text(
-                        text = "Warning",
+                        text = stringResource(id = R.string.warning_title),
                         style = NotificationTitleStyle,
                         color = textColor
                     )
@@ -68,30 +74,23 @@ data class WarningNotification(
                     IconButton(
                         onClick = { onDismiss() },
                         modifier = Modifier
-                            .size(28.dp)
+                            .size(iconButtonSize)
                             .align(Alignment.CenterVertically)
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Close,
-                            contentDescription = "Dismiss Notification",
+                            contentDescription = stringResource(id = R.string.notification_dismiss_icon),
                             tint = textColor
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(titleBottomSpacerHeight))
                 Text(
-                    text = message,
+                    text = stringResource(id = R.string.warning_text),
                     style = NotificationTextStyle,
                     color = textColor
                 )
             }
         }
-    }
-}
-@Preview(showBackground = false)
-@Composable
-fun WarningNotificationPreview() {
-    MaterialTheme {
-        WarningNotification(onDismiss = {}).Render()
     }
 }

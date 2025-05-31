@@ -94,6 +94,6 @@ fun BlockState.toBlock(): Block {
                 this.position = position
             }
         }
-        else -> throw IllegalArgumentException("Неизвестный тип блока: $type")
+        else -> throw IllegalArgumentException("Unknown block type: $type")
     }
 }

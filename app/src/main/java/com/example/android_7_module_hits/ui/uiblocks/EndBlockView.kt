@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
 import com.example.android_7_module_hits.ui.theme.DeclareColor
-
+/*
 @Composable
 fun EndBlockView(content: BlockContent.End, block: Block) {
 
@@ -33,3 +33,4 @@ fun EndBlockView(content: BlockContent.End, block: Block) {
         }
     }
 }
+ */

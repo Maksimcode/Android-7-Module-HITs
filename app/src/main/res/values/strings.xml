@@ -1,3 +1,57 @@
 <resources>
     <string name="app_name">Android-7-Module-HITs</string>
+
+    <string name="header_title">Library</string>
+    <string name="header_subtitle">All projects here!</string>
+
+    <string name="empty_illustration_description">Empty illustration</string>
+    <string name="empty_state_content_text">It\'s empty now :(</string>
+
+    <string name="bottom_circle_button_description">Create new workspace</string>
+
+    <string name="delete_save_block_description">Delete Save</string>
+    <string name="three_points_to_saving">…</string>
+
+    <string name="first_tab_button_text">My projects</string>
+    <string name="second_tab_button_text">Examples</string>
+
+
+    <string name="error_text">Something is creating script errors</string>
+    <string name="info_text">Project is saved</string>
+    <string name="successful_text">Successful compilation</string>
+    <string name="warning_text">Something is working wrong</string>
+
+    <string name="error_title">Error</string>
+    <string name="info_title">Info</string>
+    <string name="successful_title">Success</string>
+    <string name="warning_title">Warning</string>
+
+    <string name="error_icon_description">Error Icon</string>
+    <string name="info_icon_description">Info Icon</string>
+    <string name="successful_icon_description">Successful Icon</string>
+    <string name="warning_icon_description">Warning Icon</string>
+    <string name="notification_dismiss_icon">Dismiss Notification</string>
+
+
+    <string name="delete_block_description">Delete Block</string>
+    <string name="unknown_block_type">Unknown block type</string>
+
+    <string name="block_creation">Block creation</string>
+    <string name="menu">Menu</string>
+    <string name="back">Back</string>
+    <string name="project_name">Project name</string>
+    <string name="enter_project_name">Enter project name</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="console_output">Console Output:</string>
+    <string name="interpreter_running">>> Interpreter is running…</string>
+    <string name="no_errors">No errors</string>
+
+
+    <string name="variable_name_label">Variable name:</string>
+    <string name="variable_value_label">Variable value:</string>
+    <string name="set_keyword">set</string>
+    <string name="to_keyword">to</string>
+    <string name="default_variable">Variable</string>
+    <string name="default_value">0</string>
 </resources>

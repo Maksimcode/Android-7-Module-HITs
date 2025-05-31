@@ -32,6 +32,9 @@ val CycleColor = Color(0xFFFF7D5B)
 val BlockInputBackgroundColor = White
 val BlockInputTextColor = Gray
 
+// ProjectSaveBlock
+val ProjectSaveBlockContentColor = White
+
 // Button colors
 val FolderButtonMain = Color(0xFF456CE8)
 val FolderButtonSub = Color(0xFFCFD8F9)
@@ -46,6 +49,10 @@ val RunButtonSub = Color(0xFFC4F3D9)
 val MainTextColor = Color(0xFF344054)
 val LibrarySubTitle = Color(0xFF8890A5)
 
+// BottomCircleButton
+val BottomCircleButtonTintColor = White
+val BottomCircleButtonBackgroundColor = Color(0xFF0047FF)
+
 // Notification Colors
 val SuccessNotificationTextColor = Color(0xFF11B95C)
 val SuccessNotificationBackgroundColor = Color(0xFFE7FAF0)
@@ -55,3 +62,9 @@ val WarningNotificationTextColor = Color(0xFFF49E00)
 val WarningNotificationBackgroundColor = Color(0xFFFFF7EA)
 val ErrorNotificationTextColor = Color(0xFFE43700)
 val ErrorNotificationBackgroundColor = Color(0xFFFFECE6)
+
+// InfiniteCanvas
+val InfiniteCanvasBackgroundColor = White
+
+// BottomCircleButtons
+val buttonCircleButtonsShadow = Color(0x0D101828)

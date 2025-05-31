@@ -26,63 +26,68 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.android_7_module_hits.R
 import com.example.android_7_module_hits.blocks.Block
 import com.example.android_7_module_hits.blocks.BlockContent
+import com.example.android_7_module_hits.ui.theme.AssignBlockDimens
 import com.example.android_7_module_hits.ui.theme.AssignmentColor
 import com.example.android_7_module_hits.ui.theme.BlockInputBackgroundColor
 import com.example.android_7_module_hits.ui.theme.BlockInputTextColor
 
-
 @Composable
 fun AssignBlockView(content: BlockContent.Assignment, block: Block) {
+    val defaultVariable = stringResource(id = R.string.default_variable)
+    val defaultValue = stringResource(id = R.string.default_value)
+
     var isEditingName by remember { mutableStateOf(false) }
     var isEditingValue by remember { mutableStateOf(false) }
-    var editedName by remember(content.name ?: "Variable") {
-        mutableStateOf(
-            content.name ?: "Variable"
-        )
+    var editedName by remember(content.name ?: defaultVariable) {
+        mutableStateOf(content.name ?: defaultVariable)
     }
-    var editedValue by remember(content.value ?: "0") { mutableStateOf(content.value ?: "0") }
+    var editedValue by remember(content.value ?: defaultValue) {
+        mutableStateOf(content.value ?: defaultValue)
+    }
 
     Card(
         modifier = Modifier
-            .width(210.dp)
-            .padding(4.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+            .width(AssignBlockDimens.cardWidth)
+            .padding(AssignBlockDimens.cardPadding),
+        elevation = CardDefaults.cardElevation(defaultElevation = AssignBlockDimens.cardElevation),
         colors = CardDefaults.cardColors(containerColor = AssignmentColor)
     ) {
-        Column(modifier = Modifier.padding(8.dp)) {
+        Column(modifier = Modifier.padding(AssignBlockDimens.cardContentPadding)) {
             if (isEditingName) {
                 Dialog(onDismissRequest = { isEditingName = false }) {
                     Card(
                         modifier = Modifier
-                            .width(300.dp)
-                            .padding(16.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+                            .width(AssignBlockDimens.dialogCardWidth)
+                            .padding(AssignBlockDimens.dialogPadding),
+                        elevation = CardDefaults.cardElevation(defaultElevation = AssignBlockDimens.cardElevation)
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(text = "Variable name:")
-                            Spacer(modifier = Modifier.height(6.dp))
+                        Column(modifier = Modifier.padding(AssignBlockDimens.dialogPadding)) {
+                            Text(text = stringResource(id = R.string.variable_name_label))
+                            Spacer(modifier = Modifier.height(AssignBlockDimens.spacerSmall))
                             TextField(
                                 value = editedName,
                                 onValueChange = { newText ->
                                     editedName = newText
                                 },
                             )
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(AssignBlockDimens.spacerLarge))
                             Row(
                                 horizontalArrangement = Arrangement.End,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 TextButton(
                                     onClick = {
-                                        editedName = content.name ?: "Variable"
+                                        editedName = content.name ?: defaultVariable
                                         isEditingName = false
                                     }
                                 ) {
-                                    Text("Cancel")
+                                    Text(text = stringResource(id = R.string.cancel))
                                 }
                                 TextButton(
                                     onClick = {
@@ -90,7 +95,7 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block) {
                                         isEditingName = false
                                     }
                                 ) {
-                                    Text("Save")
+                                    Text(text = stringResource(id = R.string.ok))
                                 }
                             }
                         }
@@ -100,19 +105,18 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block) {
                 Dialog(onDismissRequest = { isEditingValue = false }) {
                     Card(
                         modifier = Modifier
-                            .width(300.dp)
-                            .padding(16.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+                            .width(AssignBlockDimens.dialogCardWidth)
+                            .padding(AssignBlockDimens.dialogPadding),
+                        elevation = CardDefaults.cardElevation(defaultElevation = AssignBlockDimens.cardElevation)
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(text = "Variable value:")
-                            Spacer(modifier = Modifier.height(6.dp))
+                        Column(modifier = Modifier.padding(AssignBlockDimens.dialogPadding)) {
+                            Text(text = stringResource(id = R.string.variable_value_label))
+                            Spacer(modifier = Modifier.height(AssignBlockDimens.spacerSmall))
                             TextField(
                                 value = editedValue,
                                 onValueChange = { newText ->
                                     editedValue = newText
-                                },
-                                modifier = Modifier
+                                }
                             )
                             Row(
                                 horizontalArrangement = Arrangement.End,
@@ -120,11 +124,11 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block) {
                             ) {
                                 TextButton(
                                     onClick = {
-                                        editedValue = content.value ?: "0"
+                                        editedValue = content.value ?: defaultValue
                                         isEditingValue = false
                                     }
                                 ) {
-                                    Text("Cancel")
+                                    Text(text = stringResource(id = R.string.cancel))
                                 }
                                 TextButton(
                                     onClick = {
@@ -132,7 +136,7 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block) {
                                         isEditingValue = false
                                     }
                                 ) {
-                                    Text("Save")
+                                    Text(text = stringResource(id = R.string.ok))
                                 }
                             }
                         }
@@ -140,24 +144,29 @@ fun AssignBlockView(content: BlockContent.Assignment, block: Block) {
                 }
             } else {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = "set ", color = Color.Black)
+                    Text(text = stringResource(id = R.string.set_keyword) + " ", color = Color.Black)
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
+                            .clip(RoundedCornerShape(AssignBlockDimens.boxCornerRadius))
                             .background(color = BlockInputBackgroundColor)
                             .clickable { isEditingName = true }
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
+                            .padding(
+                                horizontal = AssignBlockDimens.boxPaddingHorizontal,
+                                vertical = AssignBlockDimens.boxPaddingVertical
+                            )
                     ) {
                         Text(text = editedName, color = BlockInputTextColor)
                     }
-                    Text(text = " to ", color = Color.Black)
-
+                    Text(text = " " + stringResource(id = R.string.to_keyword) + " ", color = Color.Black)
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
+                            .clip(RoundedCornerShape(AssignBlockDimens.boxCornerRadius))
                             .background(color = BlockInputBackgroundColor)
                             .clickable { isEditingValue = true }
-                            .padding(horizontal = 4.dp, vertical = 2.dp)
+                            .padding(
+                                horizontal = AssignBlockDimens.boxPaddingHorizontal,
+                                vertical = AssignBlockDimens.boxPaddingVertical
+                            )
                     ) {
                         Text(text = editedValue, color = BlockInputTextColor)
                     }
