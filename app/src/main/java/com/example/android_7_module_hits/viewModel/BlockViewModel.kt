@@ -285,12 +285,12 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
                 is WhileBlock, is ConditionBlock, is ElseBlock, is ElseIfBlock -> {
                     val distance = distanceBetween(
                         Offset(
-                            candidate.position.x + 200f,
+                            candidate.position.x + 100f,
                             candidate.position.y + 50f + weightBodyFloat(candidate.nestedChildren)
                         ),
                         dropPosition
                     )
-                    if (distance >= 250f) return@firstOrNull false
+                    if (distance >= 150f) return@firstOrNull false
                 }
 
                 else -> {
@@ -298,7 +298,7 @@ class BlockViewModel(application: Application) : AndroidViewModel(application) {
                         Offset(candidate.position.x + 100f, candidate.position.y + 50f),
                         dropPosition
                     )
-                    if (distance >= 150f) return@firstOrNull false
+                    if (distance >= 250f) return@firstOrNull false
                 }
             }
 
