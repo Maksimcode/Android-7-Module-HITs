@@ -45,7 +45,7 @@ fun interpret(block: Block, state: InterpreterState) {
                 }
                 state.exitScope()
             }
-            return
+
         }
 
         is BlockContent.ElseIf -> {
@@ -89,7 +89,7 @@ fun interpret(block: Block, state: InterpreterState) {
                 }
                 state.exitScope()
             }
-            return
+
         }
 
         is BlockContent.Else -> {
@@ -132,7 +132,6 @@ fun interpret(block: Block, state: InterpreterState) {
                 state.exitScope()
             }
             state.exitScope()
-            return
         }
 
         is BlockContent.While -> {
@@ -152,11 +151,10 @@ fun interpret(block: Block, state: InterpreterState) {
                         InterpreterLogger.logError("Ошибка в блоке ${block.type}: ${e.message}")
                     }
                 }
-                state.enterScope()
+                state.exitScope()
                 insideWhileBody = state.setCondition(logicalExpression)
             }
 
-            return
         }
 
         is BlockContent.For -> {
@@ -208,7 +206,7 @@ fun interpret(block: Block, state: InterpreterState) {
 
                 state.exitScope()
             }
-            return
+
         }
 
         is BlockContent.Functions -> {
@@ -217,7 +215,6 @@ fun interpret(block: Block, state: InterpreterState) {
                 FunsType.PRINT -> state.printValue(content.comParam)
                 FunsType.SWAP -> {
                     state.swapping(content.firstSw, content.secondSw)
-                    println("вызван swap")
                 }
 
                 else -> println("pupu")
