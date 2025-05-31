@@ -256,7 +256,7 @@ fun DraggableBlock(
                 }, onDragEnd = {
                     val potentialParent =
                         viewModel.findAttachableParent(block, offset, asNested = false)
-                    val asNested = if (potentialParent != null) {
+                    val asNested = if (potentialParent != null && potentialParent.nestedChildren.isEmpty()) {
                         val threshold = 100f
                         (offset.x - potentialParent.position.x) >= threshold
                     } else false
@@ -305,7 +305,7 @@ fun DraggableBlock(
 
         if (offset != block.position) {
             val potentialParent = viewModel.findAttachableParent(block, offset, asNested = false)
-            val asNested = if (potentialParent != null) {
+            val asNested = if (potentialParent != null && potentialParent.nestedChildren.isEmpty()) {
                 val threshold = 150f
                 (offset.x - potentialParent.position.x) >= threshold
             } else false
